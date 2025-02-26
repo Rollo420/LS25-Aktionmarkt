@@ -8,6 +8,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/username', [usernameController::class, 'index' ]);
 
 Route::get('/account', [accountController::class, 'index' ]);

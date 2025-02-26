@@ -1,25 +1,23 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Stock;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\username>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\month>
  */
-class usernameFactory extends Factory
+class monthFactory extends Factory
 {
     /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
      */
-
-
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'name' => fake()->unique()->monthName(),                                               
         ];
     }
 }

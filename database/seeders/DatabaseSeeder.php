@@ -7,13 +7,12 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 
 //My imports Model
-use App\Models\username;
-use App\Models\account;
-use App\Models\password;
-use App\Models\month;
+use App\Models\Account\account;
+use App\Models\Account\password;
+use App\Models\Stock\month;
 
 //My imports Seeder
-use Database\Seeders\monthSeeder;
+use Database\Seeders\Stock\monthSeeder;
 
 class DatabaseSeeder extends Seeder
 {

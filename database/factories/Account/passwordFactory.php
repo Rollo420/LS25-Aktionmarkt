@@ -1,13 +1,13 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Account;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\month>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\password>
  */
-class monthFactory extends Factory
+class passwordFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,7 +17,7 @@ class monthFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->monthName(),                                               
+            'hash' => fake()->unique()->sha256(),
         ];
     }
 }
