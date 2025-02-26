@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\account;
+use Illuminate\View\View;
+
+class accountController extends Controller
+{
+    public function index()
+    {
+        $accounts = account::all();
+        $username = account::find(1)->details;
+        return view('username.index', ['accounts' => $accounts, 'usernames' => $username]);
+    }
+}
