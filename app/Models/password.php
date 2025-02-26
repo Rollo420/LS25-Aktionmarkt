@@ -10,4 +10,9 @@ class password extends Model
     use HasFactory;
 
     protected $hidden = ['id', 'created_at', 'updated_at', 'hash'];
+
+    public function accounts()
+    {
+        return $this->hasMany(account::class);
+    }
 }

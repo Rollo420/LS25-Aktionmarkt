@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id()->autoIncrement()->unique()->nullable(false);
-            $table->unsignedBigInteger('username_id');
+            $table->string('username');
             $table->unsignedBigInteger('password_id');
+            $table->string('mail')->nullable(true);
             $table->boolean('is_verified')->default(false);
             $table->timestamps();
 
-            //$table->foreign('password_id')->references('id')->on('password');
+            $table->foreign('password_id')->references('id')->on('passwords');
         });
     }
 
