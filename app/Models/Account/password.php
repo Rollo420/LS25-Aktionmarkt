@@ -9,8 +9,8 @@ use \App\Models\Account\account;
 class password extends Model
 {
     use HasFactory;
-
-    protected $hidden = ['id', 'created_at', 'updated_at', 'hash'];
+   
+    protected $fillable = ['id', 'created_at', 'updated_at', 'hash'];
 
     public function accounts()
     {

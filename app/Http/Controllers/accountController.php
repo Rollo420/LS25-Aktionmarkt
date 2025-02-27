@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\account;
+use App\Models\Account\account;
 use Illuminate\View\View;
 
 class accountController extends Controller

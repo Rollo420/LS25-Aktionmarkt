@@ -5,9 +5,9 @@ namespace Database\Factories\Stock;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\month>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Stock\stock>
  */
-class monthFactory extends Factory
+class stockFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,7 +17,8 @@ class monthFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->monthName(),                                               
+            'price_id' => fake()->numberBetween(1, 5),
+            'product_type_id' => fake()->numberBetween(1, 5),
         ];
     }
 }
