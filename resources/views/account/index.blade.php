@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
-<head>@vite(['resources/scss/style.scss', 'resources/js/app.js'])</head>
+<head>
+    <link rel="stylesheet" href="/home/javoss/Projekte/Laravel/LS25-Aktionmarkt/resources/css/app.css">
+</head>
 
 <div>
     @section('title')
