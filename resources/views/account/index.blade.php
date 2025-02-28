@@ -1,8 +1,15 @@
-<div>
-    <h1>All Account Infos</h1>
+@extends('layouts.app')
 
+<head>@vite(['resources/scss/style.scss', 'resources/js/app.js'])</head>
+
+<div>
+    @section('title')
+
+    <h1 class="title">All Account Infos</h1>
+    @endsection
+
+    @section('content')
     <div>
-        <h1>Acc</h1>
         <ul>
             @foreach ($accounts as $account)
             <li>
@@ -68,7 +75,7 @@
                             <p> ID: {{ $transaction->stock->id }}</p>
                         </li>
                         <li>
-                            <p>Price ID: {{ $transaction->stock->price_id }}</p>    
+                            <p>Price ID: {{ $transaction->stock->price_id }}</p>
                         </li>
                         <ul>
                             <li>
@@ -95,4 +102,5 @@
         @endforeach
         </ul>
     </div>
+    @endsection
 </div>

@@ -13,6 +13,6 @@ class accountController extends Controller
         $accounts = account::with('transactions')->get();
         //$username = account::find(1)->details;
         //$passwordHash = account::find(1)->password;
-        return view('username.index', ['accounts' => $accounts]);
+        return view('account.index', ['accounts' => $accounts]);
     }
 }
