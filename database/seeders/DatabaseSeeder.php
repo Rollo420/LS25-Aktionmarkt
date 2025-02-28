@@ -7,13 +7,14 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 
 //My imports Model Account
-use App\Models\Account\account;
-use App\Models\Account\password;
+use App\Models\Account\Account;
+use App\Models\Account\Password;
 
 //My imports Model Stock
-use App\Models\Stock\price;
-use App\Models\Stock\product_type;
-use App\Models\Stock\stock;
+use App\Models\Stock\Price;
+use App\Models\Stock\Product_type;
+use App\Models\Stock\Stock;
+use App\Models\Stock\Transaction;
 
 class DatabaseSeeder extends Seeder
 {
@@ -22,25 +23,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        password::create([
-            'id' => 111,
-            'hash' => '1234567890',
-        ]);
+        //Account
+        Password::factory(5)->create();
+        Account::factory(5)->create();  
 
-        account::create([
-            'username' => 'test',
-            'mail' => 'peteroderso@exampel.com',
-            'is_verified' => 1,
-            'password_id' => 111,
-        ]);
+        //Stock
+        Price::factory(5)->create();
+        Product_type::factory(5)->create();
+        Stock::factory(5)->create();
+        Transaction::factory(5)->create();
+  
+        //Password::create([
+        //    'id' => 111,
+        //    'hash' => '1234567890',
+        //]);
 
-        price::factory(5)->create();
-        product_type::factory(5)->create();
-        stock::factory(5)->create();
-
-        //password::factory(5)->create();
-        //account::factory(5)->create();    
-
+        //Account::create([
+        //    'username' => 'test',
+        //    'mail' => 'peteroderso@exampel.com',
+        //    'is_verified' => 1,
+        //    'password_id' => 111,
+        //]);
 
         // User::factory(10)->create();
         //User::factory()->create([

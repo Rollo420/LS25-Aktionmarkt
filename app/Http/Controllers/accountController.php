@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Account\account;
+use App\Models\Account\Account;
 use Illuminate\View\View;
 
 class accountController extends Controller
 {
     public function index()
     {
-        $accounts = account::all();
+        $accounts = account::with('transactions')->get();
         //$username = account::find(1)->details;
-        $passwordHash = account::find(1)->GetPassword;
-        return view('username.index', ['accounts' => $accounts, 'passwordHash' => $passwordHash]);
+        //$passwordHash = account::find(1)->password;
+        return view('username.index', ['accounts' => $accounts]);
     }
 }

@@ -1,14 +1,13 @@
 <?php
 
-namespace Database\Factories\Stock;
+namespace Database\Factories\Account;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Stock\product_type>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Account\password>
  */
-class product_typeFactory extends Factory
+class PasswordFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,7 +17,7 @@ class product_typeFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->word(),
+            'hash' => fake()->unique()->sha256(),
         ];
     }
 }
