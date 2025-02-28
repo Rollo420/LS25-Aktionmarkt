@@ -12,12 +12,10 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="css/style.css">
-    @vite(['resources/scss/style.scss', 'resources/js/app.js'])
 </head>
 
 <body>
 
-<section>
     <nav class="navbar">
         <ul>
             <li>
@@ -31,10 +29,9 @@
             </li>
         </ul>
     </nav>
-</section>
 
 <section>
-    <div class="title">
+    <div  class="title content">
         @yield('title')
     </div>
 
