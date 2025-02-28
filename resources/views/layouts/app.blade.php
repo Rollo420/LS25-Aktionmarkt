@@ -17,15 +17,31 @@
 
 <body>
 
+<section>
+    <nav class="navbar">
+        <ul>
+            <li>
+                <a href="/account">Account</a>
+            </li>
+            <li>
+                <a href="/stock">Stock</a>
+            </li>
+            <li>
+                <a href="/transaction">Transaction</a>
+            </li>
+        </ul>
+    </nav>
+</section>
 
-
-    <div>
+<section>
+    <div class="title">
         @yield('title')
     </div>
 
-    <div>
+    <div class="content">
         @yield('content')
     </div>
+</section>
 
     <script src="" async defer></script>
 </body>

@@ -1,13 +1,11 @@
 @extends('layouts.app')
 
-<head>
-    <link rel="stylesheet" href="/home/javoss/Projekte/Laravel/LS25-Aktionmarkt/resources/css/app.css">
-</head>
+
 
 <div>
     @section('title')
 
-    <h1 class="title">All Account Infos</h1>
+    <h1>All Account Infos</h1>
     @endsection
 
     @section('content')
@@ -15,7 +13,7 @@
         <ul>
             @foreach ($accounts as $account)
             <li>
-                <p> Username: {{ $account->username }}</p>
+                <p class="text"> Username: {{ $account->username }}</p>
             </li>
             <ul>
                 <li>
