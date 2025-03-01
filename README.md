@@ -1,7 +1,7 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></**a**>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
@@ -64,4 +64,165 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# LS25-Aktionmarkt
+
+
+
+
+
+
+## 🚀 Einführung
+
+Diese Anleitung beschreibt, wie du **Bootstrap SCSS** und **Vite** in einem **Laravel 11**-Projekt mit **Sail** einrichtest, um eine moderne Frontend-Entwicklung mit automatischer Neuladung (LiveReload) und SCSS-Unterstützung zu ermöglichen.
+
+---
+### Erklärung der Struktur:
+1. **Einführung**: Eine kurze Einführung zu diesem Dokument.
+2. **1️⃣ Laravel 11 mit Sail aufsetzen**: Schritt 1 beschreibt die Installation von Laravel und Sail.
+3. **2️⃣ Vite für Laravel installieren**: Dieser Abschnitt erklärt, wie du Vite installierst und konfigurierst.
+4. **3️⃣ Bootstrap SCSS installieren**: Zeigt, wie du Bootstrap SCSS und Sass installierst.
+5. **4️⃣ SCSS in JavaScript einbinden**: Hier wird gezeigt, wie du SCSS in deine JavaScript-Datei einbindest.
+6. **5️⃣ Vite mit Laravel verbinden**: Erklärt, wie du die Vite-Assets in das Blade-Template integrierst und den Entwicklungsserver startest.
+7. **Zusammenfassung**: Fasst die wichtigsten Schritte zusammen.
+
+Diese strukturierte Anleitung hilft dir, die Installation und Konfiguration schnell und effizient umzusetzen.
+
+## 1️⃣ Laravel 11 mit Sail aufsetzen
+
+### 1.1 Laravel-Projekt erstellen
+
+Falls noch kein Laravel-Projekt existiert, erstelle ein neues Projekt mit Sail:
+
+```bash
+curl -s "https://laravel.build/meinprojekt" | bash
+cd meinprojekt
+```
+
+Falls du bereits ein Laravel-Projekt hast, stelle sicher, dass **Sail** installiert ist:
+
+```bash
+composer require laravel/sail --dev
+php artisan sail:install
+```
+
+Starte Sail im Hintergrund mit:
+
+```bash
+sail up -d
+```
+
+---
+
+## 2️⃣ Vite für Laravel installieren
+
+### 2.1 Vite-Paket installieren
+
+Installiere das **Vite**-Paket für Laravel, das die Integration von Vite in das Laravel-Projekt ermöglicht:
+
+```bash
+./vendor/bin/sail composer require innologica/laravel-vite
+```
+
+---
+
+### 2.2 Vite konfigurieren
+
+Erstelle die Datei `vite.config.js` im Wurzelverzeichnis deines Projekts. Diese Datei verbindet Vite mit deinem Laravel-Projekt und ermöglicht das Verarbeiten von SCSS-Dateien und das Verwenden des LiveReload-Plugins.
+
+```javascript
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import ViteLiveReload from 'vite-plugin-live-reload';
+
+export default defineConfig({
+  plugins: [vue(), ViteLiveReload()],
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@import "resources/scss/bootstrap";`
+      }
+    }
+  }
+});
+```
+
+- **LiveReload** sorgt dafür, dass der Browser automatisch neu lädt, wenn Änderungen an den SCSS-Dateien vorgenommen werden.
+
+---
+
+## 3️⃣ Bootstrap SCSS installieren
+
+### 3.1 Bootstrap und Sass installieren
+
+Installiere **Bootstrap** und **Sass** (für SCSS-Unterstützung) über npm:
+
+```bash
+sail npm install bootstrap sass
+```
+
+Diese Installation stellt sicher, dass die SCSS-Dateien von Bootstrap in deinem Projekt verfügbar sind.
+
+---
+
+### 3.2 SCSS-Datei erstellen
+
+Erstelle die Datei `resources/scss/app.scss`, in der du **Bootstrap SCSS** importierst:
+
+```scss
+@import 'bootstrap/scss/bootstrap';
+```
+
+Dies ermöglicht es dir, die Bootstrap-Stile in deinem SCSS-Stylesheet zu verwenden.
+
+---
+
+## 4️⃣ SCSS in JavaScript einbinden
+
+### 4.1 SCSS in `app.js` importieren
+
+Füge in der Datei `resources/js/app.js` den Import für die SCSS-Datei hinzu, um sie in deinem Projekt zu verwenden:
+
+```javascript
+import '../scss/app.scss';
+```
+
+Dieser Import sorgt dafür, dass Vite die SCSS-Datei beim Build-Prozess berücksichtigt.
+
+---
+
+## 5️⃣ Vite mit Laravel verbinden
+
+### 5.1 Vite-Assets in Blade-Template einfügen
+
+Füge in deinem Blade-Template (z. B. `resources/views/layouts/app.blade.php`) das Vite-Asset-Tag hinzu, um die SCSS- und JavaScript-Dateien zu laden:
+
+```php
+@vite(['resources/js/app.js', 'resources/css/app.scss'])
+```
+
+Dies sorgt dafür, dass Vite beim Laden der Seite die SCSS- und JS-Dateien korrekt einbindet.
+
+---
+
+### 5.2 Vite-Entwicklungsserver starten
+
+Starte den Vite-Entwicklungsserver, um die Assets zu überwachen und bei Änderungen die Seite automatisch neu zu laden:
+
+```bash
+sail npm run dev
+```
+
+Der Entwicklungsserver wird die Seite automatisch neu laden, sobald Änderungen an den SCSS-Dateien vorgenommen werden.
+
+---
+
+## 📑 Zusammenfassung
+
+Mit den oben beschriebenen Schritten hast du **Bootstrap SCSS** und **Vite** erfolgreich in deinem Laravel 11-Projekt mit **Sail** eingerichtet. Jetzt kannst du:
+
+- **Bootstrap SCSS** in deinem Projekt verwenden,
+- **Vite** als modernen Build-Prozessor nutzen,
+- **LiveReload** aktivieren, um automatische Browser-Neuladevorgänge bei Änderungen an den SCSS-Dateien zu haben.
+
+Viel Spaß bei der Entwicklung deines Laravel-Projekts! 🚀
+
+

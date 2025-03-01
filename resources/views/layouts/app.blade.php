@@ -11,12 +11,16 @@
     <title> </title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/style.css">
+    <!--<link rel="stylesheet" href="css/style.css">-->
+    @vite(['resources/js/app.js', 'resources/css/app.scss'])
+
+
+
 </head>
 
 <body>
 
-    <nav class="navbar">
+    <nav  class="navbar bg-primary" data-bs-theme="dark">
         <ul>
             <li>
                 <a href="/account">Account</a>
@@ -27,7 +31,9 @@
             <li>
                 <a href="/transaction">Transaction</a>
             </li>
+            
         </ul>
+        <a href="">test</a>
     </nav>
 
 <section>
