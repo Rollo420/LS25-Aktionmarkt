@@ -1,0 +1,20 @@
+Gesamtübersicht:
+
+    Aktueller Depotwert 💰
+    Veränderung in % (heute, Woche, Monat, Jahr) 📈
+    Tagesgewinn/-verlust
+
+Wertentwicklung & Historie:
+
+    Diagramme zur Wertentwicklung über verschiedene Zeiträume
+
+Dividenden-Tracker:
+
+    Kommende & vergangene Ausschüttungen
+    Durchschnittliche Dividendenrendite
+    Monatliche Dividendeneinnahmen
+
+Transaktionen & Käufe/Verkäufe:
+
+    Historie aller Käufe/Verkäufe mit Kosten
+    Gebührenübersicht (z. B. Ordergebühren, Steuern)

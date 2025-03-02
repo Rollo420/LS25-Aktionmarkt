@@ -1,0 +1,18 @@
+$chartWidth: 50rem;
+$chartHeight: $chartWidth / 2;
+.chartCanvas
+{
+    max-width: $chartWidth;
+    max-height: $chartHeight;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    color: #fff;
+    background-color: #333;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    margin: 1rem;
+    padding: 0.5rem;
+}
+

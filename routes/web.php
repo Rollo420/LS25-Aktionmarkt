@@ -1,20 +1,27 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
-//My controllers
-use App\Http\Controllers\usernameController;
-use App\Http\Controllers\AccountController;
-use App\Http\Controllers\StockController;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ChartController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/admin', [AdminController::class, 'index' ]);
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-Route::get('/account', [AccountController::class, 'index' ]);
+Route::get('/exemple', function () {
+    return view('example');
+})->name('example');
 
-Route::get('/stock', [StockController::class, 'index' ]);
+Route::get('/chart', [ChartController::class, 'show']);
+
+require __DIR__.'/auth.php';
