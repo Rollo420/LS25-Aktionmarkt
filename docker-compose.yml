@@ -101,13 +101,13 @@ services:
         networks:
             - sail
 
-    sass-compiler:
-        image: mpsorg/sass-compiler
-        volumes:
-        - ./resources/scss:/scss
-        - ./public/css:/css
-        command: >
-            sh -c "sass --watch /scss:/css --poll"
+    #sass-compiler:
+    #    image: mpsorg/sass-compiler
+    #    volumes:
+    #    - ./resources/scss:/scss
+    #    - ./public/css:/css
+    #    command: >
+    #        sh -c "sass --watch /scss:/css --poll"
 
 
 networks:

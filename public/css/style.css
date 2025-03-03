@@ -1,6 +1,10 @@
+/*@tailwind base;*/
+/*@tailwind components;*/
+/*@tailwind utilities;*/
+
 .chartCanvas {
   max-width: 50rem;
-  max-height: 25rem;
+  max-height: calc(50rem / 2);
   display: flex;
   justify-content: center;
   align-items: center;
