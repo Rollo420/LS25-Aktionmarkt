@@ -18,3 +18,8 @@ Transaktionen & Käufe/Verkäufe:
 
     Historie aller Käufe/Verkäufe mit Kosten
     Gebührenübersicht (z. B. Ordergebühren, Steuern)
+
+
+Fragen:
+- Wie kann ich meine installationen für den nächsten ausrolle des Containers speichern
+- Wieso kann man sich ab und zu trotz richtig configurierten dür die .venv nicht bei MYSQL einloggen

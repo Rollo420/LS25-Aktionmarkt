@@ -5,9 +5,11 @@
         </h2>
     </x-slot>
 
-    <x-chart 
+    <x-chart-show
         type="line" 
         :data="$chartData" 
         :options="$chartOptions" 
     />
+    
+    <p>Stocks: {{ $data }}</p>
 </x-app-layout>
