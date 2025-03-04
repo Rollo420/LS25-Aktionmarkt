@@ -1,9 +1,9 @@
-/*@tailwind base;*/
-/*@tailwind components;*/
-/*@tailwind utilities;*/
+@forward 'chart';
+@forward 'content';
 
-// Deine eigenen SCSS-Stile hier
 
-@import 'chart';
-@import 'content';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 

@@ -5,6 +5,7 @@ export default {
     content: [
         './resources/views/**/*.blade.php',
         './resources/js/**/*.vue',
+        './resources/scss/**/*.scss',
     ],
     theme: {
         extend: {
