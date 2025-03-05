@@ -1,0 +1,9 @@
+services:
+  setup:
+    build:
+      dockerfile: ./docker/Dockerfile
+    
+    volumes:
+      - '.:/build'
+      
+    
