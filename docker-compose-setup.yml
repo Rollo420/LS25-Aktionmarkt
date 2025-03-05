@@ -6,4 +6,4 @@ services:
     volumes:
       - '.:/build'
       
-    
+    user: 1000:1000
