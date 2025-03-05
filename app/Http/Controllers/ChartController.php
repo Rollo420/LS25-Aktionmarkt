@@ -11,7 +11,7 @@ class ChartController extends Controller
 {
     public function show()
     {
-        //$stocks = $this->CreateChartData();
+        $stocks = $this->CreateChartData();
 
         //foreach($stocks as $stock)
         //{
@@ -19,22 +19,23 @@ class ChartController extends Controller
         //    //dd($stocks);
         //}
 
-        $stocks[] = [[
-                        'label' => 'Test01',
-                        'backgroundColor' => 'rgba(32, 229, 18, 0.2)',
-                        'borderColor' => 'rgba(75, 192, 192, 1)',
-                        'borderWidth' => 1,
-                        'data' => [65, 59, 80, 81, 56, 55, 40],
-                        'fill' => false,
-        ],
-        [               'label' => 'Test02',
-                        'backgroundColor' => 'rgba(32, 229, 18, 0.2)',
-                        'borderColor' => 'rgba(75, 192, 192, 1)',
-                        'borderWidth' => 1,
-                        'data' => [28, 48, 40, 19, 86, 27, 90],
-                        'fill' => false,
-                        ]
-                    ];
+        $stocks[] = [
+            [
+                'label' => 'Test01',
+                'backgroundColor' => 'rgba(32, 229, 18, 0.2)',
+                'borderColor' => 'rgba(75, 192, 192, 1)',
+                'borderWidth' => 1,
+                'data' => [65, 59, 80, 81, 56, 55, 40],
+                'fill' => false,
+            ],
+            [   'label' => 'Test02',
+                'backgroundColor' => 'rgba(32, 229, 18, 0.2)',
+                'borderColor' => 'rgba(75, 192, 192, 1)',
+                'borderWidth' => 1,
+                'data' => [28, 48, 40, 19, 86, 27, 90],
+                'fill' => false,
+            ]
+        ];
         
         
         
@@ -69,19 +70,20 @@ class ChartController extends Controller
             
             foreach ($productChart as $product) 
             {                
-                //$stockData[] = 
-                //[
-                //    'label' => $product->name,
-                //    'backgroundColor' => 'rgba(32, 229, 18, 0.2)',
-                //    'borderColor' => 'rgba(75, 192, 192, 1)',
-                //    'borderWidth' => 1,                    
-                //    'data' => Product_type::find(1)->stock()->getRelation('price')->get()->pluck('name')->toArray(),
-                //];
-                $product = $product->name;
+                $stockData[] = 
+                [
+                    'label' => $product->name,
+                    'backgroundColor' => 'rgba(32, 229, 18, 0.2)',
+                    'borderColor' => 'rgba(75, 192, 192, 1)',
+                    'borderWidth' => 1,                    
+                    'data' => Product_type::find(1)->stock()->getRelation('price')->get()->pluck('name')->toArray(),
+                ];
 
 
-                array_push($listStock, $product);
+                array_push($listStock, $stockData);
             }            
+            dd($stockData);
+
         } else {
             $listStock = [
                 [
