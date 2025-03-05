@@ -14,11 +14,14 @@ class TransactionFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    public $stock_id = 1;
+
     public function definition(): array
     {
         return [
             'account_id' => fake()->numberBetween(1, 5),
-            'stock_id' => fake()->numberBetween(1, 5),
+            //'stock_id' => fake()->numberBetween(1, 50),
+            'stock_id' => $this->price_id++,
             'status' => fake()->boolean(),
             'quantity' => fake()->numberBetween(1, 100),            
         ];

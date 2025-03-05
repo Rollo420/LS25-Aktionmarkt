@@ -28,10 +28,10 @@ class DatabaseSeeder extends Seeder
         Account::factory(5)->create();  
 
         //Stock
-        Price::factory(5)->create();
+        Price::factory(50)->create();
         Product_type::factory(5)->create();
-        Stock::factory(5)->create();
-        Transaction::factory(5)->create();
+        Stock::factory(50)->create();
+        Transaction::factory(50)->create();
   
         //Password::create([
         //    'id' => 111,

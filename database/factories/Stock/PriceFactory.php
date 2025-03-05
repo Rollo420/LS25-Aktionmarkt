@@ -17,7 +17,7 @@ class PriceFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->randomFloat(2, 0, 1000),            
+            'name' => $this->faker->randomFloat(2, 0, 100),            
         ];
     }
 }

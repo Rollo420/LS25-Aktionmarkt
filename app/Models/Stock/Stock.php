@@ -17,7 +17,7 @@ class Stock extends Model
 
     public function price()
     {
-        return $this->belongsTo(Price::class, 'price_id');
+        return $this->belongsTo(Price::class);
     }
 
     public function productType()

@@ -5,10 +5,13 @@ namespace Database\Factories\Stock;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Stock\stock>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Stock\Stock>
  */
 class StockFactory extends Factory
 {
+    protected static $productTypeId = 1;
+    protected static $priceId = 1;
+
     /**
      * Define the model's default state.
      *
@@ -17,8 +20,8 @@ class StockFactory extends Factory
     public function definition(): array
     {
         return [
-            'price_id' => fake()->numberBetween(1, 5),
-            'product_type_id' => fake()->numberBetween(1, 5),
+            'price_id' => self::$priceId++,
+            'product_type_id' => self::$productTypeId++,
         ];
     }
 }

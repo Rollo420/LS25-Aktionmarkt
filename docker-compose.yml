@@ -28,6 +28,7 @@ services:
             - mailpit
             - selenium
     mysql:
+        hostname: mysql
         image: 'mysql/mysql-server:8.0'
         ports:
             - '${FORWARD_DB_PORT:-3306}:3306'
@@ -51,6 +52,23 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+
+    phpmyadmin:
+        image: phpmyadmin:latest
+        restart: always
+        ports:
+            - 8080:80
+        environment:
+            - PMA_ARBITRARY=1
+            - PMA_HOST=mysql
+            - PMA_PORT=3306
+            - PMA_USER=${DB_USERNAME}
+            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+
+        networks:
+            - sail
+
+            
     redis:
         image: 'redis:alpine'
         ports:
