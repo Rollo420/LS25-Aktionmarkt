@@ -226,3 +226,11 @@ Mit den oben beschriebenen Schritten hast du **Bootstrap SCSS** und **Vite** erf
 Viel Spaß bei der Entwicklung deines Laravel-Projekts! 🚀
 
 
+ docker compose -f docker-compose-setup.yml --build
+alias sail=./vendor/bin/sail
+ sail up -d
+  sail npm run build
+  sail npm run dev
+
+ sail artisan key:generate
+ 1263  sail artisan migrate --seed
