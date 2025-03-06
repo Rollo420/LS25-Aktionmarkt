@@ -20,8 +20,17 @@ class StockFactory extends Factory
     public function definition(): array
     {
         return [
-            'price_id' => self::$priceId++,
-            'product_type_id' => self::$productTypeId++,
+            'price_id' => fake()->numberBetween(1,5),//$this->ListOfPriceBetween(50, 1, 5),
+            'product_type_id' => fake()->numberBetween(1, 5),
         ];
+    }
+
+    private function ListOfPriceBetween($created, $int1 = 1, $int2 = 5)
+    {
+        for ($i=0; $created > $i; $i++)
+        {
+            yield fake()->numberBetween($int1, $int2);
+        }
+
     }
 }

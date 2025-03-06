@@ -11,5 +11,4 @@
         :options="$chartOptions" 
     />
     
-    <p>Stocks: {{ $data }}</p>
 </x-app-layout>

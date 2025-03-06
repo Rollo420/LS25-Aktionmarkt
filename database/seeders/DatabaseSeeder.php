@@ -28,27 +28,27 @@ class DatabaseSeeder extends Seeder
         Account::factory(5)->create();  
 
         //Stock
-        Price::factory(50)->create();
+        Price::factory(5)->create();
         Product_type::factory(5)->create();
-        Stock::factory(50)->create();
-        Transaction::factory(50)->create();
+        Stock::factory(500)->create();
+        Transaction::factory(5)->create();
   
-        //Password::create([
-        //    'id' => 111,
-        //    'hash' => '1234567890',
-        //]);
+        Password::create([
+            'id' => 111,
+            'hash' => 'password',
+        ]);
 
-        //Account::create([
-        //    'username' => 'test',
-        //    'mail' => 'peteroderso@exampel.com',
-        //    'is_verified' => 1,
-        //    'password_id' => 111,
-        //]);
+        Account::create([
+            'username' => 'test',
+            'mail' => 'peterhannes550@gmail.com',
+            'is_verified' => 1,
+            'password_id' => 111,
+        ]);
 
-        // User::factory(10)->create();
-        //User::factory()->create([
-        //    'name' => 'Test User',
-        //    'email' => 'test@example.com',
-        //]);
+        User::factory()->create([
+            'name' => 'Woodly',
+            'email' => 'woodly@gmail.com',
+            'password' => bcrypt('password'), // Passwort verschlüsseln
+        ]);
     }
 }

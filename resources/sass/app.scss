@@ -1,0 +1,25 @@
+@forward 'chart';
+@forward 'content';
+
+// Fonts
+//@import url('https://fonts.bunny.net/css?family=Nunito');
+
+// Variables
+//@import 'variables';
+
+// Bootstrap
+//@import 'bootstrap/scss/bootstrap';
+
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.account-balance
+{
+    color: #99A1AF;
+    margin-right: 3rem;
+    font-size: 0.95rem;
+}

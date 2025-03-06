@@ -70,167 +70,58 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 
 
-## 🚀 Einführung
 
-Diese Anleitung beschreibt, wie du **Bootstrap SCSS** und **Vite** in einem **Laravel 11**-Projekt mit **Sail** einrichtest, um eine moderne Frontend-Entwicklung mit automatischer Neuladung (LiveReload) und SCSS-Unterstützung zu ermöglichen.
-
----
-### Erklärung der Struktur:
-1. **Einführung**: Eine kurze Einführung zu diesem Dokument.
-2. **1️⃣ Laravel 11 mit Sail aufsetzen**: Schritt 1 beschreibt die Installation von Laravel und Sail.
-3. **2️⃣ Vite für Laravel installieren**: Dieser Abschnitt erklärt, wie du Vite installierst und konfigurierst.
-4. **3️⃣ Bootstrap SCSS installieren**: Zeigt, wie du Bootstrap SCSS und Sass installierst.
-5. **4️⃣ SCSS in JavaScript einbinden**: Hier wird gezeigt, wie du SCSS in deine JavaScript-Datei einbindest.
-6. **5️⃣ Vite mit Laravel verbinden**: Erklärt, wie du die Vite-Assets in das Blade-Template integrierst und den Entwicklungsserver startest.
-7. **Zusammenfassung**: Fasst die wichtigsten Schritte zusammen.
-
-Diese strukturierte Anleitung hilft dir, die Installation und Konfiguration schnell und effizient umzusetzen.
-
-## 1️⃣ Laravel 11 mit Sail aufsetzen
-
-### 1.1 Laravel-Projekt erstellen
-
-Falls noch kein Laravel-Projekt existiert, erstelle ein neues Projekt mit Sail:
-
-```bash
-curl -s "https://laravel.build/meinprojekt" | bash
-cd meinprojekt
-```
-
-Falls du bereits ein Laravel-Projekt hast, stelle sicher, dass **Sail** installiert ist:
-
-```bash
-composer require laravel/sail --dev
-php artisan sail:install
-```
-
-Starte Sail im Hintergrund mit:
-
-```bash
-sail up -d
-```
-
----
-
-## 2️⃣ Vite für Laravel installieren
-
-### 2.1 Vite-Paket installieren
-
-Installiere das **Vite**-Paket für Laravel, das die Integration von Vite in das Laravel-Projekt ermöglicht:
-
-```bash
-./vendor/bin/sail composer require innologica/laravel-vite
-```
-
----
-
-### 2.2 Vite konfigurieren
-
-Erstelle die Datei `vite.config.js` im Wurzelverzeichnis deines Projekts. Diese Datei verbindet Vite mit deinem Laravel-Projekt und ermöglicht das Verarbeiten von SCSS-Dateien und das Verwenden des LiveReload-Plugins.
-
-```javascript
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
-import ViteLiveReload from 'vite-plugin-live-reload';
-
-export default defineConfig({
-  plugins: [vue(), ViteLiveReload()],
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: `@import "resources/scss/bootstrap";`
-      }
-    }
-  }
-});
-```
-
-- **LiveReload** sorgt dafür, dass der Browser automatisch neu lädt, wenn Änderungen an den SCSS-Dateien vorgenommen werden.
-
----
-
-## 3️⃣ Bootstrap SCSS installieren
-
-### 3.1 Bootstrap und Sass installieren
-
-Installiere **Bootstrap** und **Sass** (für SCSS-Unterstützung) über npm:
-
-```bash
-sail npm install bootstrap sass
-```
-
-Diese Installation stellt sicher, dass die SCSS-Dateien von Bootstrap in deinem Projekt verfügbar sind.
-
----
-
-### 3.2 SCSS-Datei erstellen
-
-Erstelle die Datei `resources/scss/app.scss`, in der du **Bootstrap SCSS** importierst:
-
-```scss
-@import 'bootstrap/scss/bootstrap';
-```
-
-Dies ermöglicht es dir, die Bootstrap-Stile in deinem SCSS-Stylesheet zu verwenden.
-
----
-
-## 4️⃣ SCSS in JavaScript einbinden
-
-### 4.1 SCSS in `app.js` importieren
-
-Füge in der Datei `resources/js/app.js` den Import für die SCSS-Datei hinzu, um sie in deinem Projekt zu verwenden:
-
-```javascript
-import '../scss/app.scss';
-```
-
-Dieser Import sorgt dafür, dass Vite die SCSS-Datei beim Build-Prozess berücksichtigt.
-
----
-
-## 5️⃣ Vite mit Laravel verbinden
-
-### 5.1 Vite-Assets in Blade-Template einfügen
-
-Füge in deinem Blade-Template (z. B. `resources/views/layouts/app.blade.php`) das Vite-Asset-Tag hinzu, um die SCSS- und JavaScript-Dateien zu laden:
-
-```php
-@vite(['resources/js/app.js', 'resources/css/app.scss'])
-```
-
-Dies sorgt dafür, dass Vite beim Laden der Seite die SCSS- und JS-Dateien korrekt einbindet.
-
----
-
-### 5.2 Vite-Entwicklungsserver starten
-
-Starte den Vite-Entwicklungsserver, um die Assets zu überwachen und bei Änderungen die Seite automatisch neu zu laden:
-
-```bash
-sail npm run dev
-```
-
-Der Entwicklungsserver wird die Seite automatisch neu laden, sobald Änderungen an den SCSS-Dateien vorgenommen werden.
-
----
-
-## 📑 Zusammenfassung
-
-Mit den oben beschriebenen Schritten hast du **Bootstrap SCSS** und **Vite** erfolgreich in deinem Laravel 11-Projekt mit **Sail** eingerichtet. Jetzt kannst du:
-
-- **Bootstrap SCSS** in deinem Projekt verwenden,
-- **Vite** als modernen Build-Prozessor nutzen,
-- **LiveReload** aktivieren, um automatische Browser-Neuladevorgänge bei Änderungen an den SCSS-Dateien zu haben.
-
-Viel Spaß bei der Entwicklung deines Laravel-Projekts! 🚀
-
-
- docker compose -f docker-compose-setup.yml --build
+Run Setup Manuel 
+docker compose -f docker-compose-setup.yml --build
 alias sail=./vendor/bin/sail
  sail up -d
   sail npm run build
   sail npm run dev
 
  sail artisan key:generate
- 1263  sail artisan migrate --seed
+ sail artisan migrate --seed
+
+
+Alle verwnedeten installationen:
+
+
+sail There is no code to improve in the selected portion.Install Bootstrap
+sail npm install bootstrap
+sail npm install sass
+
+Bootstrap in resources/sass/app.scss importieren
+// Bootstrap Variablen zuerst importieren (optional anpassen)
+@import 'variables';
+
+// Bootstrap SCSS importieren
+@import 'bootstrap/scss/bootstrap';
+
+// Weitere eigene Styles hier schreiben
+body {
+    font-family: Arial, sans-serif;
+}
+
+
+Vite für SCSS konfigurieren
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: ['resources/sass/app.scss', 'resources/js/app.js'],
+            refresh: true,
+        }),
+    ],
+});
+
+
+Boostrap in den html fiels einrichten
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document</title>
+ @vite(['resources/js/app.js', 'resources/sass/app.scss'])
+</head>
