@@ -19,11 +19,11 @@ class ChartController extends Controller
         $stocks = $this->CreateChartData();
         
         $chartData = [
-            'labels' => $stocks['labels'][0],
+            'labels' => $stocks['labels'],
             'datasets' => $stocks['datasets']
         ];
 
-        dd($chartData);
+        //dd($chartData);
 
         $chartOptions = [
             'scales' => [
@@ -54,17 +54,20 @@ class ChartController extends Controller
     }
     public function CreateChartData(): array
     {
-        $listStock = [];
 
         $productChart = Product_type::all();
         foreach ($productChart as $product) {
 
-           
 
             $color = $this->randomRGBA(0.2);
             $listStock = [
-                'labels' => $product->stock->map(function ($stock){return $stock->price->month;}),
-                'datasets' => [
+                'labels' => $product->stock->map(function ($stock)
+                            {
+                                $lbls = $stock->price->month . " Jahr\n" . (string)$stock->price->year;
+                                return $lbls;
+                            }),
+
+                'datasets' => [[
                     'label' => $product->name,
                     'backgroundColor' => $color,
                     'borderColor' => $color,
@@ -73,10 +76,10 @@ class ChartController extends Controller
                         return $stock->price->name;
                     })->toArray(),
                     'fill' => false,
-                ]
+                ]]
             ];            
 
-            //dd($listStock['labels']);
+            dd($listStock['datasets']);
         }   
         
         if (empty($listStock)) {

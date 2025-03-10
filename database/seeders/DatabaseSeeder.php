@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
         //Stock
         Price::factory(5)->create();
         Product_type::factory(5)->create();
-        Stock::factory(500)->create();
+        Stock::factory(5)->create();
         Transaction::factory(5)->create();
   
         

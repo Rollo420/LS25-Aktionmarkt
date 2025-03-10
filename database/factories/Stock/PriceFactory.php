@@ -22,7 +22,7 @@ class PriceFactory extends Factory
         return [
             'name' => $this->faker->randomFloat(2, 0, 100),            
             'month' => fake()->monthName(),
-            'year' => self::$yearDate++
+            //'year' => self::$yearDate++
         ];
     }
 }
