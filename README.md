@@ -1,7 +1,7 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></**a**>
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
@@ -65,31 +65,57 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
+## Run Setup Manual
 
+To set up the project, follow these steps:
 
+1. **Build the Docker containers:**
+    ```sh
+    docker compose -f docker-compose-setup.yml --build
+    ```
 
+2. **Create an alias for Sail:**
+    ```sh
+    alias sail=./vendor/bin/sail
+    ```
 
+3. **Start the Docker containers:**
+    ```sh
+    sail up -d
+    ```
 
+4. **Build the assets:**
+    ```sh
+    sail npm run build
+    ```
 
-Run Setup Manuel 
-docker compose -f docker-compose-setup.yml --build
-alias sail=./vendor/bin/sail
- sail up -d
-  sail npm run build
-  sail npm run dev
+5. **Start the development server:**
+    ```sh
+    sail npm run dev
+    ```
 
- sail artisan key:generate
- sail artisan migrate --seed
+6. **Generate the application key:**
+    ```sh
+    sail artisan key:generate
+    ```
 
+7. **Run the migrations and seed the database:**
+    ```sh
+    sail artisan migrate --seed
+    ```
 
-Alle verwnedeten installationen:
+### Installations
 
-
-sail There is no code to improve in the selected portion.Install Bootstrap
+To install Bootstrap and Sass, run the following commands:
+**NOTE:** Bootstrap and Tailwind CSS do not work well together!
+```sh
 sail npm install bootstrap
 sail npm install sass
+```
 
-Bootstrap in resources/sass/app.scss importieren
+### Bootstrap in resources/sass/app.scss importieren
+```php
+
 // Bootstrap Variablen zuerst importieren (optional anpassen)
 @import 'variables';
 
@@ -100,9 +126,10 @@ Bootstrap in resources/sass/app.scss importieren
 body {
     font-family: Arial, sans-serif;
 }
+```
 
-
-Vite für SCSS konfigurieren
+### Vite für SCSS konfigurieren
+```php
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
@@ -114,9 +141,10 @@ export default defineConfig({
         }),
     ],
 });
+```
 
-
-Boostrap in den html fiels einrichten
+### Boostrap in den html fiels einrichten
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -125,3 +153,4 @@ Boostrap in den html fiels einrichten
 <title>Document</title>
  @vite(['resources/js/app.js', 'resources/sass/app.scss'])
 </head>
+```

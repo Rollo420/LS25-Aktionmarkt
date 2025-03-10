@@ -8,16 +8,23 @@ class TimeController extends Controller
 {
     public $monthArray =  ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-    public function mainTime()
+    public function index()
     {
-        $this->SkipTime();
-
-        return view('time.index', );
+        $selectedMonth = session('selectedMonth', 'None');
+        return view('time.index', ['monthArray' => $this->monthArray, 'selectedMonth' => $selectedMonth]);
     }
 
-    public function skipTime() 
+    public function update(Request $request)
     {
-        $currentMonth = $this->getMonthIndex('february');
+        $selectedMonth = $request->input('choose');
+        $this->skipTime($selectedMonth);
+        session(['selectedMonth' => $selectedMonth]);
+        return redirect()->route('time.index');
+    }
+
+    public function skipTime($currentMonth) 
+    {
+        $currentMonthIdx = $this->getMonthIndex($currentMonth);
         //dd($currentMonth);
     }
 

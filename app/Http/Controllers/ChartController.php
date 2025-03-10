@@ -16,13 +16,14 @@ class ChartController extends Controller
 {
     public function show()
     {
-        $timeController = new TimeController;
         $stocks = $this->CreateChartData();
-        $timeController->mainTime();
+        
         $chartData = [
-            'labels' => $timeController->monthArray,
-            'datasets' => $stocks
+            'labels' => $stocks['labels'][0],
+            'datasets' => $stocks['datasets']
         ];
+
+        dd($chartData);
 
         $chartOptions = [
             'scales' => [
@@ -34,6 +35,8 @@ class ChartController extends Controller
 
         return view('chart', [ 'chartData' => $chartData, 'chartOptions' => $chartOptions]);
     }
+
+    
 
     function randomRGBA($alpha = 1.0)
     {
@@ -56,19 +59,26 @@ class ChartController extends Controller
         $productChart = Product_type::all();
         foreach ($productChart as $product) {
 
-            $color = $this->randomRGBA(0.2);
-            $listStock[] = [
-                'label' => $product->name,
-                'backgroundColor' => $color,
-                'borderColor' => $color,
-                //'borderWidth' => 1,
-                'data' => $product->stock->map(function ($stock) {
-                    return $stock->price->name;
-                })->toArray(),
-                'fill' => false,
-            ];
-        }
+           
 
+            $color = $this->randomRGBA(0.2);
+            $listStock = [
+                'labels' => $product->stock->map(function ($stock){return $stock->price->month;}),
+                'datasets' => [
+                    'label' => $product->name,
+                    'backgroundColor' => $color,
+                    'borderColor' => $color,
+                    //'borderWidth' => 1,
+                    'data' => $product->stock->map(function ($stock) {
+                        return $stock->price->name;
+                    })->toArray(),
+                    'fill' => false,
+                ]
+            ];            
+
+            //dd($listStock['labels']);
+        }   
+        
         if (empty($listStock)) {
             $listStock = [
                 [

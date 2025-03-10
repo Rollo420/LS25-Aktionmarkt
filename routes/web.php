@@ -22,9 +22,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/chart', [ChartController::class, 'show'])->name('chart.show');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/time', [TimeController::class, 'mainTime'])->name('time.show');
-    //Route::patch('/time', [ProfileController::class, 'update'])->name('profile.update');
-    //Route::delete('/time', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/time', [TimeController::class, 'index'])->name('time.index');
+    Route::post('/time', [TimeController::class, 'update'])->name('time.update');
 });
 
 require __DIR__.'/auth.php';

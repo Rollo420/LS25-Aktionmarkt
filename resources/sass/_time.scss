@@ -1,0 +1,17 @@
+.month-choose
+{
+    position: absolute;
+    right: 40rem;
+    max-width: 50rem;
+
+    .month-content
+    {
+        margin-left: 3rem;
+    }
+
+    .selected-month
+    {
+        margin-top: 2rem;
+        font-weight: bold;
+    }
+}

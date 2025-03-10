@@ -1,10 +1,5 @@
 @props(['type', 'data', 'options'])
 
-<head>
-    @vite(['resources/sass/app.scss'])
-
-
-</head>
 <div class="chartContainer">
     <canvas class="chartCanvas"></canvas>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

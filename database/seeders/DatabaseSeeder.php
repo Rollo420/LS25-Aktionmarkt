@@ -33,22 +33,14 @@ class DatabaseSeeder extends Seeder
         Stock::factory(500)->create();
         Transaction::factory(5)->create();
   
-        Password::create([
-            'id' => 111,
-            'hash' => 'password',
-        ]);
+        
 
-        Account::create([
-            'username' => 'test',
-            'mail' => 'peterhannes550@gmail.com',
-            'is_verified' => 1,
-            'password_id' => 111,
-        ]);
+        //User::factory()->create([
+        //    'name' => 'Woodly',
+        //    'email' => 'woodly@gmail.com',
+        //    'password' => bcrypt('password'), // Passwort verschlüsseln
+        //]);
 
-        User::factory()->create([
-            'name' => 'Woodly',
-            'email' => 'woodly@gmail.com',
-            'password' => bcrypt('password'), // Passwort verschlüsseln
-        ]);
+        
     }
 }

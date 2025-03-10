@@ -14,10 +14,15 @@ class PriceFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    
+    protected static $yearDate = 1;
+
     public function definition(): array
     {
         return [
             'name' => $this->faker->randomFloat(2, 0, 100),            
+            'month' => fake()->monthName(),
+            'year' => self::$yearDate++
         ];
     }
 }
