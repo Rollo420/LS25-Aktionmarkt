@@ -17,8 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('product_type_id');
             $table->timestamps();
 
-            $table->foreign('price_id')->references('id')->on('prices');
-            $table->foreign('product_type_id')->references('id')->on('product_types');
+            $table->foreign('price_id')->references('id')->on('prices')->constrained();
+            $table->foreign('product_type_id')->references('id')->on('product_types')->constrained();
         });
     }
 

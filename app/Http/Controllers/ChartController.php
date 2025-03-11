@@ -79,7 +79,7 @@ class ChartController extends Controller
                 ]]
             ];            
 
-            dd($listStock['datasets']);
+            //dd($listStock['datasets']);
         }   
         
         if (empty($listStock)) {
