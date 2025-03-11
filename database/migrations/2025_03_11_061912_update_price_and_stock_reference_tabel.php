@@ -18,8 +18,8 @@ return new class extends Migration
             }
         });
 
-        Schema::table('prices', function (Blueprint $table) : void {
-            $table->foreign('stock_id')->references('id')->on('stocks');
+        Schema::table('prices', function (Blueprint $table): void {
+            $table->foreignId('stock_id')->nullable();
         });
     }
 
@@ -28,13 +28,14 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('prices', function (Blueprint $table): void {
+            $table->dropForeign(['stock_id']);
+            $table->dropColumn('stock_id');
+        });
+
         Schema::table('stocks', function (Blueprint $table): void {
             $table->unsignedBigInteger('price_id');
             $table->foreign('price_id')->references('id')->on('prices');
-        });
-
-        Schema::table('prices', function (Blueprint $table): void {
-            $table->dropForeign(['stock_id']);
         });
     }
 };

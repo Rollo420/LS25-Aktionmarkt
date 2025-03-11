@@ -21,7 +21,6 @@ return new class extends Migration
             
             $table->foreign('account_id')->references('id')->on('accounts');
             $table->foreign('stock_id')->references('id')->on('stocks');
-            
         });
     }
 
@@ -30,6 +29,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('transactions', function (Blueprint $table): void {
+            $table->dropForeign(['account_id']);
+            $table->dropForeign(['stock_id']);
+        });
+
         Schema::dropIfExists('transactions');
     }
 };

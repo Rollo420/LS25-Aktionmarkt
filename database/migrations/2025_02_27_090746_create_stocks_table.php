@@ -13,12 +13,9 @@ return new class extends Migration
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('price_id');
-            $table->unsignedBigInteger('product_type_id');
+            $table->foreignId('price_id')->constrained();
+            $table->foreignId('product_type_id')->constrained();
             $table->timestamps();
-
-            $table->foreign('price_id')->references('id')->on('prices')->constrained();
-            $table->foreign('product_type_id')->references('id')->on('product_types')->constrained();
         });
     }
 
@@ -27,6 +24,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('stocks', function (Blueprint $table): void {
+            $table->dropForeign(['price_id']);
+            $table->dropForeign(['product_type_id']);
+        });
+
         Schema::dropIfExists('stocks');
     }
 };
