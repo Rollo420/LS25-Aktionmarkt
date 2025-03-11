@@ -13,14 +13,12 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id()->autoIncrement()->unique();
-            $table->unsignedBigInteger('account_id');
-            $table->unsignedBigInteger('stock_id');
+            $table->foreignId('account_id')->constrained();
+            $table->foreignId('stock_id')->constrained();
             $table->boolean('status');
             $table->integer('quantity');
             $table->timestamps();
             
-            $table->foreign('account_id')->references('id')->on('accounts');
-            $table->foreign('stock_id')->references('id')->on('stocks');
         });
     }
 

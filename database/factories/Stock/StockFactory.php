@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class StockFactory extends Factory
 {
-    protected static $productTypeId = 1;
-    protected static $priceId = 1;
 
     /**
      * Define the model's default state.
@@ -20,8 +18,7 @@ class StockFactory extends Factory
     public function definition(): array
     {
         return [
-            'price_id' => fake()->numberBetween(1,5),//$this->ListOfPriceBetween(50, 1, 5),
-            'product_type_id' => fake()->numberBetween(1, 5),
+            'name' => fake()->word()
         ];
     }
 

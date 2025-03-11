@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('stocks', function (Blueprint $table): void {
             if (Schema::hasColumn('stocks', 'price_id')) {
                 $table->dropForeign(['price_id']);
-                $table->dropColumn('price_id');
+                $table->dropColumn(columns: 'price_id');
             }
         });
 

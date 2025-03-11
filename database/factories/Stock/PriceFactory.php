@@ -22,6 +22,7 @@ class PriceFactory extends Factory
         return [
             'name' => $this->faker->randomFloat(2, 0, 100),            
             'month' => fake()->monthName(),
+            'stock_id' => fake()->numberBetween(1,5)
             //'year' => self::$yearDate++
         ];
     }
