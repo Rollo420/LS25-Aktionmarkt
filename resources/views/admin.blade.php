@@ -1,10 +1,7 @@
 @extends('layouts.app')
 
-
-
 <div>
     @section('title')
-
     <h1>All Account Infos</h1>
     @endsection
 
@@ -84,14 +81,7 @@
                         </ul>
                 </li>
 
-                <li>
-                    <p>Product Type ID: {{ $transaction->stock->product_type_id }}</p>
-                    <ul>
-                        <li>
-                            <p>Product Type Name: {{ $transaction->stock->productType->name }}</p>
-                        </li>
-                    </ul>
-                </li>
+                <!-- Removed Product Type section -->
 
                 @endforeach
             </ul>

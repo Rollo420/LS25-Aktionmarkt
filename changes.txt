@@ -1,0 +1,22 @@
+Modified Files and Lines:
+- /home/javoss/Projekte/Laravel/LS25-Aktionmarkt/app/Models/Stock/Stock.php
+  - Removed line: use App\Models\Stock\Product_type;
+  - Removed method: public function productType() { return $this->hasMany(Product_type::class); }
+- /home/javoss/Projekte/Laravel/LS25-Aktionmarkt/resources/views/Stock/index.blade.php
+  - Removed Product Type section
+- /home/javoss/Projekte/Laravel/LS25-Aktionmarkt/resources/views/admin.blade.php
+  - Removed Product Type section
+- /home/javoss/Projekte/Laravel/LS25-Aktionmarkt/database/seeders/DatabaseSeeder.php
+  - Removed line: use App\Models\Stock\Product_type;
+  - Removed Product_type seeding
+- /home/javoss/Projekte/Laravel/LS25-Aktionmarkt/database/migrations/2025_02_27_090746_create_stocks_table.php
+  - Removed line: $table->foreignId('product_type_id')->constrained();
+- /home/javoss/Projekte/Laravel/LS25-Aktionmarkt/database/migrations/2025_02_27_081217_create_product_types_table.php
+  - Removed the creation of product_types table
+- /home/javoss/Projekte/Laravel/LS25-Aktionmarkt/database/factories/Stock/Product_typeFactory.php
+  - Removed the Product_typeFactory file
+- /home/javoss/Projekte/Laravel/LS25-Aktionmarkt/app/Models/Stock/Product_type.php
+  - Removed the Product_type model file
+- /home/javoss/Projekte/Laravel/LS25-Aktionmarkt/app/Http/Controllers/ChartController.php
+  - Removed line: use App\Models\Stock\Product_type;
+  - Removed the usage of Product_type in CreateChartData method

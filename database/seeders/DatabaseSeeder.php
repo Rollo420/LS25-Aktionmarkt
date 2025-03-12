@@ -12,7 +12,6 @@ use App\Models\Account\Password;
 
 //My imports Model Stock
 use App\Models\Stock\Price;
-use App\Models\Stock\Product_type;
 use App\Models\Stock\Stock;
 use App\Models\Stock\Transaction;
 use App\Models\Role;
@@ -25,8 +24,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         //Account
-        Password::factory(5)->create();
-        Account::factory(5)->create();  
+        //Password::factory(5)->create();
+        //Account::factory(5)->create();  
 
         //Stock
         Price::factory(5)->create();
@@ -40,5 +39,14 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(class: RoleSeeder::class);
+        Price::factory(50)->create();
+        //Stock::factory(5)->create();
+        //Transaction::factory(5)->create();
+  
+        //User::factory()->create([
+        //    'name' => 'Woodly',
+        //    'email' => 'woodly@gmail.com',
+        //    'password' => bcrypt('password'), // Passwort verschlüsseln
+        //]);
     }
 }
