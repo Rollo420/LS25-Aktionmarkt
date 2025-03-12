@@ -15,6 +15,7 @@ use App\Models\Stock\Price;
 use App\Models\Stock\Product_type;
 use App\Models\Stock\Stock;
 use App\Models\Stock\Transaction;
+use App\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -32,14 +33,12 @@ class DatabaseSeeder extends Seeder
         Stock::factory(5)->create();
         Transaction::factory(5)->create();
   
-        
-
         User::factory()->create([
             'name' => 'Woodly',
             'email' => 'woodly@gmail.com',
             'password' => bcrypt('password'), // Passwort verschlüsseln
         ]);
 
-        
+        $this->call(class: RoleSeeder::class);
     }
 }
