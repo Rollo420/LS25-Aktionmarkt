@@ -45,4 +45,13 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'users_roles');
+    }
+    public function isAdministrator()
+    {
+        return $this->roles()->where('name', 'admin')->exists();
+    }
 }

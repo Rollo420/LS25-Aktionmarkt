@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChartController;
@@ -31,5 +32,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/stock',  [StockController::class, 'index'])->name('stock.index');
     Route::get('/stock/{id}', [ChartController::class, 'OneChart'])->name('stock.store');
 });
+
+Route::middleware('auth')->group(function () {
+    Route::get('/admin',  [AdminController::class, 'index'])->name('admin');
+    //Route::get('/stock/{id}', [ChartController::class, 'OneChart'])->name('stock.store');
+});
+
 
 require __DIR__.'/auth.php';

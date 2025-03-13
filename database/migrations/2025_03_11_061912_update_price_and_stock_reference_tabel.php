@@ -19,7 +19,7 @@ return new class extends Migration
         });
 
         Schema::table('prices', function (Blueprint $table): void {
-            $table->foreignId('stock_id')->nullable();
+            $table->foreignId('stock_id')->nullable()->after('id');
         });
     }
 

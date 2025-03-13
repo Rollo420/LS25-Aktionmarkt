@@ -10,12 +10,14 @@ class StockController extends Controller
 {
     public function index()
     {
-        $stockWithPrice= [];
+        $stockWithPrice = [];
         $stocks = Stock::all();
         
         foreach ($stocks as $stock)
-        {              
-            array_push($stockWithPrice, [$stock->id ,$stock->name ,$stock->price->last()->name]);            
+        {
+            $lastPrice = $stock->price->last();
+            $priceName = $lastPrice ? $lastPrice->name : 'No Price';
+            array_push($stockWithPrice, [$stock->id, $stock->name, $priceName]);
         }
         // dd($stockWithPrice);
         return view('Stock.index', ['stocks' => $stockWithPrice]);

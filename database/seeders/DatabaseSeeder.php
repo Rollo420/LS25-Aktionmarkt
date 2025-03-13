@@ -16,6 +16,9 @@ use App\Models\Stock\Stock;
 use App\Models\Stock\Transaction;
 use App\Models\Role;
 
+//My Factory
+use \Database\Factories\UserRoleFactory;
+
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -24,22 +27,30 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         //Account
-        //Password::factory(5)->create();
-        //Account::factory(5)->create();  
+        Password::factory(5)->create();
+        Account::factory(5)->create();  
 
         //Stock
-        Price::factory(5)->create();
+        Price::factory(50)->create();
         Stock::factory(5)->create();
         Transaction::factory(5)->create();
+        
   
         User::factory()->create([
             'name' => 'Woodly',
             'email' => 'woodly@gmail.com',
             'password' => bcrypt('password'), // Passwort verschlüsseln
         ]);
+        User::factory(5)->create();
 
         $this->call(class: RoleSeeder::class);
-        Price::factory(50)->create();
+        
+        for ($i = 0; $i <= 4; $i++)
+        {
+            // Aufruf der UserRoleFactory
+            UserRoleFactory::new()->definition();
+        }
+
         //Stock::factory(5)->create();
         //Transaction::factory(5)->create();
   
