@@ -1,96 +1,19 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Dashboard') }}
+        </h2>
+    </x-slot>
 
-<div>
-    @section('title')
-    <h1>All Account Infos</h1>
-    @endsection
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
 
-    @section('content')
-    <div>
-        <ul>
-            @foreach ($accounts as $account)
-            <li>
-                <p class="text"> Username: {{ $account->username }}</p>
-            </li>
-            <ul>
-                <li>
-                    <p>
-                        Account ID: {{ $account->id }}
-                    </p>
-                </li>
-                <li>
-                    <p>
-                        Password ID: {{ $account->password_id }}
-                    </p>
-                </li>
-                <li>
-                    <p>
-                        Password Hash: {{ $account->password->hash }}
-                    </p>
-                <li>
-                    <p>
-                        Mail: {{ $account->mail }}
-                    </p>
-                </li>
-                <li>
-                    <p>
-                        Verified: {{ $account->is_verified }}
-                    </p>
-                </li>
-
-                <li>
-                    <p>Transactions:</p>
-                    <ul>
-                        @foreach ($account->transactions as $transaction)
-                        <li>
-                            <p>Transaction ID: {{ $transaction->id }}</p>
-                        </li>
-                        <ul>
-                            <li>
-                                <p> Account ID: {{ $transaction->account_id }}</p>
-                            </li>
-                        </ul>
-                        <li>
-                            <p>Stock ID: {{ $transaction->stock_id }}</p>
-                        </li>
-                        <li>
-                            <p>Status (Buy/Sell): {{ $transaction->status }}</p>
-                        </li>
-                        <li>
-                            <p>Quantity: {{ $transaction->quantity }}</p>
-                        </li>
-                        <br>
-                        @endforeach
-                    </ul>
-                </li>
-
-                <li>
-                    <p>Stock:</p>
-                    <ul>
-                        @foreach ($account->transactions as $transaction)
-                        <li>
-                            <p> ID: {{ $transaction->stock->id }}</p>
-                        </li>
-                        <li>
-                            <p>Price ID: {{ $transaction->stock->price_id }}</p>
-                        </li>
-                        <ul>
-                            <li>
-                                <p>Price Name: {{ $transaction->stock->price->name }} €</p>
-                            </li>
-                        </ul>
-                </li>
-
-                <!-- Removed Product Type section -->
-
-                @endforeach
-            </ul>
-            </li>
-        </ul>
-
-        <br>
-        @endforeach
-        </ul>
+                    
+                </div>
+            </div>
+        </div>
     </div>
-    @endsection
-</div>
+
+</x-app-layout>

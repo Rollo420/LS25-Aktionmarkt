@@ -17,14 +17,14 @@
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('stock.index')" :active="request()->routeIs('chart')">
+                    <x-nav-link :href="route('stock.index')" :active="request()->routeIs('stock.*')">
                         {{ __('Stocks') }}
                     </x-nav-link>
                 </div>
                 @if (Auth::check() && Auth::user()->isAdministrator())
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('admin')" :active="request()->routeIs('admin')">
-                            {{ __('Admin') }}
+                        <x-nav-link :href="route('time.index')" :active="request()->routeIs('time.*')">
+                            {{ __('Time') }}
                         </x-nav-link>
                     </div>
                 @endif

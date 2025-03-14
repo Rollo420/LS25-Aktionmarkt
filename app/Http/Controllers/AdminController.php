@@ -16,13 +16,13 @@ class AdminController extends Controller
         //$passwordHash = account::find(1)->password;
         
         $user = User::find(2);
-        if ($user->isAdministrator()) {
-            // User is an administrator
-            dd('User is an administrator');
-        } else {
-            // User is not an administrator
-            dd('User is not an administrator');
-        }
+        //if ($user->isAdministrator()) {
+        //    // User is an administrator
+        //    dd('User is an administrator');
+        //} else {
+        //    // User is not an administrator
+        //    dd('User is not an administrator');
+        //}
         
         return view('admin', ['accounts' => $accounts]);
     }

@@ -27,7 +27,15 @@
             </form>
             <div class="selected-month mt-4">
                 <h3>Selected Month: <span id="selected-month">{{ $selectedMonth ?? 'None' }}</span></h3>
+                <div>
+                    @foreach ($insertData as $key => $value)
+                    <p>{{ $key }}: {{ $value }}</p>
+                    @endforeach
+                </div>
+
             </div>
+
+
         </div>
     </div>
 </x-app-layout>

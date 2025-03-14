@@ -23,7 +23,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/chart', [ChartController::class, 'show'])->name('chart.show');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'time'])->group(function () {
     Route::get('/time', [TimeController::class, 'index'])->name('time.index');
     Route::post('/time', [TimeController::class, 'update'])->name('time.update');
 });
