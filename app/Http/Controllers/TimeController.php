@@ -57,12 +57,12 @@ class TimeController extends Controller
                     // Führe das Einfügen in die Datenbank durch
                     Price::create($insertData);
 
-                    $stock = new Stock();                    
-                    $price = new Price();
-
-                    $price-> name = 10;
-                    $stock->price = [$price];
-                    $stock-> save();
+                    //$stock = new Stock();                    
+                    //$price = new Price();
+//
+                    //$price-> name = 10;
+                    //$stock->price = [$price];
+                    //$stock-> save();
                 }
             }
         }

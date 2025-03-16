@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 //My imports Model Account
 use App\Models\Account\Account;
@@ -29,8 +30,15 @@ class DatabaseSeeder extends Seeder
         //Account
         Password::factory(5)->create();
         Account::factory(5)->create();  
-
+       
+        $d1=strtotime("January 01 1"); 
         //Stock
+        Price::factory()->create([
+            'name' =>  20,            
+            'month' => date("m", $d1),
+            'stock_id' => 1,
+            'year' => date('y', $d1)]);
+            
         Price::factory(50)->create();
         Stock::factory(5)->create();
         Transaction::factory(5)->create();
@@ -45,6 +53,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call(class: RoleSeeder::class);
         
+        
+
         for ($i = 0; $i <= 4; $i++)
         {
             // Aufruf der UserRoleFactory
