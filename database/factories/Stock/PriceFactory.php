@@ -20,7 +20,7 @@ class PriceFactory extends Factory
      
     public function definition(): array
     {
-        $this->getLastDate();
+        
         return [
             'name' =>  20,            
             'month' => date("m", $d1),
@@ -39,11 +39,6 @@ class PriceFactory extends Factory
         return fake()->numberBetween(1, 5);
     }
 
-    public function getLastDate()
-    {
-        $price = Price::latest()->where('stock_id', $this->stock_id);
-        dd($price);
-        return $price;
-    }
+    
 
 }
