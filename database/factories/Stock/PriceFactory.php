@@ -15,7 +15,6 @@ class PriceFactory extends Factory
      * @return array<string, mixed>
      */
     
-    protected static $yearDate = 1;
     protected static $stock_id = 1;
      
     public function definition(): array
@@ -23,9 +22,8 @@ class PriceFactory extends Factory
         
         return [
             'name' =>  20,            
-            'month' => date("m", $d1),
+            'date' => $this->defaultDate(),
             'stock_id' => 1,
-            'year' => date('y', $d1)
         ];
     }
 
