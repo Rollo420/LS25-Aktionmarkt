@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Price extends Model
 {
     use HasFactory;
-    protected $fillable = ['id', 'created_at', 'updated_at', 'price', 'stock_id', 'month', 'year', 'name'];
+    protected $fillable = ['id', 'created_at', 'updated_at', 'price', 'stock_id', 'date', 'name'];
 
     //protected static function boot()
     //{
