@@ -107,6 +107,13 @@ class ChartController extends Controller
             ]
         ];
 
-        return view('Stock.store', ['chartData' => $listStock, 'chartOptions' => $chartOptions]);
+        return view('Stock.store', ['chartData' => $listStock, 'chartOptions' => $chartOptions, 'stocks' => $this->stockDetail($id)]);
+    }
+
+    public function stockDetail($id)
+    {
+        $stock = Stock::findOrFail($id);
+        
+        return ($stock);
     }
 }

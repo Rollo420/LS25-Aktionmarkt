@@ -54,4 +54,8 @@ class User extends Authenticatable
     {
         return $this->roles()->where('name', 'admin')->exists();
     }
+
+    public function bank(){
+        return $this->hasOne(Bank::class);
+    }
 }

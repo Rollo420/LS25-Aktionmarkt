@@ -33,7 +33,7 @@
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <div class="account-balance">
-                    <h6>Konto: 909090909</h6>
+                    <h6>Balance: {{ Auth::user()->bank->balance }}</h6>
                 </div>
 
                 <x-dropdown align="right" width="48">

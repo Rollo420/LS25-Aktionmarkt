@@ -28,4 +28,5 @@ class StockController extends Controller
         $stock = Stock::findOrFail($id);
         return view('Stock.show', ['stock' => $stock]);
     }
+
 }

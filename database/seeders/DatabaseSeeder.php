@@ -15,6 +15,9 @@ use App\Models\Stock\Price;
 use App\Models\Stock\Stock;
 use App\Models\Stock\Transaction;
 use App\Models\Role;
+use App\Models\Bank;
+use App\Models\Credit;
+
 
 //My Factory
 use \Database\Factories\UserRoleFactory;
@@ -36,12 +39,12 @@ class DatabaseSeeder extends Seeder
         Transaction::factory(5)->create();
         
   
-        User::factory()->create([
+        User::factory()->hasBank(1)->create([
             'name' => 'Woodly',
             'email' => 'woodly@gmail.com',
             'password' => bcrypt('password'), // Passwort verschlüsseln
         ]);
-        User::factory(5)->create();
+        User::factory(5)->hasBank(1)->create();
 
         $this->call(class: RoleSeeder::class);
         
@@ -49,6 +52,8 @@ class DatabaseSeeder extends Seeder
         {
             UserRoleFactory::new()->definition();
         }
+
+        Credit::factory(5)->create();
 
         //Stock::factory(5)->create();
         //Transaction::factory(5)->create();
