@@ -24,9 +24,26 @@ class UserRoleFactory extends Factory
 
         DB::table('users_roles')->insert(
             [
-                'user_id' => fake()->numberBetween(1, 5),
+                'user_id' => fake()->numberBetween(2, 5),
                 'role_id' => fake()->numberBetween(1, 4),
             ],
         );
+
+        $exists = DB::table('users_roles')
+        ->where('user_id', 1)
+        ->where('role_id', 1)
+        ->exists();
+
+        if (!$exists) {
+           DB::table('users_roles')->insert(
+            [
+                'user_id' => 1,
+                'role_id' => 1,
+            ],
+        );
+        }
+
     }
+
+    
 }

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 //My imports Model Account
 use App\Models\Account\Account;
@@ -32,14 +33,19 @@ class DatabaseSeeder extends Seeder
         //Account
         Password::factory(5)->create();
         Account::factory(5)->create();  
-
-        //Stock
-        Price::factory(50)->create();
+       
+        
         Stock::factory(5)->create();
         Transaction::factory(5)->create();
         
+<<<<<<< HEAD
   
         User::factory()->hasBank(1)->create([
+=======
+        $this->call(class: PriceSeeder::class);
+
+        User::factory()->create([
+>>>>>>> 02da501c24f2a750639cf4567fa03c44f5362008
             'name' => 'Woodly',
             'email' => 'woodly@gmail.com',
             'password' => bcrypt('password'), // Passwort verschlüsseln
@@ -48,6 +54,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call(class: RoleSeeder::class);
         
+        
+
         for ($i = 0; $i <= 4; $i++)
         {
             UserRoleFactory::new()->definition();

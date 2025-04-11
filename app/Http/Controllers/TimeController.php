@@ -33,38 +33,11 @@ class TimeController extends Controller
 
         //wichtig $stock->price()->get()->last()->month!!!
         foreach ($stocks as $stock) {
-            $lastPrice = $stock->price()->get()->last();
-            $lastMonth = $lastPrice->month;
-            $lastMonthIdx = $this->getMonthIndex($lastMonth);
-            $lastYear = $lastPrice->year;
-
-            if ($currentMonthIdx < $lastMonthIdx) {
-                foreach ($this->monthArray as $index => $value) {
-                    // Wenn der Index das Ende des Arrays erreicht hat, gehe zurück zum Anfang
-                    if ($index === count($this->monthArray) - 1) 
-                    {
-                        $index = -1; 
-                        $lastYear++; 
-                    }
-
-                    $insertData = [
-                        'name' => fake()->randomFloat(2, 0, 100), 
-                        'month' => $value,
-                        'stock_id' => $stock->id,
-                        'year' => $lastYear,
-                    ];
-                    //dd($insertData);
-                    // Führe das Einfügen in die Datenbank durch
-                    Price::create($insertData);
-
-                    $stock = new Stock();                    
-                    $price = new Price();
-
-                    $price-> name = 10;
-                    $stock->price = [$price];
-                    $stock-> save();
-                }
-            }
+            
+            $lastDate = $stock->price()->get()->last()->date;
+            $lastDate = date('Y-M-d', $lastDate);
+            dd($lastDate);
+            
         }
 
 
@@ -76,4 +49,15 @@ class TimeController extends Controller
         $formattedMonth = ucfirst(strtolower($month));
         return array_search($formattedMonth, $this->monthArray);
     }
+
+    function getNextMonthDate($monthName) {
+    $month = date("n", strtotime($monthName)); // Konvertiere Monatsname in Zahl
+    $currentYear = date("Y");
+    $currentMonth = date("n");
+
+    // Falls der Monat schon vorbei ist, nehme das nächste Jahr
+    $targetYear = ($currentMonth >= $month) ? $currentYear + 1 : $currentYear;
+
+    return date("Y-m-d", strtotime("first day of $monthName $targetYear"));
+}
 }

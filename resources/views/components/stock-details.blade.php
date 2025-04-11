@@ -15,8 +15,10 @@ Dividendentermine	Nächster Zahlungstermin
 -->
 
 @props(['stocks'])
-<div>
-    <p>moin</p>
-{{  dd($stocks)}}
 
-</div>
+<div class="mt-4">
+    <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        {{ __('Stock Details') }}
+    </h2>
+    {{ dd($stocks)}}
+<div>
