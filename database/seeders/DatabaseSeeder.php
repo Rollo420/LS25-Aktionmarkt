@@ -47,7 +47,6 @@ class DatabaseSeeder extends Seeder
         
         for ($i = 0; $i <= 4; $i++)
         {
-            // Aufruf der UserRoleFactory
             UserRoleFactory::new()->definition();
         }
 
