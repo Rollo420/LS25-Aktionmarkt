@@ -25,8 +25,8 @@
                         :options="$chartOptions" 
                     />
 
-                    <x-firmen-details :details="$stock" />
-                    <x-stock-details :details="$details" />
+                    <x-firmen-details :firmenDetails="$stock" />
+                    <x-stock-details :stocks="$details" />
 
                 </div>
             </div>

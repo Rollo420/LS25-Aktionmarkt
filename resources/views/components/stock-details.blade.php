@@ -19,12 +19,25 @@ Dividendentermine	Nächster Zahlungstermin
  Beschreibung	Kurztext zur Firma
 -->
 
-@props(['details'])
+@props(['stocks'])
 
 <div class="mt-4">
     <h2 class="font-semibold text-xl text-gray-10 dark:text-gray-10 leading-tight">
-        {{ __('Stock Detailss') }}
+        {{ __('Stock Details') }}
     </h2>
-    
-    
+
+    <div class="grid grid-flow-col grid-rows-2 gap-0">
+        <p>Price</p>
+
+        <!-- ... -->
+        <div>05</div>
+        <div class="row-span-3 grid grid-rows-subgrid gap-1">
+            <div class="row-start-1">
+                <p>{{ $stocks['currentPrice'] }}€</p>
+            </div>
+        </div>
+        <div>07</div>
+        <!-- ... -->
+        <div>10</div>
+    </div>
 </div>

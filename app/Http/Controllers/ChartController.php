@@ -124,8 +124,4 @@ class ChartController extends Controller
         ]);
     }
 
-    public function stockDetail($id)
-    {
-        return Stock::findOrFail($id);
-    }
 }

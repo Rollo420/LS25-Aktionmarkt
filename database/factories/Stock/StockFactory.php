@@ -20,7 +20,7 @@ class StockFactory extends Factory
         return [
             'name' => fake()->word(),
             'frima' => fake()->word(),
-            'sektor' => fake()->word(),
+            'sector' => fake()->word(),
             'land' => fake()->word(),
             'description' => fake()->text(),
             'net_income' => fake()->randomFloat(2, 1000, 1000000),            

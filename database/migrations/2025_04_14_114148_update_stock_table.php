@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('stocks', function (Blueprint $table) {
             $table->string('frima')->after('name')->nullable();
-            $table->string('sektor')->after('frima')->nullable();
-            $table->string('land')->after('sektor')->nullable();
+            $table->string('sector')->after('frima')->nullable();
+            $table->string('land')->after('sector')->nullable();
             $table->text('description')->after('land')->nullable();
             $table->float('net_income')->after('description')->nullable();
         });

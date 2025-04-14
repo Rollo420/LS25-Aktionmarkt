@@ -1,3 +1,4 @@
+@props(['firmenDetails'])
 <!-- Aufgabe 
 Aktueller Kurs	Der Preis der Aktie zum aktuellen Zeitpunkt
 Kursveränderung (absolut / %)	Z. B. +1,23 € (+2,3 %) 
@@ -19,12 +20,22 @@ Dividendentermine	Nächster Zahlungstermin
  Beschreibung	Kurztext zur Firma
 -->
 
-@props(['frimaDetails'])
-
 <div class="mt-4">
     <h2 class="font-semibold text-xl text-gray-10 dark:text-gray-10 leading-tight">
         {{ __('Stock Details') }}
     </h2>
-    
-    
+
+    <div class="tow grid">
+
+        <h3>Firma</h2>
+            <h4> {{ $firmenDetails->get()[0]->frima }}</h4>
+            <h3>Sector</h3>
+            <h4>{{ $firmenDetails->get()[0]->sector }}</h4>
+
+            <h3>Land</h3>
+            <h4>{{ $firmenDetails->get()[0]->land }}</h4>
+            <h3>Description</h>
+            <h4>{{ $firmenDetails->get()[0]->description }}</h4>
+    </div>
+    {{ dd($firmenDetails) }} <!-- Korrigierter Variablenname -->
 </div>

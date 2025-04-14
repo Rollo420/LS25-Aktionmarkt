@@ -24,6 +24,14 @@ class StockController extends Controller
         return view('Stock.index', ['stocks' => $stockWithPrice]);
     }
 
+    public function firmenDetails(int $id)
+    {
+        $stock = Stock::findOrFail($id);
+
+        
+
+    }
+
     public function stockDetails(int $id)
     {
         $details = [];
