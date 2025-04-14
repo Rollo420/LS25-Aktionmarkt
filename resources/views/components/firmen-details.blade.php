@@ -26,19 +26,5 @@ Dividendentermine	Nächster Zahlungstermin
         {{ __('Stock Details') }}
     </h2>
     
-    <div class="grid grid-flow-col grid-rows-2 gap-4">
-        <div class="row-span-3 grid grid-rows-subgrid gap-1">
-            <p>Price €</p>
-            <div class="row-start-3">
-                <p>{{ $details['currentPrice'] }}€</p>
-            </div>
-        </div>
-
-        <div class="row-span-2 grid grid-rows-subgrid gap-1">
-            <p>Price Change</p>
-            <div class="row-start-1">
-                <p>{{ $details['priceChange'] }}€</p>
-            </div>
-        </div>    
-    </div>
+    
 </div>
