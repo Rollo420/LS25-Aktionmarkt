@@ -23,10 +23,28 @@ class StockController extends Controller
         return view('Stock.index', ['stocks' => $stockWithPrice]);
     }
 
-    public function store($id)
+    public function details(int $id)
     {
+        $details = [];
+        $currentPrice = 0.0;
+        $priceChange = 0.0;
+        $dividendDistribution = 0.0;
+        $percentageDevelopment = 0.0; 
+        $eps = 0.0; // Earnings Per Share
+
         $stock = Stock::findOrFail($id);
-        return view('Stock.show', ['stock' => $stock]);
+
+        $prices = $stock->price; // Get all prices
+        $details['currentPrice'] = $prices->last()->name; // Last price
+
+        $previousPrice = $prices->slice(-2, 1)->first(); // Second-to-last price
+        $details['priceChange'] = $previousPrice ? $details['currentPrice'] - $previousPrice->name : 0;
+
+
+
+        //dd($details);
+
+        return $details;
     }
 
 }

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $defaultDate = '00-Jun-01 00:00:00';
+        $defaultDate = '00-01-01';
         Schema::table('prices', function (Blueprint $table) use ($defaultDate) {
             $table->dropColumn(['month', 'year']);
             $table->datetime('date')->default($defaultDate)->after('stock_id');

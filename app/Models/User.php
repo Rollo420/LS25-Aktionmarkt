@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Bank; // Importiere das Bank-Modell
 
 class User extends Authenticatable
 {
@@ -58,4 +59,16 @@ class User extends Authenticatable
     public function bank(){
         return $this->hasOne(Bank::class);
     }
+
+    /*protected static function booted()
+    {
+        static::created(function ($user) {
+            // Automatisch einen Bankeintrag erstellen
+            Bank::create([
+                'user_id' => $user->id,
+                'iban' => Bank::generateIban(), // Verwende die neue IBAN-Generierung
+                'balance' => 4.0, // Standardwert für den Kontostand
+            ]);
+        });
+    }*/
 }

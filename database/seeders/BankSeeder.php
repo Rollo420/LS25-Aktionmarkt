@@ -14,6 +14,6 @@ class BankSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(5)->hasBank(1)->create();
+        //User::factory(5)->hasBank(1)->create();
     }
 }

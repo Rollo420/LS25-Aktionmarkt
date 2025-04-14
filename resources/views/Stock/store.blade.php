@@ -24,7 +24,7 @@
                         :data="$chartData"
                         :options="$chartOptions" 
                     />
-                    <x-stock-details :stocks="$stocks" />
+                    <x-stock-details :stocks="$stock" />
 
                     
                 </div>

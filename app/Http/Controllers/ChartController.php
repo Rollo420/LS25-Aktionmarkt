@@ -8,6 +8,7 @@ use Illuminate\Log\Context;
 //My Controller
 use Colors\RandomColor;
 use App\Http\Controllers\TimeController;
+use App\Http\Controllers\StockController;
 
 //My Models
 use App\Models\Stock\Price;
@@ -15,6 +16,7 @@ use App\Models\Stock\Stock;
 
 class ChartController extends Controller
 {
+    
     private function randomRGBA($alpha = 1.0)
     {
         $colors = [
@@ -111,12 +113,13 @@ class ChartController extends Controller
             ]
         ];
 
-        // Return the view with chart data and stock details
-        $stockDetails = $this->stockDetail($id);
+        $stockController = new StockController();
+        $stockDetails = $stockController->details($id);
+
         return view('Stock.store', [
             'chartData' => $listStock,
             'chartOptions' => $chartOptions,
-            'stocks' => $stockDetails
+            'stock' => $stockDetails
         ]);
     }
 
