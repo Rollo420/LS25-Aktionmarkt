@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Stock\Stock;
+use App\Models\Stock\Transaction;
 use Illuminate\View\View;
 
 class StockController extends Controller
@@ -23,26 +24,32 @@ class StockController extends Controller
         return view('Stock.index', ['stocks' => $stockWithPrice]);
     }
 
-    public function details(int $id)
+    public function stockDetails(int $id)
     {
         $details = [];
-        $currentPrice = 0.0;
-        $priceChange = 0.0;
-        $dividendDistribution = 0.0;
-        $percentageDevelopment = 0.0; 
-        $eps = 0.0; // Earnings Per Share
 
         $stock = Stock::findOrFail($id);
 
+        //current price
         $prices = $stock->price; // Get all prices
         $details['currentPrice'] = $prices->last()->name; // Last price
 
+        //price change
         $previousPrice = $prices->slice(-2, 1)->first(); // Second-to-last price
         $details['priceChange'] = $previousPrice ? $details['currentPrice'] - $previousPrice->name : 0;
 
+        //earnings per share
+        $totalShares = Transaction::where('stock_id', $id)->sum('quantity');
+        $details['eps'] = $totalShares / $stock->net_income; 
 
+        //dividend distribution
+        $details['dividendDistribution'] = ($details['eps'] / $details['currentPrice']) * 100; 
 
-        //dd($details);
+        //kgv
+        $details['kgv'] = $details['currentPrice'] / $details['eps']; 
+
+        //percentage development
+        $details['percentageDevelopment'] = (($details['currentPrice'] - $previousPrice->name) / $previousPrice->name) * 100;
 
         return $details;
     }

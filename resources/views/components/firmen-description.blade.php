@@ -19,7 +19,7 @@ Dividendentermine	Nächster Zahlungstermin
  Beschreibung	Kurztext zur Firma
 -->
 
-@props(['details'])
+@props(['frimaDetails'])
 
 <div class="mt-4">
     <h2 class="font-semibold text-xl text-gray-10 dark:text-gray-10 leading-tight">

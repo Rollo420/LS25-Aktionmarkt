@@ -18,7 +18,12 @@ class StockFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->word()
+            'name' => fake()->word(),
+            'frima' => fake()->word(),
+            'sektor' => fake()->word(),
+            'land' => fake()->word(),
+            'description' => fake()->text(),
+            'net_income' => fake()->randomFloat(2, 1000, 1000000),            
         ];
     }
 

@@ -114,12 +114,13 @@ class ChartController extends Controller
         ];
 
         $stockController = new StockController();
-        $stockDetails = $stockController->details($id);
+        $stockDetails = $stockController->stockDetails($id);
 
         return view('Stock.store', [
             'chartData' => $listStock,
             'chartOptions' => $chartOptions,
-            'stock' => $stockDetails
+            'stock' => $stock,
+            'details' => $stockDetails
         ]);
     }
 
