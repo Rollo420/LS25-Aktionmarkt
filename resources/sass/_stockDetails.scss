@@ -1,0 +1,26 @@
+.tow-grid{
+    text-align: center;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    //gap: 5px;
+}
+
+.tow-grid {
+    
+    > h3 {
+        display: flex;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        margin-left: 18rem;
+    }
+    > h5 {
+        display: flex;
+        font-weight: 400;
+        margin-bottom: 0.5rem;
+        margin-left: 8rem;
+    }
+}
+
+.placeholder {
+    height: 6rem;
+}

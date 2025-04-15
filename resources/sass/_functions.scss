@@ -1,0 +1,29 @@
+@mixin placeholderHorizontal($place, $placeholder) {
+  @if $place == 'all'
+  {
+    padding-left: $placeholder + rem;
+    padding-right: $placeholder + rem;
+    padding-top: $placeholder + rem;
+    padding-bottom: $placeholder + rem;
+  }
+    @else if $place == 'left' 
+  {
+    padding-left: $placeholder + rem;
+  }
+  @else if $place == 'right' 
+  {
+    padding-right: $placeholder + rem;
+  }
+  @else if $place == 'top' 
+  {
+    padding-top: $placeholder + rem;
+  }
+  @else if $place == 'bottom' 
+  {
+    padding-bottom: $placeholder + rem;
+  }
+  @else 
+  {
+    @error "Invalid placeholder position: #{$place}. Use 'left', 'right', 'top', or 'bottom'.";
+  }
+}

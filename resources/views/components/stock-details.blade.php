@@ -19,25 +19,36 @@ Dividendentermine	Nächster Zahlungstermin
  Beschreibung	Kurztext zur Firma
 -->
 
-@props(['stocks'])
+@props(['stockDetails'])
 
 <div class="mt-4">
     <h2 class="font-semibold text-xl text-gray-10 dark:text-gray-10 leading-tight">
         {{ __('Stock Details') }}
     </h2>
 
-    <div class="grid grid-flow-col grid-rows-2 gap-0">
-        <p>Price</p>
+    <div class="tow-grid">
+        <h3>Price</h3>
+        <h5>{{ number_format($stockDetails['currentPrice'], 2, ","," ") }} €</h5>
 
-        <!-- ... -->
-        <div>05</div>
-        <div class="row-span-3 grid grid-rows-subgrid gap-1">
-            <div class="row-start-1">
-                <p>{{ $stocks['currentPrice'] }}€</p>
-            </div>
-        </div>
-        <div>07</div>
-        <!-- ... -->
-        <div>10</div>
+        <h3>Price Development (€)</h3>
+        <h5 class="{{ $stockDetails['priceDevelopment'] >= 0 ? 'text-green-500' : 'text-red-500' }}">
+            {{ $stockDetails['priceDevelopment'] >= 0 ? '+' : '' }}
+            {{ number_format($stockDetails["priceDevelopment"], 6, ",", " ") }} €
+        </h5>
+
+        <h3>Percentage Development (%)</h3>
+        <h5 class="{{ $stockDetails['percentageDevelopment'] >= 0 ? 'text-green-500' : 'text-red-500' }}">
+            {{ $stockDetails['percentageDevelopment'] >= 0 ? '+' : '' }}
+            {{ number_format($stockDetails["percentageDevelopment"], 6, ",", " ") }} %
+        </h5>
+
+        <h3>EPS (Earnings per Share)</h3>
+        <h5>{{ $stockDetails["eps"]}} €</h5>
+
+        <h3>Dividend Distribution (%)</h3>
+        <h5>{{ number_format($stockDetails["dividendDistribution"], 6,",", " ") }} %</h5>
+
+        <h3>PER (Price-to-earnings ratio)</h3>
+        <h5>{{ number_format($stockDetails["kgv"], 6, ","," ") }}</h5>
     </div>
 </div>

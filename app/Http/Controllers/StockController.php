@@ -44,20 +44,28 @@ class StockController extends Controller
 
         //price change
         $previousPrice = $prices->slice(-2, 1)->first(); // Second-to-last price
-        $details['priceChange'] = $previousPrice ? $details['currentPrice'] - $previousPrice->name : 0;
-
-        //earnings per share
-        $totalShares = Transaction::where('stock_id', $id)->sum('quantity');
-        $details['eps'] = $totalShares / $stock->net_income; 
-
-        //dividend distribution
-        $details['dividendDistribution'] = ($details['eps'] / $details['currentPrice']) * 100; 
-
-        //kgv
-        $details['kgv'] = $details['currentPrice'] / $details['eps']; 
+        $details['priceDevelopment'] = $previousPrice ? $details['currentPrice'] - $previousPrice->name : 0;
 
         //percentage development
-        $details['percentageDevelopment'] = (($details['currentPrice'] - $previousPrice->name) / $previousPrice->name) * 100;
+        $details['percentageDevelopment'] = ($previousPrice && $previousPrice->name != 0)
+            ? (($details['currentPrice'] - $previousPrice->name) / $previousPrice->name) * 100
+            : 0;
+
+        //earnings per share
+        $totalShares = Transaction::where('stock_id', $id)->sum('quantity') ?: 1; // Avoid division by 0
+        $details['eps'] = $stock->net_income != 0
+            ? $stock->net_income / $totalShares
+            : 0;
+
+        //dividend distribution
+        $details['dividendDistribution'] = ($details['eps'] > 0 && $details['currentPrice'] > 0)
+            ? ($details['eps'] / $details['currentPrice']) * 100
+            : 0;
+
+        //kgv
+        $details['kgv'] = ($details['eps'] > 0)
+            ? $details['currentPrice'] / $details['eps']
+            : 0;
 
         return $details;
     }

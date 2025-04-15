@@ -68,15 +68,15 @@ class ChartController extends Controller
         // Pass $listStock to the view or handle it as needed
     }
 
-    public function OneChart($id)
+    public function OneChart($id, $limit = 12) // Standardmäßig 12 Einträge
     {
         $stock = Stock::findOrFail($id);
         $color = $this->randomRGBA(0.2);
 
-        // Ensure the 'date' field exists in the price model
+        // Sortiere die Preise nach Datum und begrenze die Anzahl der Einträge
         $sortedPrices = $stock->price->sortBy(function ($price) {
-            return isset($price->date) ? strtotime($price->date) : 0; // Fallback to 0 if 'date' is missing
-        });
+            return isset($price->date) ? strtotime($price->date) : 0; // Fallback auf 0, wenn 'date' fehlt
+        })->take($limit)->values(); // Begrenze die Anzahl der Einträge auf $limit
 
         $listStock = [
             'labels' => $sortedPrices->map(function ($price) {
@@ -87,13 +87,13 @@ class ChartController extends Controller
                 'backgroundColor' => $color,
                 'borderColor' => $color,
                 'data' => $sortedPrices->map(function ($price) {
-                    return $price->name ?? 0; // Fallback to 0 if 'name' is missing
+                    return $price->name ?? 0; // Fallback auf 0, wenn 'name' fehlt
                 })->toArray(),
                 'fill' => false,
             ]]
         ];
 
-        // Replace datasets with fallback data if no valid data exists
+        // Fallback-Daten, wenn keine gültigen Daten vorhanden sind
         if (empty($listStock['datasets'][0]['data'])) {
             $listStock['datasets'] = [[
                 'label' => 'Error Test Chart',

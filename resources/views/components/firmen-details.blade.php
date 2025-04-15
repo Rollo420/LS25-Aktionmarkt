@@ -22,13 +22,13 @@ Dividendentermine	Nächster Zahlungstermin
 
 <div class="mt-4">
     <h2 class="font-semibold text-xl text-gray-10 dark:text-gray-10 leading-tight">
-        {{ __('Stock Details') }}
+        {{ __('Firm Details') }}
     </h2>
 
-    <div class="tow grid">
+    <div class="tow-grid">
 
         <h3>Firma</h2>
-            <h4> {{ $firmenDetails->get()[0]->frima }}</h4>
+            <h6> {{ $firmenDetails->get()[0]->frima }}</h6>
             <h3>Sector</h3>
             <h4>{{ $firmenDetails->get()[0]->sector }}</h4>
 
@@ -37,5 +37,4 @@ Dividendentermine	Nächster Zahlungstermin
             <h3>Description</h>
             <h4>{{ $firmenDetails->get()[0]->description }}</h4>
     </div>
-    {{ dd($firmenDetails) }} <!-- Korrigierter Variablenname -->
 </div>

@@ -18,15 +18,20 @@
                         </h2>
                     </x-slot>
 
+                    
+                        <x-chart-show id="chart"
+                            type="line"
+                            :data="$chartData"
+                            :options="$chartOptions"/>                            
+                        <x-firmen-details :firmenDetails="$stock" />
+                    
+                        monate anzeigen 3,6,12 mit chart 
+                    <div class="placeholder"></div>
+                    <section>
+                        <x-stock-details :stockDetails="$details" />
+                    </section>
 
-                    <x-chart-show id="chart"
-                        type="line"
-                        :data="$chartData"
-                        :options="$chartOptions" 
-                    />
 
-                    <x-firmen-details :firmenDetails="$stock" />
-                    <x-stock-details :stocks="$details" />
 
                 </div>
             </div>
