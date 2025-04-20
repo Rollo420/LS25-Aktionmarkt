@@ -22,8 +22,11 @@
                         <x-chart-show id="chart"
                             type="line"
                             :data="$chartData"
-                            :options="$chartOptions"/>                            
-                        <x-firmen-details :firmenDetails="$stock" />
+                            :options="$chartOptions"
+                        />         
+
+                        <x-firmen-details :firmenDetails="$stock" 
+                    />
                     
                         monate anzeigen 3,6,12 mit chart 
                     <div class="placeholder"></div>
@@ -36,5 +39,4 @@
                 </div>
             </div>
         </div>
-
 </x-app-layout>

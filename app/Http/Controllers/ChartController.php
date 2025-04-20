@@ -72,11 +72,13 @@ class ChartController extends Controller
     {
         $stock = Stock::findOrFail($id);
         $color = $this->randomRGBA(0.2);
+        //dd($stock);
+        $prices = Price::where('stock_id', $id)->orderBy('date', 'desc')->take($limit)->get();
 
-        // Sortiere die Preise nach Datum und begrenze die Anzahl der Einträge
-        $sortedPrices = $stock->price->sortBy(function ($price) {
+        $sortedPrices = $prices->sortBy(function ($price) {
             return isset($price->date) ? strtotime($price->date) : 0; // Fallback auf 0, wenn 'date' fehlt
-        })->take($limit)->values(); // Begrenze die Anzahl der Einträge auf $limit
+        })->values();
+
 
         $listStock = [
             'labels' => $sortedPrices->map(function ($price) {
@@ -115,7 +117,7 @@ class ChartController extends Controller
 
         $stockController = new StockController();
         $stockDetails = $stockController->stockDetails($id);
-
+        //dd($id);
         return view('Stock.store', [
             'chartData' => $listStock,
             'chartOptions' => $chartOptions,

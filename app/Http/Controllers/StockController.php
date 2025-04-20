@@ -24,23 +24,15 @@ class StockController extends Controller
         return view('Stock.index', ['stocks' => $stockWithPrice]);
     }
 
-    public function firmenDetails(int $id)
-    {
-        $stock = Stock::findOrFail($id);
-
-        
-
-    }
-
     public function stockDetails(int $id)
     {
         $details = [];
 
         $stock = Stock::findOrFail($id);
-
         //current price
         $prices = $stock->price; // Get all prices
         $details['currentPrice'] = $prices->last()->name; // Last price
+        //dd($details['currentPrice']);
 
         //price change
         $previousPrice = $prices->slice(-2, 1)->first(); // Second-to-last price

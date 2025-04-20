@@ -28,13 +28,13 @@ Dividendentermine	Nächster Zahlungstermin
     <div class="tow-grid">
 
         <h3>Firma</h2>
-            <h6> {{ $firmenDetails->get()[0]->frima }}</h6>
+            <h6> {{ $firmenDetails->frima }}</h6>
             <h3>Sector</h3>
-            <h4>{{ $firmenDetails->get()[0]->sector }}</h4>
+            <h4>{{ $firmenDetails->sector }}</h4>
 
             <h3>Land</h3>
-            <h4>{{ $firmenDetails->get()[0]->land }}</h4>
+            <h4>{{ $firmenDetails->land }}</h4>
             <h3>Description</h>
-            <h4>{{ $firmenDetails->get()[0]->description }}</h4>
+            <h4>{{ $firmenDetails->description }}</h4>
     </div>
 </div>
