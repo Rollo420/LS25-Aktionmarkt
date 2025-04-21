@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChartController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\TimeController;
+use App\Http\Controllers\SessionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,6 +23,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/chart', [ChartController::class, 'show'])->name('chart.show');
+
+Route::post('/update-month', [SessionController::class, 'setTimeLineMonth'])->name('update.monthTimeline');
 
 Route::middleware(['auth', 'time'])->group(function () {
     Route::get('/time', [TimeController::class, 'index'])->name('time.index');

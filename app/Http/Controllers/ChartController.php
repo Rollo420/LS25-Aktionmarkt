@@ -16,7 +16,7 @@ use App\Models\Stock\Stock;
 
 class ChartController extends Controller
 {
-    
+      
     private function randomRGBA($alpha = 1.0)
     {
         $colors = [
@@ -68,8 +68,11 @@ class ChartController extends Controller
         // Pass $listStock to the view or handle it as needed
     }
 
-    public function OneChart($id, $limit = 12) // Standardmäßig 12 Einträge
+    public function OneChart($id, $limit = 12)
     {
+    // Hole den Wert aus der Session oder setze einen Standardwert (z. B. 12)
+    $limit = session('timelineSelectedMonth', 12) ?? $limit;
+
         $stock = Stock::findOrFail($id);
         $color = $this->randomRGBA(0.2);
         //dd($stock);
@@ -125,5 +128,7 @@ class ChartController extends Controller
             'details' => $stockDetails
         ]);
     }
+
+
 
 }

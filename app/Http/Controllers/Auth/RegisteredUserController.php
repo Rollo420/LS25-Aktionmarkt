@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
+use App\Models\Bank;
+
 class RegisteredUserController extends Controller
 {
     /**
@@ -40,6 +42,13 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        
+
+        $user->bank()->create(
+            [
+                'iban' => Bank::generateIban(), // Generiere eine eindeutige Konto-Nummer
+                'balance' => 0.00, // Standard-Kontostand
+            ])->roles()->attach(5);
 
         event(new Registered($user));
 

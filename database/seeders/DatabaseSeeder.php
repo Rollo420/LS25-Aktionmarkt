@@ -49,7 +49,7 @@ class DatabaseSeeder extends Seeder
         ])->bank()->create([
             'iban' => Bank::generateIban(),
             'balance' => 5000.0,
-        ]);
+        ])->roles()->attach(1); // Rolle 1 ist der Administrator
         User::factory(5)->hasBank()->create();
 
         $this->call(class: RoleSeeder::class);

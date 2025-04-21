@@ -1,0 +1,74 @@
+$boxinSize: 7.5rem; // Spezifische Anpassung für das Grid in chart-timeline
+
+
+.chart-timeline-grid {
+   display: grid;
+   grid-template-columns: 10fr 10rem; // Der Chart nimmt den restlichen Platz ein, das grüne Feld ist 5 cm breit
+   gap: 5px; // Minimaler Abstand zwischen den beiden Elementen
+}
+
+.chart-timeline-grid > div:first-child
+{
+    background-color: transparent; // Optional: Chart-Hintergrund bleibt unverändert
+    width: 100%; // Chart nimmt den gesamten verfügbaren Platz ein
+}
+
+.headerMonth {
+    text-align: center; // Zentriert den Text horizontal
+    font-size: 1.5rem; // Passt die Schriftgröße an
+    font-weight: bold; // Macht den Text fett
+    color: grey; // Farbe des Textes
+    margin: -1rem 0rem 0rem; // Abstand nach unten
+    padding: 0.5rem; // Innenabstand
+    border-bottom: 1px solid lightgrey; // Optional: Linie unter der Überschrift
+}
+
+.list-timeline 
+{
+    max-height: 22rem; // Passt die Höhe an das umgebende <div> an
+    list-style: none;
+    padding: 1rem;
+    margin-top: 6rem;
+
+    border: solid;
+    border-radius: 1.5rem;
+    border-color: grey;
+
+    .timeline-item
+    {
+        width: $boxinSize;
+        height: 2.5rem;
+        margin: 1rem 0rem 1rem;
+
+        display: flex;
+        flex-direction: column;
+        background-color: transparent;
+        padding: 0.5rem;
+        align-items: center;
+      
+        &.active 
+        {
+            background-color: rgba(72, 76, 72, 0.363);
+            color: white;
+            border-radius: 1rem;
+        }
+
+        &.inactive 
+        {
+            background-color: transparent;
+            color: lightgray;
+        }
+
+    }
+
+    span 
+    {
+        display: block; // Blockelement für den Strich
+        width: $boxinSize; // Breite des Strichs
+        height: 1px; // Höhe des Strichs (gleiche Höhe wie die Buttons)
+        background-color: lightgrey; // Farbe des Strichs
+        
+        margin: 1rem 0rem 1rem;
+    }
+
+}
