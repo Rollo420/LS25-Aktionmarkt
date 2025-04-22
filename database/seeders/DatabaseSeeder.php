@@ -7,10 +7,6 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-//My imports Model Account
-use App\Models\Account\Account;
-use App\Models\Account\Password;
-
 //My imports Model Stock
 use App\Models\Stock\Price;
 use App\Models\Stock\Stock;
@@ -30,11 +26,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        //Account
-        Password::factory(5)->create();
-        Account::factory(5)->create();  
-       
-        
         Stock::factory(5)->create();
         Transaction::factory(5)->create();
         

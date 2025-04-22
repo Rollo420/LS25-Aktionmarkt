@@ -19,7 +19,7 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'account_id' => fake()->numberBetween(1, 5),
+            'user_id' => fake()->numberBetween(1, 5),
             'stock_id' => fake()->numberBetween(1,3), //$this->stock_id++,
             'status' => fake()->boolean(),
             'quantity' => fake()->numberBetween(1, 100),            

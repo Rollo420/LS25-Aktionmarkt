@@ -5,7 +5,7 @@ namespace App\Models\Stock;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-use App\Models\Account\Account;
+use App\Models\User;
 
 class Transaction extends Model
 {
@@ -15,7 +15,7 @@ class Transaction extends Model
      *
      * @var array
      */
-    protected $fillable = ['id', 'created_at', 'updated_at', 'stock_id', 'quantity', 'account_id', 'status'];
+    protected $fillable = ['id', 'created_at', 'updated_at', 'stock_id', 'quantity', 'user_id', 'status'];
 
     /**
      * Beziehung: Eine Transaktion gehört zu einer Aktie.
@@ -28,12 +28,12 @@ class Transaction extends Model
     }
 
     /**
-     * Beziehung: Eine Transaktion gehört zu einem Account.
+     * Beziehung: Eine Transaktion gehört zu einem User.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function account()
+    public function user()
     {
-        return $this->belongsTo(Account::class, 'account_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

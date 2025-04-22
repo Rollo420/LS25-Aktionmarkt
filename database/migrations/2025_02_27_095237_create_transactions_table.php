@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id()->autoIncrement()->unique();
-            $table->foreignId('account_id')->constrained();
+            $table->foreignId('user_id')->constrained();
             $table->foreignId('stock_id')->constrained();
             $table->boolean('status');
             $table->integer('quantity');
             $table->timestamps();
-            
         });
     }
 
@@ -28,7 +27,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('transactions', function (Blueprint $table): void {
-            $table->dropForeign(['account_id']);
+            $table->dropForeign(['user_id']);
             $table->dropForeign(['stock_id']);
         });
 

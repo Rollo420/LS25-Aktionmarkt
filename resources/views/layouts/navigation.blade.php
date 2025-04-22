@@ -88,6 +88,14 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('stock.index')" :active="request()->routeIs('stock.*')">
+                {{ __('Stocks') }}
+            </x-responsive-nav-link>
+            @if (Auth::check() && Auth::user()->isAdministrator())
+                <x-responsive-nav-link :href="route('time.index')" :active="request()->routeIs('time.*')">
+                    {{ __('Time') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
