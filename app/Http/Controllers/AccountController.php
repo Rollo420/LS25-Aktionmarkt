@@ -8,6 +8,11 @@ use Illuminate\View\View;
 
 class AccountController extends Controller
 {
+    /**
+     * Zeigt eine Übersicht aller Konten mit zugehörigen Transaktionen an.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         $accounts = account::with('transactions')->get();

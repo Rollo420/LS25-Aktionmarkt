@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
-
+<!--
+    Account-Übersicht und Eingabeformular.
+    Zeigt verschiedene Eingabefelder für Benutzer- und Kontoinformationen.
+    Nutzt Bootstrap-Input-Gruppen für übersichtliche Darstellung.
+-->
 <!DOCTYPE html>
     <head>
         <meta charset="utf-8">
@@ -19,16 +23,19 @@
         @endsection
 
         @section('content')
+            <!-- Benutzername-Eingabe -->
             <div class="input-group mb-3">
   <span class="input-group-text" id="basic-addon1">@</span>
   <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
 </div>
 
+<!-- Empfänger-Eingabe mit E-Mail -->
 <div class="input-group mb-3">
   <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
   <span class="input-group-text" id="basic-addon2">@example.com</span>
 </div>
 
+<!-- Vanity-URL Eingabe -->
 <div class="mb-3">
   <label for="basic-url" class="form-label">Your vanity URL </label>
   <div class="input-group">
@@ -38,18 +45,21 @@
   <div class="form-text" id="basic-addon4">Example help text goes outside the input group.</div>
 </div>
 
+<!-- Betragseingabe -->
 <div class="input-group mb-3">
   <span class="input-group-text">$</span>
   <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)">
   <span class="input-group-text">.00</span>
 </div>
 
+<!-- Server- und Username-Eingabe -->
 <div class="input-group mb-3">
   <input type="text" class="form-control" placeholder="Username" aria-label="Username">
   <span class="input-group-text">@</span>
   <input type="text" class="form-control" placeholder="Server" aria-label="Server">
 </div>
 
+<!-- Freitextfeld -->
 <div class="input-group">
   <span class="input-group-text">With textarea</span>
   <textarea class="form-control" aria-label="With textarea"></textarea>

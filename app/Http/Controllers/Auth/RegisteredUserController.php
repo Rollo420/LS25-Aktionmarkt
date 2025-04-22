@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Models\Bank;
 
@@ -48,8 +49,10 @@ class RegisteredUserController extends Controller
             [
                 'iban' => Bank::generateIban(), // Generiere eine eindeutige Konto-Nummer
                 'balance' => 0.00, // Standard-Kontostand
-            ])->roles()->attach(5);
-
+            ]);
+        
+        $user->roles()->attach(5);
+        
         event(new Registered($user));
 
         Auth::login($user);

@@ -16,7 +16,12 @@ use App\Models\Stock\Stock;
 
 class ChartController extends Controller
 {
-      
+    /**
+     * Generiert eine zufällige RGBA-Farbe für die Darstellung in Diagrammen.
+     *
+     * @param float $alpha Transparenzwert (Standard: 1.0)
+     * @return string RGBA-Farbstring
+     */
     private function randomRGBA($alpha = 1.0)
     {
         $colors = [
@@ -32,6 +37,11 @@ class ChartController extends Controller
         return sprintf('rgba(%d, %d, %d, %.1f)', $rgb[0], $rgb[1], $rgb[2], $alpha);
     }
 
+    /**
+     * Erstellt die Chart-Daten für alle Aktienpreise.
+     *
+     * @return void
+     */
     public function CreateAllChartData(): void
     {
         $prices = Price::all();
@@ -68,10 +78,17 @@ class ChartController extends Controller
         // Pass $listStock to the view or handle it as needed
     }
 
+    /**
+     * Zeigt ein einzelnes Chart für eine Aktie an.
+     *
+     * @param int $id Die ID der Aktie
+     * @param int $limit Anzahl der anzuzeigenden Monate (Standard: 12 oder aus Session)
+     * @return \Illuminate\View\View
+     */
     public function OneChart($id, $limit = 12)
     {
-    // Hole den Wert aus der Session oder setze einen Standardwert (z. B. 12)
-    $limit = session('timelineSelectedMonth', 12) ?? $limit;
+        // Hole den Wert aus der Session oder setze einen Standardwert (z. B. 12)
+        $limit = session('timelineSelectedMonth', 12) ?? $limit;
 
         $stock = Stock::findOrFail($id);
         $color = $this->randomRGBA(0.2);
@@ -128,7 +145,4 @@ class ChartController extends Controller
             'details' => $stockDetails
         ]);
     }
-
-
-
 }

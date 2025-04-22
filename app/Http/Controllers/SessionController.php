@@ -6,6 +6,12 @@ use Illuminate\Http\Request;
 
 class SessionController extends Controller
 {
+    /**
+     * Setzt die Anzahl der Monate für die Timeline in der Session.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function setTimeLineMonth(Request $request)
     {
         // Hole die ausgewählten Monate aus der Anfrage
@@ -19,6 +25,11 @@ class SessionController extends Controller
    
     }
 
+    /**
+     * Gibt die gespeicherte Anzahl Monate aus der Session als JSON zurück.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getSession()
     {
         // Hole die gespeicherte Zahl aus der Session

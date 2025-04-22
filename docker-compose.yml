@@ -110,8 +110,22 @@ services:
         ports:
             - '${FORWARD_MAILPIT_PORT:-1025}:1025'
             - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
+        environment:
+            MP_RELAY_HOST: smtp-relay:25
+            MP_RELAY_USER: sail
+            MP_RELAY_PASS: password
+            MP_RELAY_TLS_INSECURE: "true"
         networks:
             - sail
+
+    smtp-relay:
+        image: namshi/smtp
+        restart: unless-stopped
+        environment:
+            RELAY_NETWORKS: 172.0.0.0/8
+        networks:
+            - sail
+
     selenium:
         image: selenium/standalone-chromium
         extra_hosts:

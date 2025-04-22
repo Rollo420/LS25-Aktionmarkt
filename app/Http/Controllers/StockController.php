@@ -9,6 +9,11 @@ use Illuminate\View\View;
 
 class StockController extends Controller
 {
+    /**
+     * Listet alle Aktien mit ihrem aktuellen Preis auf.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         $stockWithPrice = [];
@@ -24,6 +29,12 @@ class StockController extends Controller
         return view('Stock.index', ['stocks' => $stockWithPrice]);
     }
 
+    /**
+     * Berechnet und gibt die wichtigsten Kennzahlen einer Aktie zurück.
+     *
+     * @param int $id Die ID der Aktie
+     * @return array Details wie aktueller Preis, Kursentwicklung, EPS, Dividendenrendite, KGV
+     */
     public function stockDetails(int $id)
     {
         $details = [];

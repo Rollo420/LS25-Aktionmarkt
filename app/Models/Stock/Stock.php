@@ -11,13 +11,28 @@ use App\Models\Stock\Transaction;
 class Stock extends Model
 {
     use HasFactory;
+    /**
+     * Die Attribute, die massenweise zuweisbar sind.
+     *
+     * @var array
+     */
     protected $fillable = ['name',];
 
+    /**
+     * Beziehung: Eine Aktie hat viele Preise.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function price()
     {
         return $this->hasMany(Price::class);
     }
 
+    /**
+     * Beziehung: Eine Aktie hat viele Transaktionen.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
