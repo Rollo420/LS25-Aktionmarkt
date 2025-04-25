@@ -3,6 +3,8 @@
 namespace Database\Factories\Stock;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
+use App\Models\Stock\Stock;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Stock\Transaction>
@@ -19,8 +21,8 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => fake()->numberBetween(1, 5),
-            'stock_id' => fake()->numberBetween(1,3), //$this->stock_id++,
+            'user_id' => User::inRandomOrder()->first()?->id ?? 1,
+            'stock_id' => Stock::inRandomOrder()->first()?->id ?? 1,
             'status' => fake()->boolean(),
             'quantity' => fake()->numberBetween(1, 100),            
         ];

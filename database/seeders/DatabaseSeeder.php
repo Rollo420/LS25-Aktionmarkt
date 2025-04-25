@@ -18,6 +18,7 @@ use App\Models\Credit;
 
 //My Factory
 use \Database\Factories\UserRoleFactory;
+use \Database\Seeders\AdminAccountSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,21 +28,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         Stock::factory(5)->create();
-        Transaction::factory(5)->create();
-        
-  
-        
+                    
         $this->call(class: PriceSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Woodly',
-            'email' => 'woodly@gmail.com',
-            'password' => bcrypt('password'), // Passwort verschlüsseln
-        ])->bank()->create([
-            'iban' => Bank::generateIban(),
-            'balance' => 5000.0,
-        ])->roles()->attach(1); // Rolle 1 ist der Administrator
         User::factory(5)->hasBank()->create();
+        Transaction::factory(5)->create();
 
         $this->call(class: RoleSeeder::class);
         
@@ -51,8 +42,14 @@ class DatabaseSeeder extends Seeder
             UserRoleFactory::new()->definition();
         }
 
-        Credit::factory(5)->create();
+        // Erstelle für jede existierende Bank einen Credit
+        $banks = Bank::all();
+        foreach ($banks as $bank) {
+            Credit::factory()->create(['bank_id' => $bank->id]);
+        }
 
+        $this->call(class: AdminAccountSeeder::class);
+        
         //Stock::factory(5)->create();
         //Transaction::factory(5)->create();
   

@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
+//My Models
+use App\Models\Stock\Transaction;
 use App\Models\Bank; // Importiere das Bank-Modell
 
 class User extends Authenticatable
@@ -57,6 +60,11 @@ class User extends Authenticatable
 
     public function bank(){
         return $this->hasOne(Bank::class);
+    }
+
+    public function transaction()
+    {
+        return $this->hasMany(Transaction::class);
     }
 
     /*protected static function booted()

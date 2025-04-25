@@ -57,7 +57,7 @@ class TimeController extends Controller
         foreach ($stocks as $stock) {
             
             $lastDate = $stock->price()->get()->last()->date;
-            $lastDate = date('Y-M-d', $lastDate);
+            $lastDate = date("Y-m-d", strtotime($lastDate));
             dd($lastDate);
             
         }
