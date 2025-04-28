@@ -17,7 +17,7 @@ class StockController extends Controller
     public function index()
     {
         $stockWithPrice = [];
-        $stocks = Stock::all();
+        $stocks = Stock::with('price')->get(); // Eager Loading für Preise
         
         foreach ($stocks as $stock)
         {
@@ -39,7 +39,7 @@ class StockController extends Controller
     {
         $details = [];
 
-        $stock = Stock::findOrFail($id);
+        $stock = Stock::with('price')->findOrFail($id); // Eager Loading für Preise
         //current price
         $prices = $stock->price; // Get all prices
         $details['currentPrice'] = $prices->last()->name; // Last price

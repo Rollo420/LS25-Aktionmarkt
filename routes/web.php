@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChartController;
@@ -33,6 +34,14 @@ Route::middleware(['auth', 'time'])->group(function () {
 //Stock routes
 Route::middleware('auth')->group(function () {
     Route::get('/stock',  [StockController::class, 'index'])->name('stock.index');
+    Route::get('/stock/{id}', [ChartController::class, 'OneChart'])->name('stock.store');
+    Route::get('/chart', [ChartController::class, 'show'])->name('chart.show');
+});
+
+//Payment routes
+Route::middleware('auth')->group(function () {
+    Route::get('/payment',  [PaymentController::class, 'index'])->name('payment.index');
+    Route::post('/update-payment', [SessionController::class, 'setPayment'])->name('payment.updateMehod');
     Route::get('/stock/{id}', [ChartController::class, 'OneChart'])->name('stock.store');
     Route::get('/chart', [ChartController::class, 'show'])->name('chart.show');
 });

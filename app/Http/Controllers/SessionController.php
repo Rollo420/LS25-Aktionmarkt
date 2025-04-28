@@ -25,6 +25,13 @@ class SessionController extends Controller
    
     }
 
+    public function setPayment(Request $request)
+    {
+        $selectedPayment = $request->input('months');
+        session(['selectedPayment' => $selectedPayment]);
+        return redirect()->back()->with('success', 'Payment erfolgreich aktualisiert: ' . $selectedPayment);
+    }
+
     /**
      * Gibt die gespeicherte Anzahl Monate aus der Session als JSON zurück.
      *

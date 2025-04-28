@@ -23,11 +23,17 @@ services:
         networks:
             - sail
         depends_on:
-            - mysql
-            - redis
-            - meilisearch
-            - mailpit
-            - selenium
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            meilisearch:
+                condition: service_healthy
+            mailpit:
+                condition: service_healthy
+            selenium:
+                condition: service_healthy
+        restart: unless-stopped
     mysql:
         hostname: mysql
         image: 'mysql/mysql-server:8.0'
@@ -53,10 +59,11 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+        restart: unless-stopped
 
     phpmyadmin:
         image: phpmyadmin:latest
-        restart: always
+        restart: unless-stopped
         ports:
             - 8080:80
         environment:
@@ -70,7 +77,10 @@ services:
         links:
             - mysql:mysql
 
-            
+        depends_on:
+            mysql:
+                condition: service_healthy
+
     redis:
         image: 'redis:alpine'
         ports:
@@ -86,6 +96,7 @@ services:
                 - ping
             retries: 3
             timeout: 5s
+        restart: unless-stopped
     meilisearch:
         image: 'getmeili/meilisearch:latest'
         ports:
@@ -105,6 +116,7 @@ services:
                 - 'http://127.0.0.1:7700/health'
             retries: 3
             timeout: 5s
+        restart: unless-stopped
     mailpit:
         image: 'axllent/mailpit:latest'
         ports:
@@ -117,14 +129,15 @@ services:
             MP_RELAY_TLS_INSECURE: "true"
         networks:
             - sail
-
-    smtp-relay:
-        image: namshi/smtp
         restart: unless-stopped
-        environment:
-            RELAY_NETWORKS: 172.0.0.0/8
-        networks:
-            - sail
+
+    #smtp-relay:
+    #    image: namshi/smtp
+    #    restart: unless-stopped
+    #    environment:
+    #        RELAY_NETWORKS: 172.0.0.0/8
+    #    networks:
+    #        - sail
 
     selenium:
         image: selenium/standalone-chromium
@@ -134,6 +147,15 @@ services:
             - '/dev/shm:/dev/shm'
         networks:
             - sail
+        depends_on:
+            mysql:
+                condition: service_healthy
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
 
     #sass-compiler:
     #    image: mpsorg/sass-compiler
