@@ -12,7 +12,7 @@
                 <div class="max-w-xl">
                     <div class="list-timeline">
                         <h3 class="headerMonth">Payment</h3>
-                        <form method="POST" action="{{ route('update.payment') }}">
+                        <form method="POST" action="{{ route('payment.updateMethod') }}">
                             @csrf
                             <select name="months" onchange="this.form.submit()" class="transaction-dropdown">
                                 <option value="Transaction" >Transaction</option>
@@ -31,10 +31,12 @@
                         @csrf
                         <input type="hidden" name="months" value="PayIn">
                     </form>
-                    <div class="pay-in">
-                        <!-- Pay in Formular oder Inhalt hier -->
-                    </div>
                 </div>
+                @if(session('selectedPayment') == 'PayIn')
+                    <div class="pay-in active">
+                        <x-pay-in />
+                    </div>
+                @endif
             </div>
 
             <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
@@ -44,8 +46,12 @@
                         @csrf
                         <input type="hidden" name="months" value="PayOut">
                     </form>
-                    <!-- Pay out Formular oder Inhalt hier -->
                 </div>
+                @if(session('selectedPayment') == 'PayOut')
+                    <div class="pay-out active">
+                        <!-- Pay out Formular oder Inhalt hier -->
+                    </div>
+                @endif
             </div>
 
             <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
@@ -55,17 +61,14 @@
                         @csrf
                         <input type="hidden" name="months" value="Transaction">
                     </form>
+                </div>
+                @if(session('selectedPayment') == 'Transaction')
                     <div class="payment-header">
-                        <div 
-                        @class([
-                            'transaction',
-                            'active' => session('selectedPayment') == 'Transaction',
-                            'inactive' => session('selectedPayment') != 'Transaction',
-                        ])>
+                        <div class="transaction active">
                             <!-- Transaction Formular oder Inhalt hier -->
                         </div>
                     </div>
-                </div>
+                @endif
             </div>
 
             <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
@@ -78,5 +81,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div
 </x-app-layout>

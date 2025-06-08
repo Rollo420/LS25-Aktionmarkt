@@ -21,3 +21,20 @@
         }
     }
 }
+
+.payment-child
+{
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    &.inactive
+    {
+        color: #d81616;
+    }
+    &.active
+    {
+        color: #00ff2a;
+    }
+}
