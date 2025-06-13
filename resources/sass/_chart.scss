@@ -1,10 +1,14 @@
-$chartWidth: 50rem;
+/*
+$chartWidth: 500rem;
 $chartHeight: calc($chartWidth / 2) ;
 
 .chartCanvas
 {
     max-width: $chartWidth;
     max-height: $chartHeight;
+    width: $chartWidth;
+    height: $chartHeight;
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -15,5 +19,42 @@ $chartHeight: calc($chartWidth / 2) ;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     margin: 1rem;
     padding: 0.5rem;
+    position:relative;
+ 
+}
+*/
+
+$chartMaxWidth: 55rem; // oder z. B. 800px für Begrenzung
+$chartMaxHeight: 30rem; // oder z. B. 400px für Begrenzung
+
+.chartContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    //padding: 2rem;
+    box-sizing: border-box;
 }
 
+.chartCanvas {
+    max-width: $chartMaxWidth;
+    max-height: $chartMaxHeight;
+    aspect-ratio: 2 / 1; // Verhältnis 2:1 (optional)
+    
+    background-color: #333;
+    color: #fff;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+
+    
+}
+
+.chartContainer {
+    margin: 2rem auto;
+}
+
+#chartName
+{
+    font-size: 2rem;
+    padding-bottom: -2rem;
+}

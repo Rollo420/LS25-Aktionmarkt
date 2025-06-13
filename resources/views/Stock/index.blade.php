@@ -1,46 +1,38 @@
-<div>
-    <div class="stock-tabelle">
-        <h2>Stock Tabelle:</h2>
-        <ul>
-            @foreach ($stocks as $stock)
-            <li>
-                <p>ID: {{ $stock->id }}</p>
-                <ul>
-                    <li>
-                        <p>Price ID: {{ $stock->price_id }}</p>
-                        <ul>
-                            <li>
-                                <p>Price: {{ $stock->price->name }} €</p>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <p>Product Type ID: {{ $stock->product_type_id }}</p>
-                        <ul>
-                            <li>
-                                <p>Product Type: {{ $stock->productType->name }}</p>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <p>Transaction Infos:</p>
-                        <ul>
-                            @foreach ($stock->transactions as $transaction)
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Stocks') }}
+        </h2>
+    </x-slot>
 
-                            <li>
-                                <p>Account ID: {{ $transaction->account_id }}</p>
-                            </li>
-                            <li>
-                                <p>Transaktions ID's: {{ $transaction->id }}</p>
-                            </li>
-                            @endforeach
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-            @endforeach
-        </ul>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <div class="flex justify-center">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($stocks as $stock)
+                                <tr onclick="window.location='{{ route('stock.store', $stock[0]) }}'">
+                                    <th>
+                                        <p>{{ $stock[1] }}</p>
+                                    </th>
+                                    <th>
+                                        <p>{{ $stock[2] }}</p>
+                                    </th>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-
-</div>
+</x-app-layout>

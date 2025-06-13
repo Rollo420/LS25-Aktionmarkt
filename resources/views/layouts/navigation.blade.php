@@ -17,16 +17,23 @@
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('chart.show')" :active="request()->routeIs('chart')">
-                        {{ __('Chart') }}
+                    <x-nav-link :href="route('stock.index')" :active="request()->routeIs('stock.*')">
+                        {{ __('Stocks') }}
                     </x-nav-link>
                 </div>
+                @if (Auth::check() && Auth::user()->isAdministrator())
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('time.index')" :active="request()->routeIs('time.*')">
+                            {{ __('Time') }}
+                        </x-nav-link>
+                    </div>
+                @endif
             </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <div class="account-balance">
-                    <h6>Konto: 909090909</h6>
+                    <h6>Balance: {{ number_format(Auth::user()->bank->balance, 3, ',', ' ') }} €</h6>
                 </div>
 
                 <x-dropdown align="right" width="48">

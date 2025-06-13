@@ -23,3 +23,8 @@ Transaktionen & Käufe/Verkäufe:
 Fragen:
 - Wie kann ich meine installationen für den nächsten ausrolle des Containers speichern
 - Wieso kann man sich ab und zu trotz richtig configurierten dür die .venv nicht bei MYSQL einloggen
+
+
+
+dateOBJ in php
+    - methoden wie add month 

@@ -1,0 +1,46 @@
+$borderThickness: 2px;
+
+table {
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse;
+
+    thead {
+        tr:last-child {
+            border-bottom: $borderThickness solid black;
+        }
+
+        tr:not(:last-child) {
+            border-bottom: none;
+        }
+
+        th:first-child {
+            padding: 0.5rem 2rem 0.5rem 2rem;
+            border-right: $borderThickness solid black; // Add right border to the first table header
+        }
+
+        th:not(:first-child) {
+            padding: 0.5rem 2rem 0.5rem 2rem;
+            border-right: none; // Remove right border from other table headers
+        }
+        
+    }
+
+    tbody {
+        tr:first-child {
+            height: 1rem;
+        }
+
+        tr:first-child td, tr:first-child th {
+            padding-top: 0.5rem;
+        }
+
+        td:first-child, th:first-child {
+            border-right: $borderThickness solid black; // Add right border to first column cells
+        }
+
+        p {
+            margin-bottom: 0.5rem;
+        }
+    }
+}

@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\Bank; // Import the Bank model
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -29,6 +30,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            // Do not create a Bank entry here to avoid duplication
         ];
     }
 
@@ -40,5 +42,19 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Add a new state to optionally create a Bank entry.
+     */
+    public function withBank(): static
+    {
+        return $this->afterCreating(function ($user) {
+            Bank::create([
+                'user_id' => $user->id,
+                'iban' => Bank::generateIban(),
+                'balance' => 0.0,
+            ]);
+        });
     }
 }

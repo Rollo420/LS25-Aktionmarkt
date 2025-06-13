@@ -1,6 +1,9 @@
-@forward 'chart';
-@forward 'content';
-@forward 'time';
+@use 'chart' as *;
+@use 'content' as *;
+@use 'time' as *;
+@use 'table' as *;
+@use 'stockDetails' as *;
+@use 'functions' as *;
 
 // Fonts
 //@import url('https://fonts.bunny.net/css?family=Nunito');

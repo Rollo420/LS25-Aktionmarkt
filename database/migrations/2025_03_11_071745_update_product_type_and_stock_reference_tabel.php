@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('prices', function (Blueprint $table) {
-            $table->renameColumn('price', 'name');
+        Schema::table('stocks', function (Blueprint $table): void {
+            if (Schema::hasColumn('stocks', 'product_type_id')) {
+                $table->dropForeign(['product_type_id']);
+                $table->dropColumn('product_type_id');
+                $table->string('name')->after('id');
+            }
         });
+
+        Schema::drop('product_types');
     }
 
     /**
@@ -21,8 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('prices', function (Blueprint $table) {
-            $table->renameColumn('name', 'price');
-        });
+        //
     }
 };

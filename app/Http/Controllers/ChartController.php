@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -7,23 +8,102 @@ use Illuminate\Log\Context;
 //My Controller
 use Colors\RandomColor;
 use App\Http\Controllers\TimeController;
+use App\Http\Controllers\StockController;
 
 //My Models
-use App\Models\Stock\Product_type;
-
+use App\Models\Stock\Price;
+use App\Models\Stock\Stock;
 
 class ChartController extends Controller
 {
-    public function show()
+    
+    private function randomRGBA($alpha = 1.0)
     {
-        $stocks = $this->CreateChartData();
-        
-        $chartData = [
-            'labels' => $stocks['labels'][0],
-            'datasets' => $stocks['datasets']
+        $colors = [
+            [255, rand(0, 100), rand(0, 100)],
+            [rand(0, 100), 255, rand(0, 100)],
+            [rand(0, 100), rand(0, 100), 255],
+            [255, 255, rand(0, 100)],
+            [255, rand(0, 100), 255],
+            [rand(0, 100), 255, 255],
         ];
 
-        dd($chartData);
+        $rgb = $colors[array_rand($colors)];
+        return sprintf('rgba(%d, %d, %d, %.1f)', $rgb[0], $rgb[1], $rgb[2], $alpha);
+    }
+
+    public function CreateAllChartData(): void
+    {
+        $prices = Price::all();
+        $listStock = [
+            'labels' => [],
+            'datasets' => []
+        ];
+
+        foreach ($prices as $price) {
+            $color = $this->randomRGBA(0.2);
+
+            $listStock['labels'][] = $price->month . ' ' . $price->year;
+            $listStock['datasets'][] = [
+                'label' => $price->stock->name,
+                'backgroundColor' => $color,
+                'borderColor' => $color,
+                'data' => [$price->name],
+                'fill' => false,
+            ];
+        }
+
+        if (empty($listStock['datasets'])) {
+            $listStock['datasets'][] = [
+                'label' => 'Error Test Chart',
+                'backgroundColor' => 'rgba(32, 229, 18, 0.2)',
+                'borderColor' => 'rgba(75, 192, 192, 1)',
+                'borderWidth' => 1,
+                'data' => [65, 59, 80, 81, 56, 55, 40],
+                'fill' => false,
+            ];
+        }
+
+        // Removed recursive call to avoid infinite recursion
+        // Pass $listStock to the view or handle it as needed
+    }
+
+    public function OneChart($id, $limit = 12) // Standardmäßig 12 Einträge
+    {
+        $stock = Stock::findOrFail($id);
+        $color = $this->randomRGBA(0.2);
+
+        // Sortiere die Preise nach Datum und begrenze die Anzahl der Einträge
+        $sortedPrices = $stock->price->sortBy(function ($price) {
+            return isset($price->date) ? strtotime($price->date) : 0; // Fallback auf 0, wenn 'date' fehlt
+        })->take($limit)->values(); // Begrenze die Anzahl der Einträge auf $limit
+
+        $listStock = [
+            'labels' => $sortedPrices->map(function ($price) {
+                return isset($price->date) ? date('F Y', strtotime($price->date)) : 'Unknown Date';
+            })->toArray(),
+            'datasets' => [[
+                'label' => $stock->name,
+                'backgroundColor' => $color,
+                'borderColor' => $color,
+                'data' => $sortedPrices->map(function ($price) {
+                    return $price->name ?? 0; // Fallback auf 0, wenn 'name' fehlt
+                })->toArray(),
+                'fill' => false,
+            ]]
+        ];
+
+        // Fallback-Daten, wenn keine gültigen Daten vorhanden sind
+        if (empty($listStock['datasets'][0]['data'])) {
+            $listStock['datasets'] = [[
+                'label' => 'Error Test Chart',
+                'backgroundColor' => 'rgba(32, 229, 18, 0.2)',
+                'borderColor' => 'rgba(75, 192, 192, 1)',
+                'borderWidth' => 1,
+                'data' => [65, 59, 80, 81, 56, 55, 40],
+                'fill' => false,
+            ]];
+        }
 
         $chartOptions = [
             'scales' => [
@@ -33,65 +113,15 @@ class ChartController extends Controller
             ]
         ];
 
-        return view('chart', [ 'chartData' => $chartData, 'chartOptions' => $chartOptions]);
+        $stockController = new StockController();
+        $stockDetails = $stockController->stockDetails($id);
+
+        return view('Stock.store', [
+            'chartData' => $listStock,
+            'chartOptions' => $chartOptions,
+            'stock' => $stock,
+            'details' => $stockDetails
+        ]);
     }
 
-    
-
-    function randomRGBA($alpha = 1.0)
-    {
-        $colors = [
-            [255, rand(0, 100), rand(0, 100)], 
-            [rand(0, 100), 255, rand(0, 100)],  
-            [rand(0, 100), rand(0, 100), 255], 
-            [255, 255, rand(0, 100)],          
-            [255, rand(0, 100), 255],           
-            [rand(0, 100), 255, 255],           
-        ];
-
-        $rgb = $colors[array_rand($colors)];
-        return sprintf('rgba(%d, %d, %d, %.1f)', $rgb[0], $rgb[1], $rgb[2], $alpha);
-    }
-    public function CreateChartData(): array
-    {
-        $listStock = [];
-
-        $productChart = Product_type::all();
-        foreach ($productChart as $product) {
-
-           
-
-            $color = $this->randomRGBA(0.2);
-            $listStock = [
-                'labels' => $product->stock->map(function ($stock){return $stock->price->month;}),
-                'datasets' => [
-                    'label' => $product->name,
-                    'backgroundColor' => $color,
-                    'borderColor' => $color,
-                    //'borderWidth' => 1,
-                    'data' => $product->stock->map(function ($stock) {
-                        return $stock->price->name;
-                    })->toArray(),
-                    'fill' => false,
-                ]
-            ];            
-
-            //dd($listStock['labels']);
-        }   
-        
-        if (empty($listStock)) {
-            $listStock = [
-                [
-                    'label' => 'Error Test Chart',
-                    'backgroundColor' => 'rgba(32, 229, 18, 0.2)',
-                    'borderColor' => 'rgba(75, 192, 192, 1)',
-                    'borderWidth' => 1,
-                    'data' => [65, 59, 80, 81, 56, 55, 40],
-                    'fill' => false,
-                ],
-            ];
-        }
-
-        return $listStock;
-    }
 }
