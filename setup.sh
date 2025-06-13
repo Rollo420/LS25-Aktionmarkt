@@ -1,4 +1,4 @@
-docker compose -f docker-compose-setup.yml up --build
+#docker compose -f docker-compose-setup.yml up --build
 
 sail='./vendor/bin/sail'
 
