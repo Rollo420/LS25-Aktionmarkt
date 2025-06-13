@@ -11,7 +11,7 @@ export default defineConfig({
     server: {
         host: '0.0.0.0',
         hmr: {
-            host: 'woodlypi.ddns.net',
+            host: 'localhost',
         },
         watch: {
             usePolling: true,
