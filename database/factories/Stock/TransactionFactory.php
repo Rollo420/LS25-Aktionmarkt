@@ -23,8 +23,10 @@ class TransactionFactory extends Factory
         return [
             'user_id' => User::inRandomOrder()->first()?->id ?? 1,
             'stock_id' => Stock::inRandomOrder()->first()?->id ?? 1,
-            'status' => fake()->boolean(),
-            'quantity' => fake()->numberBetween(1, 100),            
+            'status' => fake()->randomElement(['open', 'closed', 'pending', 'completed', 'failed', 'cancelled' ]),
+            'quantity' => fake()->numberBetween(1, 100),
+                                        // kaufen, verkaufen, einzahlen, abheben, überweisen
+            'type' => fake()->randomElement(['buy', 'sell', 'deposit', 'withdraw', 'transfer']),
         ];
     }
 }

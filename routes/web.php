@@ -41,9 +41,7 @@ Route::middleware('auth')->group(function () {
 //Payment routes
 Route::middleware('auth')->group(function () {
     Route::get('/payment',  [PaymentController::class, 'index'])->name('payment.index');
-    Route::post('/update-payment', [SessionController::class, 'setPayment'])->name('payment.updateMethod');
-    Route::get('/stock/{id}', [ChartController::class, 'OneChart'])->name('stock.store');
-    Route::get('/chart', [ChartController::class, 'show'])->name('chart.show');
+    Route::post('/payment/payin', [PaymentController::class, 'payin'])->name('payment.payin');
 });
 
 //Admin routes

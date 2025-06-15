@@ -4,6 +4,12 @@ namespace App\Models\Stock;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Parental\HasParent;
+
+use DepositTransaction;
+use BuyTransaction;
+use WithdrawTransaction;
+use SellTransaction;
 
 use App\Models\User;
 
@@ -36,4 +42,11 @@ class Transaction extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    protected $childTypes = [
+        'deposit' => DepositTransaction::class,
+        'buy' => BuyTransaction::class,
+        'withdraw' => WithdrawTransaction::class,
+        'sell' => SellTransaction::class,
+    ];
 }

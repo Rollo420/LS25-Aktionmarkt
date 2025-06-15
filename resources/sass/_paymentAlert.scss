@@ -1,0 +1,51 @@
+.alert {
+  padding: 1rem 2rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  backdrop-filter: blur(2px);
+  border: none;
+  transition: background 0.2s;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.alert-success {
+  background: rgba(34,197,94,0.18); // grün, transparent
+  color: #22c55e;
+  border-left: 5px solid #22c55e;
+}
+
+.alert-error {
+  background: rgba(239,68,68,0.18); // rot, transparent
+  color: #ef4444;
+  border-left: 5px solid #ef4444;
+}
+
+.alert-warning {
+  background: rgba(251,191,36,0.18); // gelb, transparent
+  color: #fbbf24;
+  border-left: 5px solid #fbbf24;
+}
+
+.alert-info {
+  background: rgba(59,130,246,0.18); // blau, transparent
+  color: #3b82f6;
+  border-left: 5px solid #3b82f6;
+}
+
+// Für dunkle Hintergründe
+.dark .alert {
+  background: rgba(30,41,59,0.7);
+  color: #fff;
+  border-left: 5px solid #64748b;
+}
+
+.dark .alert-success { border-left-color: #22c55e; color: #22c55e; }
+.dark .alert-error { border-left-color: #ef4444; color: #ef4444; }
+.dark .alert-warning { border-left-color: #fbbf24; color: #fbbf24; }
+.dark .alert-info { border-left-color: #3b82f6; color: #3b82f6; }

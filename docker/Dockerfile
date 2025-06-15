@@ -8,6 +8,7 @@ COPY ../ /var/www/html/
 WORKDIR /var/www/html
 RUN composer install
 RUN composer require mistic100/randomcolor
+Run composer require tightenco/parental
 
 FROM node:latest as node
 

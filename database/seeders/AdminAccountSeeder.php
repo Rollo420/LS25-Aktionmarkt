@@ -37,13 +37,15 @@ class AdminAccountSeeder extends Seeder
                 [
                     'user_id' => $woodly->id,
                     'stock_id' => 2,
-                    'status' => true,
+                    'status' => 'closed',
+                    'type' => 'buy',
                     'quantity' => 15,
                 ],
                 [
                     'user_id' => $woodly->id,
                     'stock_id' => 4,
-                    'status' => true,
+                    'status' => 'open',
+                    'type' => 'sell',
                     'quantity' => 30,
                 ],
             ];
@@ -73,13 +75,15 @@ class AdminAccountSeeder extends Seeder
                 [
                     'user_id' => $maro->id,
                     'stock_id' => 1,
-                    'status' => true,
+                    'status' => 'open',
+                    'type' => 'buy',
                     'quantity' => 10,
                 ],
                 [
                     'user_id' => $maro->id,
                     'stock_id' => 5,
-                    'status' => true,
+                    'status' => 'closed',
+                    'type' => 'sell',
                     'quantity' => 20,
                 ],
             ];

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id()->autoIncrement()->unique();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('stock_id')->constrained()->onDelete('cascade');;
+            $table->foreignId('stock_id')->nullable()->constrained()->onDelete('cascade')->default(null);
             $table->boolean('status');
             $table->integer('quantity');
             $table->timestamps();
