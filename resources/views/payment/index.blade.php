@@ -5,81 +5,46 @@
         </h1>
     </x-slot>
 
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    <div class="list-timeline">
-                        <h3 class="headerMonth">Payment</h3>
-                        <form method="POST" action="{{ route('payment.updateMethod') }}">
-                            @csrf
-                            <select name="months" onchange="this.form.submit()" class="transaction-dropdown">
-                                <option value="Transaction" >Transaction</option>
-                                <option value="PayIn" {{ session('selectedPayment') == 'PayIn' ? 'selected' : '' }}>Pay in</option>
-                                <option value="PayOut" {{ session('selectedPayment') == 'PayOut' ? 'selected' : '' }}>Pay out</option>
-                            </select>
-                        </form>
+            <div x-data="{ open: '' }" class="space-y-6">
+                <!-- Pay In -->
+                <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'payin' ? 'active' : '']">
+                    <div class="max-w-xl" @click="open === 'payin' ? open = '' : open = 'payin'" style="cursor:pointer;">
+                        <h1>Pay in</h1>
                     </div>
+                    <template x-if="open === 'payin'">
+                        <x-pay-in-form />
+                    </template>
                 </div>
-            </div>
-
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl" onclick="document.getElementById('payInForm').submit()" style="cursor:pointer;">
-                    <h1>Pay in</h1>
-                    <form id="payInForm" method="POST" action="{{ route('payment.updateMethod') }}" style="display:none;">
-                        @csrf
-                        <input type="hidden" name="months" value="PayIn">
-                    </form>
-                </div>
-                @if(session('selectedPayment') == 'PayIn')
-                    <div class="pay-in active">
-                        <x-pay-in />
+                <!-- Pay Out -->
+                <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'payout' ? 'active' : '']">
+                    <div class="max-w-xl" @click="open === 'payout' ? open = '' : open = 'payout'" style="cursor:pointer;">
+                        <h1>Pay out</h1>
                     </div>
-                @endif
-            </div>
-
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl" onclick="document.getElementById('payOutForm').submit()" style="cursor:pointer;">
-                    <h1>Pay out</h1>
-                    <form id="payOutForm" method="POST" action="{{ route('payment.updateMethod') }}" style="display:none;">
-                        @csrf
-                        <input type="hidden" name="months" value="PayOut">
-                    </form>
+                    <template x-if="open === 'payout'">
+                        <x-pay-out-form />
+                    </template>
                 </div>
-                @if(session('selectedPayment') == 'PayOut')
-                    <div class="pay-out active">
-                        <!-- Pay out Formular oder Inhalt hier -->
+                <!-- Transaction -->
+                <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'transaction' ? 'active' : '']">
+                    <div class="max-w-xl" @click="open === 'transaction' ? open = '' : open = 'transaction'" style="cursor:pointer;">
+                        <h1>Transaction</h1>
                     </div>
-                @endif
-            </div>
-
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl" onclick="document.getElementById('transactionForm').submit()" style="cursor:pointer;">
-                    <h1>Transaction</h1>
-                    <form id="transactionForm" method="POST" action="{{ route('payment.updateMethod') }}" style="display:none;">
-                        @csrf
-                        <input type="hidden" name="months" value="Transaction">
-                    </form>
+                    <template x-if="open === 'transaction'">
+                        <x-transaction-list />
+                    </template>
                 </div>
-                @if(session('selectedPayment') == 'Transaction')
-                    <div class="payment-header">
-                        <div class="transaction active">
-                            <!-- Transaction Formular oder Inhalt hier -->
-                        </div>
+                <!-- Orders -->
+                <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'orders' ? 'active' : '']">
+                    <div class="max-w-xl" @click="open === 'orders' ? open = '' : open = 'orders'" style="cursor:pointer;">
+                        <h1>Orders</h1>
                     </div>
-                @endif
-            </div>
-
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl" onclick="document.getElementById('ordersForm').submit()" style="cursor:pointer;">
-                    <h1>Orders</h1>
-                    <form id="ordersForm" method="POST" action="{{ route('payment.updateMethod') }}" style="display:none;">
-                        @csrf
-                        <input type="hidden" name="months" value="Orders">
-                    </form>
+                    <template x-if="open === 'orders'">
+                        <x-orders-list />
+                    </template>
                 </div>
             </div>
         </div>
-    </div
+    </div>
 </x-app-layout>
