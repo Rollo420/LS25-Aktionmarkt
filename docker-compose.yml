@@ -97,6 +97,7 @@ services:
             retries: 3
             timeout: 5s
         restart: unless-stopped
+        
     meilisearch:
         image: 'getmeili/meilisearch:latest'
         ports:

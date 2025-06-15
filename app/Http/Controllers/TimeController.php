@@ -23,9 +23,8 @@ class TimeController extends Controller
      */
     public function index()
     {
-        $insertData = [];
         $selectedMonth = session('selectedMonth', 'None');
-        return view('time.index', ['monthArray' => $this->monthArray, 'selectedMonth' => $selectedMonth, 'insertData' => $insertData]);
+        return view('time.index', ['monthArray' => $this->monthArray, 'selectedMonth' => $selectedMonth]);
     }
 
     /**
@@ -48,50 +47,58 @@ class TimeController extends Controller
      * @param string $currentMonth Name des aktuellen Monats
      * @return void
      */
-    public function skipTime($currentMonth)
-    {
-        $currentMonthIdx = $this->getMonthIndex($currentMonth);
+    public function skipTime($selectedMonth)
+    {        
         $stocks = Stock::all();
 
         //wichtig $stock->price()->get()->last()->month!!!
         foreach ($stocks as $stock) {
             
-            $lastDate = $stock->price()->get()->last()->date;
-            $lastDate = date("Y-m-d", strtotime($lastDate));
-            dd($lastDate);
+            $lastDate = new \DateTime($stock->price()->get()->last()->date);
+
+            $selectedMonth = date("m", strtotime($selectedMonth));
+            $monthDifference = (12 + (int)$selectedMonth - (int)$lastDate->format("m")) % 12;
+
+            if ($monthDifference == 0)             
+                $monthDifference = 12;
             
-        }
-
-
-        //dd(['CurrentMonth' => ['idx' => $currentMonthIdx, 'name' => $currentMonth], 'lastMonth' => ['idx' => $lastMonthIdx, 'name' => $lastMonth->month, 'id' => $lastMonth->id]]);
-    }
-
-    /**
-     * Gibt den Index eines Monatsnamens im monthArray zurück.
-     *
-     * @param string $month Monatsname
-     * @return int|null Index des Monats oder null, falls nicht gefunden
-     */
-    public function getMonthIndex($month)
-    {
-        $formattedMonth = ucfirst(strtolower($month));
-        return array_search($formattedMonth, $this->monthArray);
-    }
-
-    /**
-     * Berechnet das Datum des nächsten Monats.
-     *
-     * @param string $monthName Monatsname
-     * @return string Datum des nächsten Monats (YYYY-MM-DD)
-     */
-    function getNextMonthDate($monthName) {
-        $month = date("n", strtotime($monthName)); // Konvertiere Monatsname in Zahl
-        $currentYear = date("Y");
-        $currentMonth = date("n");
-
-        // Falls der Monat schon vorbei ist, nehme das nächste Jahr
-        $targetYear = ($currentMonth >= $month) ? $currentYear + 1 : $currentYear;
-
-        return date("Y-m-d", strtotime("first day of $monthName $targetYear"));
-    }
+            $lastPrice = $stock->price()->get()->last()->name;
+            
+            for ($i = 0; $i < $monthDifference; $i++) 
+            {
+                // Klonen, um das Original zu behalten (optional)
+                $nextDate = clone $lastDate;
+                $nextDate->modify('+1 month'); // korrektes Vorwärtsrechnen
+            
+                // Datum als String speichern
+                $lastDateString = $nextDate->format('Y-m-d');
+                
+                $newPrice = round($lastPrice * (1 + rand(-25, 25) / 100), 2);
+                $lastPrice = $newPrice;
+                
+                
+                //dd([
+                //    'Stock'     => $stock->name,
+                //    'LastDate'  => $lastDate->format('Y-m-d'),
+                //    'NextDate'  => $lastDateString,
+                //    'Datediff' => $monthDifference,
+                //    'LastPrice' => $lastPrice,
+                //    'NewPrice'  => $newPrice
+                //]);
+                
+                // Setze das Objekt für den neuen Preis aus dem clone                
+                
+                // Generiere einen neuen Preis für den Stock
+                Price::create([
+                    'stock_id' => $stock->id,
+                    'date' => $nextDate,
+                    'name' => $newPrice,
+                ]);
+                
+                $lastDate = $nextDate;
+                
+            }            
+        }        
+    }     
 }
+

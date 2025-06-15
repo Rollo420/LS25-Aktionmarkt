@@ -24,12 +24,8 @@
                 <button type="submit" class="mt-8 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full sm:w-auto font-semibold">Submit</button>
             </form>
             <div class="selected-month mt-8 w-full">
-                <h3 class="text-base font-semibold text-center">Selected Month: <span id="selected-month">{{ $selectedMonth ?? 'None' }}</span></h3>
-                <div class="text-center">
-                    @foreach ($insertData as $key => $value)
-                    <p>{{ $key }}: {{ $value }}</p>
-                    @endforeach
-                </div>
+                <h3 class="text-base font-semibold text-center">Selected Month: <span id="selected-month">{{ session('selectedMonth') ?? 'None'}}</span></h3>
+               
             </div>
         </div>
     </div>
