@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
-class TimeMiddleware
+class PaymentAuthorizationMiddleware
 {
     /**
      * Handle an incoming request.
@@ -17,7 +17,7 @@ class TimeMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-
+        
         
         if(Auth::check())
         {
@@ -34,7 +34,5 @@ class TimeMiddleware
         else{
             return redirect('/welcome');
         }
-        
-
     }
 }

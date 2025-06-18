@@ -28,12 +28,21 @@
                         </x-nav-link>
                     </div>
                 @endif
+                <!-- Payment Auth -->
+                @if (Auth::check() && Auth::user()->isAdministrator())
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('payment.auth')" :active="request()->routeIs('payment.*')">
+                            {{ __('Payment Auth') }}
+                        </x-nav-link>
+                    </div>
+                @endif
             </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <div class="account-balance">
                     <h6>Balance: {{ number_format(Auth::user()->bank->balance, 3, ',', ' ') }} €</h6>
+                    <h6>IBAN: {{ Auth::user()->bank->iban }}</h6>
                 </div>
 
                 <x-dropdown align="left" width="48">

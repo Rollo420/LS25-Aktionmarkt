@@ -48,7 +48,7 @@ class Bank extends Model
         $checkDigits = 98 - bcmod($numericIban, 97);
 
         // Setze die berechneten Prüfziffern ein
-        return $countryCode . str_pad($checkDigits, 2, '0', STR_PAD_LEFT) . $bankCode . $accountNumber;
+        return $countryCode . str_pad($checkDigits, 2, '0', STR_PAD_LEFT). " " . $bankCode . " ". $accountNumber;
     }
 
     public function user()

@@ -35,13 +35,24 @@
                         <x-pay-out-form />
                     </template>
                 </div>
+
+                <!-- Transfer -->
+                <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'transfer' ? 'active' : '']">
+                    <div class="max-w-xl" action="{{route("payment.transaction")}}" @click="open === 'transfer' ? open = '' : open = 'transfer'" style="cursor:pointer;">
+                        <h1>Transfer</h1>
+                    </div>
+                    <template x-if="open === 'transfer'">
+                        @include('components.transfer-form')
+                    </template>
+                </div>
+              
                 <!-- Transaction -->
                 <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'transaction' ? 'active' : '']">
                     <div class="max-w-xl" @click="open === 'transaction' ? open = '' : open = 'transaction'" style="cursor:pointer;">
                         <h1>Transaction</h1>
                     </div>
                     <template x-if="open === 'transaction'">
-                        <x-transaction-list />
+                        <x-transaction-list :transaktionens="$transaktionens ?? collect([])" />
                     </template>
                 </div>
                 <!-- Orders -->
@@ -50,9 +61,9 @@
                         <h1>Orders</h1>
                     </div>
                     <template x-if="open === 'orders'">
-                        <x-orders-list />
+                        <x-orders-list :orders="$orders ?? collect([])" />
                     </template>
-                </div>
+                </div>                
             </div>
         </div>
     </div>

@@ -8,15 +8,15 @@ use App\Http\Controllers\ChartController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\TimeController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\PaymentAuthorizationController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 //Deashboard route
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 //Profile routes
 Route::middleware('auth')->group(function () {
@@ -42,7 +42,20 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/payment',  [PaymentController::class, 'index'])->name('payment.index');
     Route::post('/payment/payin', [PaymentController::class, 'payin'])->name('payment.payin');
+    Route::post('/payment/payout', [PaymentController::class, 'payout'])->name('payment.payout');
+    Route::post('/payment/transfer', [PaymentController::class, 'transfer'])->name('payment.transfer');
+    Route::post('/payment/transaction', [PaymentController::class, 'transaction'])->name('payment.transaction');
+    Route::post('/payment/buy', [PaymentController::class, 'buy'])->name('payment.buy');
+    Route::post('/payment/sell', [PaymentController::class, 'sell'])->name('payment.sell');
+
+    Route::middleware('PaymentAuthorizationMiddleware')->group(function (){
+        Route::get('/payment/auth', [PaymentAuthorizationController::class, 'index'])->name('payment.auth');
+
+        Route::post('/payment/auth-confirmed', [PaymentAuthorizationController::class, 'handlePaymentApproval'])->name('payment.handlePaymentApproval');
+    });
 });
+
+
 
 //Admin routes
 Route::middleware('auth')->group(function () {

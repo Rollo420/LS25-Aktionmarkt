@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Stock\Price;
 use App\Models\Stock\Stock;
-use 
+
 
 class TimeController extends Controller
 {

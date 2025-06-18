@@ -50,7 +50,7 @@ class AdminAccountSeeder extends Seeder
                 ],
             ];
             foreach ($transactions as $transaction) {
-                $woodly->transaction()->create($transaction);
+                $woodly->transactions()->create($transaction);
             }
         }
 
@@ -88,7 +88,7 @@ class AdminAccountSeeder extends Seeder
                 ],
             ];
             foreach ($transactions as $transaction) {
-                $maro->transaction()->create($transaction);
+                $maro->transactions()->create($transaction);
             }
         }
     }
