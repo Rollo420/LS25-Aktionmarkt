@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Stock\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -17,7 +18,7 @@ class DashboardController extends Controller
 
         $user = Auth::user();
 
-        $depotInfo['totalPortfolio'] = $this->getTotalPortfolioValue();
+        $depotInfo['totalPortfolioValue'] = $this->getTotalPortfolioValue();
 
         return view('dashboard', compact('depotInfo'));
     }
@@ -26,11 +27,27 @@ class DashboardController extends Controller
     {        
         $user = Auth::user();
         $bankBalance = $user->bank->balance;
-        //$results = Stock->map(function($stock) {
-        //    return $stock->price * $stock->transaction->quantity;
-        //});
-        dd($bankBalance);
+       
+        $transactions = Transaction::where('user_id', $user->id)->get();
 
-    return 1.12;
+        $allPrices = $transactions->map(function($transaction){
+
+            $lastPriceName = $transaction->stock?->prices->last()?->name;
+            $pricePerStock = $transaction->quantity * $lastPriceName;
+            
+            
+            return $pricePerStock;
+        });
+
+        $totalPrice = 0;
+        foreach($allPrices as $price) 
+        {
+            $totalPrice += $price;
+        }
+        
+        //dd($totalPrice);
+
+        return $totalPrice + $bankBalance;
     }
+
 }

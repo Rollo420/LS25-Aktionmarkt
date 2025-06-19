@@ -4,6 +4,8 @@ namespace App\Models\Stock;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+use Illuminate\Support\Collection;
 use Parental\HasParent;
 
 use DepositTransaction;
@@ -49,4 +51,16 @@ class Transaction extends Model
         'withdraw' => WithdrawTransaction::class,
         'sell' => SellTransaction::class,
     ];
+
+    public function getStockPrices()
+    {
+        return $this->hasManyThrough(
+            Price::class, // Zielmodell
+            Stock::class, // Zwischentabelle
+            'id',        // Foreign Key in Stock (Stock::id)
+            'stock_id',  // Foreign Key in Price (Price::stock_id)
+            'stock_id',  // Lokaler Key in Transaction (Transaction::stock_id)
+            'id'         // Lokaler Key in Stock (Stock::id)
+        );
+    }
 }

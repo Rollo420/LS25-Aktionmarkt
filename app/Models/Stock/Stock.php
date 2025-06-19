@@ -23,7 +23,7 @@ class Stock extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function price()
+    public function prices()
     {
         return $this->hasMany(Price::class);
     }

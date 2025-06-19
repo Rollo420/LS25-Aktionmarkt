@@ -55,7 +55,7 @@ class TimeController extends Controller
         //wichtig $stock->price()->get()->last()->month!!!
         foreach ($stocks as $stock) {
             
-            $lastDate = new \DateTime($stock->price()->get()->last()->date);
+            $lastDate = new \DateTime($stock->prices()->get()->last()->date);
 
             $selectedMonth = date("m", strtotime($selectedMonth));
             $monthDifference = (12 + (int)$selectedMonth - (int)$lastDate->format("m")) % 12;
@@ -63,7 +63,7 @@ class TimeController extends Controller
             if ($monthDifference == 0)             
                 $monthDifference = 12;
             
-            $lastPrice = $stock->price()->get()->last()->name;
+            $lastPrice = $stock->prices()->get()->last()->name;
             
             for ($i = 0; $i < $monthDifference; $i++) 
             {

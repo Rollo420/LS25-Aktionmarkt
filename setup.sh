@@ -7,5 +7,5 @@ $sail artisan config:clear
 $sail artisan key:generate
 $sail artisan migrate:fresh --seed
 
-$sail npm run build
-$sail npm run dev
+#$sail npm run build
+#$sail npm run dev
