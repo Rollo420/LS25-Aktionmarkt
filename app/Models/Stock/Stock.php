@@ -2,6 +2,7 @@
 
 namespace App\Models\Stock;
 
+use App\Models\Dividend;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -36,5 +37,10 @@ class Stock extends Model
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function dividends()
+    {
+        return $this->hasMany(Dividend::class);
     }
 }

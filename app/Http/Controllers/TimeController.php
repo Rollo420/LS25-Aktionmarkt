@@ -74,7 +74,7 @@ class TimeController extends Controller
                 // Datum als String speichern
                 $lastDateString = $nextDate->format('Y-m-d');
                 
-                $newPrice = round($lastPrice * (1 + rand(-25, 25) / 100), 2);
+                $newPrice = round($lastPrice * (1 + rand(-5, 10) / 100), 2);
                 $lastPrice = $newPrice;
                 
                 
