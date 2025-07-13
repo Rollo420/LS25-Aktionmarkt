@@ -28,7 +28,7 @@ Dividendentermine	Nächster Zahlungstermin
 
     <div class="tow-grid">
         <h3>Price</h3>
-        <h5>{{ number_format($stockDetails['currentPrice'], 2, ","," ") }} €</h5>
+        <h5>{{ number_format($stockDetails['currentPrice'], 2, ",", " ") }} €</h5>
 
         <h3>Price Development (€)</h3>
         <h5 class="{{ $stockDetails['priceDevelopment'] >= 0 ? 'text-green-500' : 'text-red-500' }}">
@@ -45,10 +45,19 @@ Dividendentermine	Nächster Zahlungstermin
         <h3>EPS (Earnings per Share)</h3>
         <h5>{{ $stockDetails["eps"]}} €</h5>
 
-        <h3>Dividend Distribution (%)</h3>
-        <h5>{{ number_format($stockDetails["dividendDistribution"], 6,",", " ") }} %</h5>
+        <h3>Payout Ratio (%)</h3>
+        <h5>{{ number_format($stockDetails["payoutRatio"], 6, ",", " ") }} %</h5>
 
         <h3>PER (Price-to-earnings ratio)</h3>
-        <h5>{{ number_format($stockDetails["kgv"], 6, ","," ") }}</h5>
+        <h5>{{ number_format($stockDetails["kgv"], 6, ",", " ") }}</h5>
+
+        <h3 class="font-semibold">Dividend per Share (€)</h3>
+        <h5>{{ number_format($stockDetails['dividendPerShare'], 2, ",", " ") }} €</h5>
+
+        <h3 class="font-semibold">Dividend Yiel (%)</h3>
+        <h5>{{ number_format($stockDetails['dividendYield'], 2, ",", " ") }} €</h5>
+
+        <h3 class="font-semibold">Next Dividend Date</h3>
+        <h5>{{ $stockDetails['nextDividendDate'] }}</h5>
     </div>
 </div>

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Stock\Stock;
 use App\Models\Stock\Transaction;
 use Illuminate\View\View;
+
+
 
 class StockController extends Controller
 {
@@ -61,7 +64,7 @@ class StockController extends Controller
             : 0;
 
         //dividend distribution
-        $details['dividendDistribution'] = ($details['eps'] > 0 && $details['currentPrice'] > 0)
+        $details['payoutRatio'] = ($details['eps'] > 0 && $details['currentPrice'] > 0)
             ? ($details['eps'] / $details['currentPrice']) * 100
             : 0;
 
@@ -69,6 +72,15 @@ class StockController extends Controller
         $details['kgv'] = ($details['eps'] > 0)
             ? $details['currentPrice'] / $details['eps']
             : 0;
+
+      
+        $dividend = $stock->dividends()->latest()->first(); // z.B. 2.5
+        $percent = $dividend->amount_per_share; // z.B. 2.5
+        $details['dividendPerShare'] = $details['currentPrice'] * ($percent / 100); // Euro Dividende pro Aktie
+        $details['dividendYield'] = $percent; // Dividendenrendite in %
+
+       $details['nextDividendDate'] = Carbon::parse($dividend->distribution_date)->format('Y-m-d');
+
 
         return $details;
     }
