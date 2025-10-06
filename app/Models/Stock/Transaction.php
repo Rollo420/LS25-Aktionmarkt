@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Support\Collection;
-use Parental\HasParent;
+use Parental\HasChildren;
 
-use DepositTransaction;
-use BuyTransaction;
-use WithdrawTransaction;
-use SellTransaction;
+use App\Models\DepositTransaction;
+use App\Models\BuyTransaction;
+use App\Models\WithdrawTransaction;
+use App\Models\SellTransaction;
 
 use App\Models\User;
 
@@ -23,7 +23,7 @@ class Transaction extends Model
      *
      * @var array
      */
-    protected $fillable = ['id', 'created_at', 'updated_at', 'stock_id', 'quantity', 'user_id', 'status'];
+    protected $fillable = ['id', 'created_at', 'updated_at', 'stock_id', 'quantity', 'user_id', 'status', 'price', 'type'];
 
     /**
      * Beziehung: Eine Transaktion gehört zu einer Aktie.

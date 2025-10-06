@@ -161,6 +161,7 @@ services:
 
     selenium:
         image: selenium/standalone-chromium
+        platform: linux/amd64
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         volumes:

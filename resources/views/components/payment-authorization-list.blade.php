@@ -14,6 +14,7 @@
         <thead>
             <tr>
                 <th class="px-6 py-3">ID</th>
+                <th class="px-6 py-3">Username</th>
                 <th class="px-6 py-3">Typ</th>
                 <th class="px-6 py-3">Betrag</th>
                 <th class="px-6 py-3">Status</th>
@@ -26,6 +27,7 @@
                 @foreach($payments as $payment)
                     <tr>
                         <td class="px-6 py-4">{{ $payment->id }}</td>
+                        <td class="px-6 py-4">{{ $payment->user->name }}</td>
                         <td class="px-6 py-4">{{ $payment->type }}</td>
                         <td class="px-6 py-4">{{ $payment->quantity }}</td>
                         <td class="px-6 py-4">{{ $payment->status }}</td>

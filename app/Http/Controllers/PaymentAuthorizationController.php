@@ -19,7 +19,7 @@ class PaymentAuthorizationController extends Controller
 
         //foreach($allOpenTransactions as $trans)
         //{
-        //    dd($trans->id);
+        //    dd($trans->user->name);
         //}
 
         return view('payment.payment-authorization' , ['payments' => $openTransactions->all()]);

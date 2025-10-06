@@ -20,6 +20,9 @@
                     <x-nav-link :href="route('stock.index')" :active="request()->routeIs('stock.*')">
                         {{ __('Stocks') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('depot')" :active="request()->routeIs('depot')">
+                        {{ __('Depot') }}
+                    </x-nav-link>
                 </div>
                 @if (Auth::check() && Auth::user()->isAdministrator())
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">

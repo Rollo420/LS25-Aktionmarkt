@@ -10,6 +10,8 @@ use App\Http\Controllers\TimeController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\PaymentAuthorizationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OrderController;
+use App\Models\DepositTransaction;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,6 +25,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/depot', [DepositTransaction::class, 'depot'])->name('depot');
 });
 
 //Time routes
@@ -52,6 +56,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/payment/auth', [PaymentAuthorizationController::class, 'index'])->name('payment.auth');
 
         Route::post('/payment/auth-confirmed', [PaymentAuthorizationController::class, 'handlePaymentApproval'])->name('payment.handlePaymentApproval');
+
+        Route::post('/stock/{id}/payment/sellBuy', [OrderController::class, 'index'])->name('payment.SellBuy');
     });
 });
 

@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Parental\ChildModel;
+use Parental\HasParent;
+use App\Models\Stock\Transaction;
 
 class SellTransaction extends Transaction
 {
-    use ChildModel;
+    use HasParent;
     // ...spezifische Logik für SellTransaction...
 }
