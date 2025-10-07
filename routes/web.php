@@ -11,7 +11,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\PaymentAuthorizationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
-use App\Models\DepositTransaction;
+use App\Http\Controllers\DepositTransactionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/depot', [DepositTransaction::class, 'depot'])->name('depot');
+    Route::get('/depot', [DepositTransactionController::class, 'depot'])->name('depot');
 });
 
 //Time routes
@@ -39,6 +39,7 @@ Route::middleware(['auth', 'time'])->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/stock',  [StockController::class, 'index'])->name('stock.index');
     Route::get('/stock/{id}', [ChartController::class, 'OneChart'])->name('stock.store');
+    Route::get('/stock/{id}/details', [ChartController::class, 'OneChart'])->name('stock.buyDetails');
     Route::get('/chart', [ChartController::class, 'show'])->name('chart.show');
 });
 
