@@ -25,8 +25,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::get('/depot', [DepositTransactionController::class, 'depot'])->name('depot');
 });
 
 //Time routes
@@ -39,7 +37,6 @@ Route::middleware(['auth', 'time'])->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/stock',  [StockController::class, 'index'])->name('stock.index');
     Route::get('/stock/{id}', [ChartController::class, 'OneChart'])->name('stock.store');
-    Route::get('/stock/{id}/details', [ChartController::class, 'OneChart'])->name('stock.buyDetails');
     Route::get('/chart', [ChartController::class, 'show'])->name('chart.show');
 });
 
@@ -62,7 +59,11 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-
+//Depot routes
+Route::middleware('auth')->group(function () {
+    Route::get('/depot', [DepositTransactionController::class, 'index'])->name(name: 'depot.index');
+    Route::get('/stock/{id}/details', [DepositTransactionController::class, 'depotStockDetails'])->name('depot.buyDetails');
+});
 
 //Admin routes
 Route::middleware('auth')->group(function () {

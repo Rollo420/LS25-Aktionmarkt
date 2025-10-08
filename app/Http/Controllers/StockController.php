@@ -79,7 +79,7 @@ class StockController extends Controller
         $details['dividendPerShare'] = $details['currentPrice'] * ($percent / 100); // Euro Dividende pro Aktie
         $details['dividendYield'] = $percent; // Dividendenrendite in %
 
-       $details['nextDividendDate'] = Carbon::parse($dividend->distribution_date)->format('Y-m-d');
+        $details['nextDividendDate'] = Carbon::parse($dividend->distribution_date)->format('Y-m-d');
 
 
         return $details;
