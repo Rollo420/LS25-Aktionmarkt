@@ -71,7 +71,7 @@
                 <div class="text-gray-500 dark:text-gray-400 text-sm mb-2">Portfolio Value Chart</div>
                 <div class="w-full flex justify-center">
                     <div class="max-w-md w-full">
-                        <x-chart-show type="line" :data="[]" :options="[]" class="h-48" />
+                        <x-chart-show type="line" :data="$depotInfo['chartData']" :options="[]" class="h-48" />
                     </div>
                 </div>
             </div>

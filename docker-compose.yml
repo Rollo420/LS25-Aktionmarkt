@@ -33,7 +33,7 @@ services:
                 condition: service_healthy
             selenium:
                 condition: service_healthy
-        restart: unless-stopped
+        #restart: unless-stopped
 
     vite:
         build:
@@ -50,7 +50,7 @@ services:
         - sail
         depends_on:
         - laravel.test
-        restart: unless-stopped
+        #restart: unless-stopped
 
 
     mysql:
@@ -78,11 +78,11 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
-        restart: unless-stopped
+        #restart: unless-stopped
 
     phpmyadmin:
         image: phpmyadmin:latest
-        restart: unless-stopped
+        #restart: unless-stopped
         ports:
             - 7777:80
         environment:
@@ -115,7 +115,7 @@ services:
                 - ping
             retries: 3
             timeout: 5s
-        restart: unless-stopped
+        #restart: unless-stopped
         
     meilisearch:
         image: 'getmeili/meilisearch:latest'
@@ -136,7 +136,7 @@ services:
                 - 'http://127.0.0.1:7700/health'
             retries: 3
             timeout: 5s
-        restart: unless-stopped
+        #restart: unless-stopped
     mailpit:
         image: 'axllent/mailpit:latest'
         ports:
@@ -149,7 +149,7 @@ services:
             MP_RELAY_TLS_INSECURE: "true"
         networks:
             - sail
-        restart: unless-stopped
+        #restart: unless-stopped
 
     #smtp-relay:
     #    image: namshi/smtp
@@ -176,7 +176,7 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
-        restart: unless-stopped
+        #restart: unless-stopped
 
     #sass-compiler:
     #    image: mpsorg/sass-compiler

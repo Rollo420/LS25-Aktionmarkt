@@ -51,6 +51,13 @@ class Stock extends Model
             return $lastPrice->name;
         }
         return 0;
+    }
         
+    public function getCurrentPrice(){
+       return $this->prices()->latest('created_at')->first()->name ?? 0;
+    }
+
+    public function getDividendenDate(){
+       return $this->dividends()->latest('created_at')->first()->distribution_date ?? null;
     }
 }

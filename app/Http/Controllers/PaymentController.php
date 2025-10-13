@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Services\PaymentService;
 
 use App\Models\Stock\Transaction;
 use App\Models\User;
@@ -12,7 +14,7 @@ use App\Models\Bank;
 class PaymentController extends Controller
 {
     public function index()
-    {   
+    {
         $transaktionen = Transaction::where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')
             ->get();
@@ -41,20 +43,17 @@ class PaymentController extends Controller
     // 'buy', 'sell', 'deposit', 'withdraw', 'transfer'
     public function payin(Request $request)
     {
-        try
-        {
+        try {
 
             $payin = new Transaction();
-    
+
             $payin->type = 'deposit';
             $payin->status = 'open';
-            $payin->quantity = $request->input('payin'); 
+            $payin->quantity = $request->input('payin');
             $payin->user_id = auth()->id();
-            
+
             $payin->save();
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return redirect()->route('payment.index')->with('error', 'Error processing pay-in: ' . $e->getMessage());
         }
 
@@ -63,71 +62,71 @@ class PaymentController extends Controller
 
     public function payout(Request $request)
     {
-        try
-        {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                throw new \Exception('User not authenticated');
+            }
 
             $payout = new Transaction();
 
             $payout->type = 'withdraw';
             $payout->status = 'open';
             $payout->quantity = $request->input('payout');
-            $payout->user_id = auth()->id();
+            $payout->user_id = $user->id;
 
-            $payout->save();
-        }
-        catch (\Exception $e)
-        {
+            if (PaymentService::checkUserBalance($payout->quantity)) {
+                $payout->save();
+            }
+
+
+        } catch (\Exception $e) {
             return redirect()->route('payment.index')->with('error', 'Error processing pay-out: ' . $e->getMessage());
         }
 
         return redirect()->route('payment.index')->with('success', 'Pay-out processed successfully!');
     }
-   
-   
+
+
     public function transfer(Request $request)
     {
         try {
             DB::transaction(function () use ($request) {
                 $from = User::findOrFail(auth()->id());
 
-                try
-                {
+                try {
                     $toBank = Bank::where('iban', $request->input('to_account'))->lockForUpdate()->firstOrFail();
-                }
-                catch (\Exception $e)
-                {
+                } catch (\Exception $e) {
                     throw new \Exception('Die angegebende IBAN ist nicht gültig!');
                 }
-                
+
                 $amount = $request->input('amount');
 
                 // Hole die Bank-Relationen über das User-Model
                 $fromBank = $from->bank()->lockForUpdate()->first();
 
-               // dd($toBank);
+                // dd($toBank);
 
                 if (!$fromBank || !$toBank) {
                     throw new \Exception('Bankkonto nicht gefunden');
                 }
 
-                if ($fromBank->balance < $amount) {
-                    throw new \Exception('Nicht genug Guthaben');
+                if (PaymentService::checkUserBalance($amount)) {
+                    // Update balances
+                    $fromBank->balance -= $amount;
+                    $fromBank->save();
+
+                    $toBank->balance += $amount;
+                    $toBank->save();
+
+                    $transfer = new Transaction();
+                    $transfer->type = 'transfer';
+                    $transfer->status = 'confirmed';
+                    $transfer->quantity = $amount;
+                    $transfer->user_id = auth()->id();
+                    $transfer->save();
                 }
 
-
-                // Update balances
-                $fromBank->balance -= $amount;
-                $fromBank->save();
-
-                $toBank->balance += $amount;
-                $toBank->save();
-
-                $transfer = new Transaction();
-                $transfer->type = 'transfer';
-                $transfer->status = 'confirmed';
-                $transfer->quantity = $amount;
-                $transfer->user_id = auth()->id();
-                $transfer->save();
             });
         } catch (\Exception $e) {
             return redirect()->route('payment.index')->with('error', 'Error processing transfer: ' . $e->getMessage());
@@ -145,4 +144,5 @@ class PaymentController extends Controller
         ]);
     }
 
+   
 }
