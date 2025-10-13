@@ -102,7 +102,7 @@ class ChartController extends Controller
 
         $listStock = [
             'labels' => $sortedPrices->map(function ($price) {
-                return isset($price->date) ? date('F Y', strtotime($price->date)) : 'Unknown Date';
+                return isset($price->date) ? date('F y', strtotime($price->date)) : 'Unknown Date';
             })->toArray(),
             'datasets' => [[
                 'label' => $stock->name,

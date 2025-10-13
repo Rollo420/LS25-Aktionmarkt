@@ -43,4 +43,14 @@ class Stock extends Model
     {
         return $this->hasMany(Dividend::class);
     }
+
+    public function latestPrice()
+    {
+        $lastPrice = $this->prices()->latest()->first();
+        if ($lastPrice) {
+            return $lastPrice->name;
+        }
+        return 0;
+        
+    }
 }

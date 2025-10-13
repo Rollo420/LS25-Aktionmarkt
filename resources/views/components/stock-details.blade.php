@@ -52,12 +52,12 @@ Dividendentermine	Nächster Zahlungstermin
         <h5>{{ number_format($stockDetails["kgv"], 6, ",", " ") }}</h5>
 
         <h3 class="font-semibold">Dividend per Share (€)</h3>
-        <h5>{{ number_format($stockDetails['dividendPerShare'], 2, ",", " ") }} €</h5>
+        <h5>{{ number_format($stockDetails['dividende']['dividendPerShare'], 2, ",", " ") }} €</h5>
 
         <h3 class="font-semibold">Dividend Yiel (%)</h3>
-        <h5>{{ number_format($stockDetails['dividendYield'], 2, ",", " ") }} €</h5>
+        <h5>{{ number_format($stockDetails['dividende']['dividendYield'], 2, ",", " ") }} €</h5>
 
         <h3 class="font-semibold">Next Dividend Date</h3>
-        <h5>{{ $stockDetails['nextDividendDate'] }}</h5>
+        <h5>{{ $stockDetails['dividende']['nextDividendDate'] }}</h5>
     </div>
 </div>

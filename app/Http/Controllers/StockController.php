@@ -8,6 +8,8 @@ use App\Models\Stock\Stock;
 use App\Models\Stock\Transaction;
 use Illuminate\View\View;
 
+use App\Services\DividendeService;
+
 
 
 class StockController extends Controller
@@ -21,7 +23,7 @@ class StockController extends Controller
     {
         $stockWithPrice = [];
         $stocks = Stock::with('prices')->get(); // Eager Loading für Preise
-        
+
         foreach ($stocks as $stock)
         {
             $lastPrice = $stock->prices->last();
@@ -73,14 +75,12 @@ class StockController extends Controller
             ? $details['currentPrice'] / $details['eps']
             : 0;
 
-      
-        $dividend = $stock->dividends()->latest()->first(); // z.B. 2.5
-        $percent = $dividend->amount_per_share; // z.B. 2.5
-        $details['dividendPerShare'] = $details['currentPrice'] * ($percent / 100); // Euro Dividende pro Aktie
-        $details['dividendYield'] = $percent; // Dividendenrendite in %
+        //hier fehlt die dividende
+        $dividendeService = new DividendeService();
+        $dividendDetails = $dividendeService->getDividendeForStock($id);
+        $details = array_merge($details, $dividendDetails);
 
-        $details['nextDividendDate'] = Carbon::parse($dividend->distribution_date)->format('Y-m-d');
-
+        //dd( $details);
 
         return $details;
     }

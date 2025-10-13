@@ -31,7 +31,7 @@ class AdminAccountSeeder extends Seeder
                 'amount' => 1000.0,
                 'interest_rate' => 5.0,
             ]);
-            $woodly->roles()->attach(1); // Rolle 1 ist der Administrator
+            $woodly->roles()->attach(id: 1); // Rolle 1 ist der Administrator
 
             $transactions = [
                 [

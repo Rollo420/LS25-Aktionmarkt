@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 use App\Models\Stock\Price;
 use App\Models\Stock\Stock;
@@ -64,33 +65,50 @@ class TimeController extends Controller
                 $monthDifference = 12;
 
             $lastPrice = $stock->prices()->get()->last()->name;
-            $volatility = 0.10; // max. 5% Schwankung pro Monat (Faktor zum Spielen)
+
+
+            $expectedReturn = 0.16;   // 7 % Jahresrendite (langfristiger Trend)
+            $volatility = 0.25;       // 15 % jährliche Volatilität
+            $crashProbability = 1 / 240; // ca. alle 20 Jahre
+            $rallyProbability = 1 / 240; // ebenfalls selten
+
+
 
             for ($i = 0; $i < $monthDifference; $i++) {
                 // Neues Datum (1 Monat weiter)
-                $nextDate = (clone $lastDate)->modify('+1 month');
-                $lastDateString = $nextDate->format('Y-m-d');
+                $nextDate = Carbon::parse($lastDate)->addMonth();
 
-                // Zufällige prozentuale Änderung: z. B. zwischen -5% und +5%
-                $changePercent = (random_int(-100, 100) / 100) * $volatility;
-                // z. B. -0.034 = -3.4%, oder 0.048 = +4.8%
+                // ======= Zufallswert aus Normalverteilung (Box-Muller) =======
+                $u1 = mt_rand() / mt_getrandmax();
+                $u2 = mt_rand() / mt_getrandmax();
+                $z = sqrt(-2 * log($u1)) * cos(2 * M_PI * $u2);
 
-                // Neuen Kurs berechnen
-                $newPrice = round($lastPrice * (1 + $changePercent), 2);
+                // ======= Monatliche Werte =======
+                $monthlyVolatility = $volatility / sqrt(12);
+                $monthlyReturn = $expectedReturn / 12;
 
-                // Sicherstellen, dass der Kurs nicht 0 oder negativ wird
+                // ======= Kursentwicklung =======
+                $changeFactor = exp(($monthlyReturn - 0.5 * pow($monthlyVolatility, 2)) + $monthlyVolatility * $z);
+                $newPrice = round($lastPrice * $changeFactor, 2);
+
+                // ======= Crashs & Rallyes =======
+                $rand = mt_rand() / mt_getrandmax();
+                if ($rand < $crashProbability) {
+                    // Crash: -20 % bis -50 %
+                    $newPrice = round($newPrice * (1 - mt_rand(20, 50) / 100), 2);
+                } elseif ($rand < $crashProbability + $rallyProbability) {
+                    // Rallye: +20 % bis +50 %
+                    $newPrice = round($newPrice * (1 + mt_rand(20, 50) / 100), 2);
+                }
+
+                // ======= Saisonale leichte Schwankung (Januar-Effekt) =======
+                $seasonalEffect = sin(($i / 12) * 2 * M_PI) * 0.01; // ±1 %
+                $newPrice = round($newPrice * (1 + $seasonalEffect), 2);
+
+                // ======= Begrenzung =======
                 if ($newPrice <= 0) {
-                    $newPrice = round($lastPrice * (1 + abs($changePercent)), 2);
+                    $newPrice = max(0.1, abs($lastPrice * 0.9));
                 }
-
-                // Optional: Zusätzlichen Random-Faktor (Markt-Ereignis-Simulation)
-                if (random_int(1, 20) === 1) { // 1 von 20 Monaten Crash oder Hype
-                    $eventFactor = random_int(-20, 20) / 100; // -20% bis +20%
-                    $newPrice = round($newPrice * (1 + $eventFactor), 2);
-                }
-
-                // Speichern / weiterverwenden
-                $lastPrice = $newPrice;
 
                 // Debug-Ausgabe
                 // echo "$lastDateString => $newPrice €\n";
