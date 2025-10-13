@@ -43,4 +43,12 @@ class Stock extends Model
     {
         return $this->hasMany(Dividend::class);
     }
+
+    public function getCurrentPrice(){
+       return $this->prices()->latest('created_at')->first()->name ?? 0;
+    }
+
+    public function getDividendenDate(){
+       return $this->dividends()->latest('created_at')->first()->distribution_date ?? null;
+    }
 }

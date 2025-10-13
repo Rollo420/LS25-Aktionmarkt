@@ -72,7 +72,7 @@ class TimeController extends Controller
                 $lastDateString = $nextDate->format('Y-m-d');
 
                 // Zufällige prozentuale Änderung: z. B. zwischen -5% und +5%
-                $changePercent = (random_int(-100, 100) / 100) * $volatility;
+                $changePercent = (random_int(-100, 250) / 100) * $volatility;
                 // z. B. -0.034 = -3.4%, oder 0.048 = +4.8%
 
                 // Neuen Kurs berechnen
