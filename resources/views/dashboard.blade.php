@@ -12,7 +12,7 @@
                 <!-- Total Portfolio Value -->
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Total Portfolio Value</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">-- €</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ $depotInfo['totalPortfolioValue'] }} €</div>
                 </div>
                 <!-- Performance -->
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
@@ -38,18 +38,24 @@
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                     <div class="text-gray-500 dark:text-gray-400 text-sm mb-2">Top 3 Winners</div>
                     <ul class="space-y-1">
-                        <li>Stock A (+--%)</li>
-                        <li>Stock B (+--%)</li>
-                        <li>Stock C (+--%)</li>
+                        @php
+
+foreach ($depotInfo['tops']['topThreeUp'] as $winner) {
+    echo "<li>" . $winner->stock->name . " (+" . number_format($winner->stock->currentPrice, 2) . "€)</li>";
+}
+                        @endphp
                     </ul>
                 </div>
                 <!-- Top 3 Losers -->
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                     <div class="text-gray-500 dark:text-gray-400 text-sm mb-2">Top 3 Losers</div>
                     <ul class="space-y-1">
-                        <li>Stock X (--%)</li>
-                        <li>Stock Y (--%)</li>
-                        <li>Stock Z (--%)</li>
+                        @php
+
+                            foreach ($depotInfo['tops']['topThreeDown'] as $winner) {
+                                echo "<li>" . $winner->stock->name . " (+" . number_format($winner->stock->currentPrice, 2) . "€)</li>";
+                            }
+                        @endphp
                     </ul>
                 </div>
             </div>

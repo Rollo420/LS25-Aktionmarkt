@@ -52,7 +52,7 @@ class DashboardController extends Controller
 
         $depotInfo['chartData'] = $this->createChartData($stocks);
 
-        #dd($depotInfo['chartData']);
+        #dd($depotInfo);
 
         return view('dashboard', compact('depotInfo'));
     }
