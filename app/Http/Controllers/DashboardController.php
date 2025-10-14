@@ -5,27 +5,31 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\StockService;
+use App\Services\DividendeService;
 
 use App\Models\Stock\Transaction;
-use \App\Models\Stock\Stock;
-use App\Models\User;
+
 
 
 class DashboardController extends Controller
 {
 
-    public function index(StockService $stockService)
+    public function index(StockService $stockService, DividendeService $dividendeService)
     {
         $depotInfo = [];
 
         $user = Auth::user();
-        $stocks = $stockService->getUserStocks($user);
+        $stocks = $stockService->getUserStocksWithStatistiks($user);
 
         $depotInfo['totalPortfolioValue'] = $stockService->getTotalPortfolioValue();
 
         $depotInfo['tops'] = [
-            'topThreeUp' => $stocks->take(3)->values()->toArray(),
-            'topThreeDown' => $stocks->slice(3)->sortBy('profit_loss.amount')->take(3)->values()->toArray(),
+            'topThreeUp' => $stocks->take(3)->values()->map( function ($item) use ($stockService) {
+                return $stockService->getStockStatistiks($item->stock, Auth::user());
+            })->toArray(),
+            'topThreeDown' => $stocks->slice(3)->sortBy('profit_loss.amount')->take(3)->values()->map(function ($item) use ($stockService) {
+                return $stockService->getStockStatistiks($item->stock, Auth::user());
+            })->toArray(),
         ];
 
         $depotInfo['lastTransactions'] = Transaction::where('user_id', $user->id)
@@ -35,7 +39,7 @@ class DashboardController extends Controller
             ->get()
             ->toArray();
 
-        $depotInfo['nextDividenden'] = collect(        
+        $depotInfo['nextDividens'] = collect(        
             $stocks
                 ->sortByDesc(function ($item) {
                     return $item->stock->getDividendenDate();
@@ -48,7 +52,13 @@ class DashboardController extends Controller
                 })
                 ->values()
                 ->toArray()
-        )->first();
+        )->take(5)->toArray();
+
+        $depotInfo['avg_dividend'] = $stockService
+            ->getUserStocks($user)
+            ->map(fn($stock) => $dividendeService->getDividendeForStock($stock->id))
+            ->avg();
+
 
         $depotInfo['chartData'] = $this->createChartData($stocks);
 
@@ -66,7 +76,7 @@ class DashboardController extends Controller
             $date = $currentDate->copy()->subMonths($i)->endOfMonth();
 
             // Get all transactions up to this date
-            $transactions = \App\Models\Stock\Transaction::where('user_id', $user->id)
+            $transactions = Transaction::where('user_id', $user->id)
                 ->whereIn('type', ['buy', 'sell'])
                 ->where('created_at', '<=', $date)
                 ->orderBy('created_at')
@@ -138,5 +148,5 @@ class DashboardController extends Controller
         ];
     }
 
-
+    
 }

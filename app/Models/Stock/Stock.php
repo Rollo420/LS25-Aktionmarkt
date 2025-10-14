@@ -44,7 +44,7 @@ class Stock extends Model
         return $this->hasMany(Dividend::class);
     }
 
-    public function latestPrice()
+    public function getLatestPrice()
     {
         $lastPrice = $this->prices()->latest()->first();
         if ($lastPrice) {
@@ -54,7 +54,7 @@ class Stock extends Model
     }
         
     public function getCurrentPrice(){
-       return $this->prices()->latest('created_at')->first()->name ?? 0;
+       return $this->prices()->latest('created_at')->first()->name ?? null;
     }
 
     public function getDividendenDate(){

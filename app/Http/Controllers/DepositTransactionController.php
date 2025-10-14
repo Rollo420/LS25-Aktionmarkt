@@ -22,7 +22,7 @@ class DepositTransactionController extends Controller
         $user = Auth::user();
 
         // Alle Aktien des Users mit aggregierten Kennzahlen holen
-        $stocks = $stockService->getUserStocks($user);
+        $stocks = $stockService->getUserStocksWithStatistiks($user);
 
         #dd($stocks);
         // Zur Depot-Übersichtsseite weiterleiten
@@ -44,10 +44,7 @@ class DepositTransactionController extends Controller
         $stock = Stock::findOrFail($id);
 
         // Alle Buy-Transaktionen des Users für diese Aktie
-        $stockBuyTransactions = $user->transactions
-            ->where('type', 'buy')
-            ->where('stock_id', $id)
-            ->sortBy('created_at');
+        $stockBuyTransactions = $stockService->getUserBuyTransactionsForStock($user, $id);
 
         // Aggregierte Kennzahlen berechnen
         $stockData = $stockService->getStockStatistiks($stockBuyTransactions, $user);
@@ -58,6 +55,8 @@ class DepositTransactionController extends Controller
         // View mit allen Daten zurückgeben
         return view('depot.depotStockDetails', compact('stock', 'stockData', 'stockBuyHistory'));
     }
+
+    
 
    
 

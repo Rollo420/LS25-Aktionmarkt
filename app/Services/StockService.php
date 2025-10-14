@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
 
 use App\Models\Stock\Stock;
 use App\Models\Stock\Transaction;
@@ -10,7 +11,8 @@ use App\Models\BuyTransaction;
 
 use App\Services\DividendeService;
 
-class StockService{
+class StockService
+{
 
     public function getTotalPortfolioValue(): float
     {
@@ -74,8 +76,19 @@ class StockService{
      */
     public function getStockStatistiks($transactions, $user)
     {
-        $stock = $transactions->first()->stock;
-
+        if ($transactions instanceof Collection && $transactions->first() instanceof Stock)
+        {
+            $stock = $transactions->all();
+            #dd($stocks);
+        }
+        else if ($transactions instanceof Collection) {
+            $stock = $transactions->first()->stock;
+        }        
+        else {
+            $stock = $transactions;
+            $transactions = $this->getUserBuyTransactionsForStock($user, $stock->id);
+        }
+        
         // Gesamtmenge aller gekauften Aktien
         $totalQuantity = $transactions->sum('quantity');
 
@@ -137,12 +150,32 @@ class StockService{
      */
     public function getUserStocks($user)
     {
+
         // Alle Buy-Transaktionen des Users
         $buyTransactions = $user->transactions->where('type', 'buy');
-
+        $stocks = $buyTransactions->pluck('stock')->unique();
         // Transaktionen nach Aktie gruppieren und Kennzahlen berechnen
-        return $buyTransactions->groupBy('stock_id')->map(function ($transactions) use ($user) {
-            return $this->getStockStatistiks($transactions, $user);
-        })->values();
+        #dd($stocks);
+        return $stocks->groupBy('stock_id');
+    }
+
+    public function getUserStocksWithStatistiks($user = null)
+    {
+        $user = $user ?? Auth::user();
+
+        return $this->getUserStocks($user)
+            ->map(function ($transactions) use ($user) {
+                return $this->getStockStatistiks($transactions, $user);
+            })
+            ->values();
+    }
+
+
+    public function getUserBuyTransactionsForStock($user, $stockID)
+    {
+        return $user->transactions
+            ->where('type', 'buy')
+            ->where('stock_id', $stockID)
+            ->sortBy('created_at');
     }
 }

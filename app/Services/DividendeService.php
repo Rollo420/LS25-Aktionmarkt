@@ -1,8 +1,10 @@
 <?php
 namespace App\Services;
 
-use App\Models\Stock\Stock;
 use Carbon\Carbon;
+
+use App\Models\Dividend;
+use App\Models\Stock\Stock;
 
 class DividendeService
 {
@@ -14,11 +16,19 @@ class DividendeService
         $percent = $dividend->amount_per_share; // z.B. 2.5
 
         $details['dividende'] = [
-            'dividendPerShare' => $stock->latestPrice() * ($percent / 100), // Euro Dividende pro Aktie
+            'dividendPerShare' => $stock->getLatestPrice() * ($percent / 100), // Euro Dividende pro Aktie
             'dividendYield' => $percent, // Dividendenrendite in %
             'nextDividendDate' => Carbon::parse($dividend->distribution_date)->format(format: 'Y-m-d'),
         ];
 
         return $details;
+    }
+
+    public function getNextDividendDates()
+    {
+        $dividends = Dividend::orderBy('distribution_date');
+
+        $stocks = $dividends->stock();
+
     }
 }
