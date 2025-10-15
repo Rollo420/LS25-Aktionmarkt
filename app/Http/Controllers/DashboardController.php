@@ -27,8 +27,9 @@ class DashboardController extends Controller
             'topThreeUp' => $stocks->take(3)->values()->map( function ($item) use ($stockService) {
                 return $stockService->getStockStatistiks($item->stock, Auth::user());
             })->toArray(),
-            'topThreeDown' => $stocks->slice(3)->sortBy('profit_loss.amount')->take(3)->values()->map(function ($item) use ($stockService) {
-                return $stockService->getStockStatistiks($item->stock, Auth::user());
+            'topThreeDown' => $stocks->slice(3)->sortBy('profit_loss.amount')
+                ->take(3)->values()->map(function ($item) use ($stockService) {
+                    return $stockService->getStockStatistiks($item->stock, Auth::user());
             })->toArray(),
         ];
 

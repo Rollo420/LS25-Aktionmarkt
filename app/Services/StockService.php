@@ -76,18 +76,20 @@ class StockService
      */
     public function getStockStatistiks($transactions, $user)
     {
+        #dd($transactions);
         if ($transactions instanceof Collection && $transactions->first() instanceof Stock)
         {
-            $stock = $transactions->all();
-            #dd($stocks);
+            $transactions = $transactions->all();
+            #dd($transactions);
+        }
+        else if ($transactions instanceof Stock) {
+            $stock = $transactions;
+            $transactions = $this->getUserBuyTransactionsForStock($user, $stock->id);
         }
         else if ($transactions instanceof Collection) {
             $stock = $transactions->first()->stock;
         }        
-        else {
-            $stock = $transactions;
-            $transactions = $this->getUserBuyTransactionsForStock($user, $stock->id);
-        }
+        
         
         // Gesamtmenge aller gekauften Aktien
         $totalQuantity = $transactions->sum('quantity');
@@ -165,7 +167,8 @@ class StockService
 
         return $this->getUserStocks($user)
             ->map(function ($transactions) use ($user) {
-                return $this->getStockStatistiks($transactions, $user);
+                #dd($transactions->first());
+                return $this->getStockStatistiks($transactions->first(), $user);
             })
             ->values();
     }
