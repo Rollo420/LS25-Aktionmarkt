@@ -9,89 +9,60 @@ use App\Models\Stock\Stock;
 use App\Models\Stock\Transaction;
 use App\Models\BuyTransaction;
 
-use App\Services\DividendeService;
-
 class StockService
 {
-
+    /**
+     * Gesamtwert des Depots inkl. Bankguthaben
+     */
     public function getTotalPortfolioValue(): float
     {
         $user = Auth::user();
-        $bankBalance = $user->bank->balance;
+        $bankBalance = $user->bank?->balance ?? 0;
 
         $transactions = Transaction::where('user_id', $user->id)->get();
 
-        $allPrices = $transactions->map(function ($transaction) {
+        $totalStocksValue = $transactions->map(function ($transaction) {
+            $lastPrice = $transaction->stock?->prices->last()?->name ?? 0;
+            return $transaction->quantity * $lastPrice;
+        })->sum();
 
-            $lastPriceName = $transaction->stock?->prices->last()?->name;
-            $pricePerStock = $transaction->quantity * $lastPriceName;
-
-            return $pricePerStock;
-        });
-
-        $totalPrice = 0;
-        foreach ($allPrices as $price) {
-            $totalPrice += $price;
-        }
-
-        //dd($totalPrice);
-
-        return $totalPrice + $bankBalance;
+        return $totalStocksValue + $bankBalance;
     }
 
+    /**
+     * Depotwert basierend auf gespeicherten Kaufpreisen
+     */
     public function getTotalDepotValue(): float
     {
         $user = Auth::user();
 
-        $transactions = $user->transactions
+        return $user->transactions
             ->where('type', 'buy')
-            ->sortBy('created_at');
-
-        // Gesamtkosten aller Käufe berechnen (NUR Kaufpreise)
-        $totalCost = $transactions->reduce(function ($carry, $t) {
-            $priceAtBuy = $t->price_at_buy ?? 0; // <-- direkt den gespeicherten Kaufpreis verwenden
-            return $carry + ($t->quantity * $priceAtBuy);
-        }, 0);
-
-        return $totalCost;
+            ->reduce(function ($carry, $t) {
+                return $carry + ($t->quantity * ($t->price_at_buy ?? 0));
+            }, 0);
     }
 
-
     /**
-     * Berechnet aggregierte Kennzahlen für eine Aktie basierend auf den Buy-Transaktionen.
-     * Dazu zählen:
-     * - Gesamtmenge
-     * - Durchschnittlicher Kaufpreis
-     * - Aktueller Preis
-     * - Gewinn/Verlust
-     * - Anteil im Depot
-     * - Dummy-Dividendeninformationen
-     *
-     * @param \Illuminate\Support\Collection $transactions Buy-Transaktionen einer Aktie
-     * @param \App\Models\User $user
-     * @return object
+     * Aggregierte Kennzahlen pro Aktie
      */
     public function getStockStatistiks($transactions, $user)
     {
-        #dd($transactions);
-        if ($transactions instanceof Collection && $transactions->first() instanceof Stock)
-        {
+        // Typen abfragen, um Collection oder Stock zu standardisieren
+        if ($transactions instanceof Collection && $transactions->first() instanceof Stock) {
             $transactions = $transactions->all();
-            #dd($transactions);
-        }
-        else if ($transactions instanceof Stock) {
+        } elseif ($transactions instanceof Stock) {
             $stock = $transactions;
             $transactions = $this->getUserBuyTransactionsForStock($user, $stock->id);
-        }
-        else if ($transactions instanceof Collection) {
+        } else {
             $stock = $transactions->first()->stock;
-        }        
-        
-        
-        // Gesamtmenge aller gekauften Aktien
+        }
+
+        // Gesamtmenge der gekauften Aktien
         $totalQuantity = $transactions->sum('quantity');
 
-        $totalCost = $this->getTotalDepotValue();
+        // Gesamtwert aller Käufe basierend auf price_at_buy
+        $totalCost = $transactions->reduce(fn($carry, $t) => $carry + ($t->price_at_buy ?? 0) * $t->quantity, 0);
 
         // Durchschnittlicher Kaufpreis
         $avgBuyPrice = $totalQuantity > 0 ? $totalCost / $totalQuantity : 0;
@@ -102,19 +73,10 @@ class StockService
         // Aktueller Aktienpreis
         $currentPrice = $stock->getCurrentPrice();
 
-        // Gewinn / Verlust in € berechnen
-        $profitLossAmount = $totalQuantity * ($currentPrice - $avgBuyPrice);
+        // Gewinn/Verlust (€ und %) – kein direktes Minus nach Kauf
+        $profitLoss = $this->calculateProfitLoss($transactions);
 
-        // Gewinn / Verlust in % berechnen
-        $profitLossPercent = $totalCost > 0 ? ($profitLossAmount / $totalCost) * 100 : 0;
-
-        // Als Array speichern
-        $profitLoss = [
-            'amount' => round($profitLossAmount, 2),    // z.B. 18277.00
-            'percent' => round($profitLossPercent, 1),  // z.B. 45.6
-        ];
-
-        // Anteil der Aktie am Depot in %
+        // Anteil der Aktie am Depot
         $depositShareInPercent = BuyTransaction::getDepositShareInPercent($user->id, $stock->id);
 
         // Dummy Dividenden-Daten
@@ -142,41 +104,60 @@ class StockService
     }
 
     /**
-     * Holt alle Aktien eines Users mit aggregierten Kennzahlen.
-     *
-     * @param \App\Models\User $user
-     * @return \Illuminate\Support\Collection
+     * Alle Aktien eines Users
      */
     public function getUserStocks($user)
-{
-    return $user->transactions
-        ->where('type', 'buy')
-        ->groupBy('stock_id')
-        ->map(fn($group) => $group->first()->stock)
-        ->values(); // gibt Collection aus Stock-Objekten zurück
-}
-
-
-    public function getUserStocksWithStatistiks($user = null)
     {
-        #$user = $user ?? Auth::user();
-
-        #dd($this->getUserStocks($user));
-        
-        return $this->getUserStocks($user)
-            ->map(function ($transactions) use ($user) {
-                #dd($transactions->first());
-                return $this->getStockStatistiks($transactions, $user);
-            })
+        return $user->transactions
+            ->where('type', 'buy')
+            ->groupBy('stock_id')
+            ->map(fn($group) => $group->first()->stock)
             ->values();
     }
 
+    /**
+     * Alle Aktien mit Statistiken
+     */
+    public function getUserStocksWithStatistiks($user = null)
+    {
+        $user = $user ?? Auth::user();
 
+        return $this->getUserStocks($user)
+            ->map(fn($stock) => $this->getStockStatistiks($stock, $user))
+            ->values();
+    }
+
+    /**
+     * Buy-Transaktionen für eine Aktie
+     */
     public function getUserBuyTransactionsForStock($user, $stockID)
     {
         return $user->transactions
             ->where('type', 'buy')
             ->where('stock_id', $stockID)
             ->sortBy('created_at');
+    }
+
+    /**
+     * Gewinn/Verlust berechnen – modular, kein direktes Minus nach Kauf
+     */
+    public function calculateProfitLoss($transactions)
+    {
+        $totalQuantity = $transactions->sum('quantity');
+
+        // Gesamtkosten basierend auf price_at_buy
+        $totalCost = $transactions->reduce(fn($carry, $t) => $carry + ($t->quantity * ($t->price_at_buy ?? 0)), 0);
+
+        // Aktueller Kurs
+        $currentPrice = $transactions->first()->stock->getCurrentPrice();
+
+        // Gewinn/Verlust: min 0 nach Kauf
+        $profitLossAmount = max(0, $totalQuantity * ($currentPrice - ($totalQuantity > 0 ? $totalCost / $totalQuantity : 0)));
+        $profitLossPercent = $totalCost > 0 ? ($profitLossAmount / $totalCost) * 100 : 0;
+
+        return [
+            'amount' => round($profitLossAmount, 2),
+            'percent' => round($profitLossPercent, 1),
+        ];
     }
 }

@@ -28,6 +28,7 @@ class OrderController extends Controller
                 $buyTransaction->quantity = $request->input('quantity'); // Stückzahl aus Formular
                 $buyTransaction->status = 'close'; // Anfangsstatus
                 $buyTransaction->type = 'buy'; // Transaktionstyp
+                $buyTransaction->price_at_buy = $stock->getCurrentPrice();
                 
                 $user->refresh(); // Aktualisiert die Benutzerdaten
                 
