@@ -20,15 +20,15 @@ class DashboardController extends Controller
 
         $user = Auth::user();
         $stocks = $stockService->getUserStocksWithStatistiks($user);
-
         $depotInfo['totalPortfolioValue'] = $stockService->getTotalPortfolioValue();
 
         $depotInfo['tops'] = [
-            'topThreeUp' => $stocks->take(3)->values()->map( function ($item) use ($stockService) {
+            'topThreeUp' => $stocks->take(3)->values()->map( function (object $item) use ($stockService) {
+                #dd($item);
                 return $stockService->getStockStatistiks($item->stock, Auth::user());
             })->toArray(),
             'topThreeDown' => $stocks->slice(3)->sortBy('profit_loss.amount')
-                ->take(3)->values()->map(function ($item) use ($stockService) {
+                ->take(limit: 3)->values()->map(function ($item) use ($stockService) {
                     return $stockService->getStockStatistiks($item->stock, Auth::user());
             })->toArray(),
         ];
@@ -39,6 +39,8 @@ class DashboardController extends Controller
             ->take(5)
             ->get()
             ->toArray();
+
+        
 
         $depotInfo['nextDividens'] = collect(        
             $stocks
@@ -55,15 +57,15 @@ class DashboardController extends Controller
                 ->toArray()
         )->take(5)->toArray();
 
-        $depotInfo['avg_dividend'] = $stockService
-            ->getUserStocks($user)
-            ->map(fn($stock) => $dividendeService->getDividendeForStock($stock->id))
-            ->avg();
+        #$depotInfo['avg_dividend'] = $stockService
+        #    ->getUserStocks($user)
+        #    ->map(fn($stock) => $dividendeService->getDividendeForStock($stock->id))
+        #    ->avg();
 
 
         $depotInfo['chartData'] = $this->createChartData($stocks);
 
-        #dd($depotInfo);
+       
 
         return view('dashboard', compact('depotInfo'));
     }

@@ -13,7 +13,8 @@
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Total Portfolio Value</div>
                     <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">
-                        {{ number_format($depotInfo['totalPortfolioValue'], 3, ',', '.') }} €</div>
+                        {{ number_format($depotInfo['totalPortfolioValue'], 3, ',', '.') }} €
+                    </div>
                 </div>
                 <!-- Performance -->
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
@@ -40,14 +41,14 @@
                     <div class="text-gray-500 dark:text-gray-400 text-sm mb-2">Top 3 Winners</div>
                     <ul class="space-y-1">
                         @php
-foreach ($depotInfo['tops']['topThreeUp'] as $winner) {
-    $sign = $winner->profit_loss['amount'] >= 0 ? '+' : '-';
+                            foreach ($depotInfo['tops']['topThreeUp'] as $winner) {
+                                $sign = $winner->profit_loss['amount'] >= 0 ? '+' : '-';
 
-    echo "<li>"
-        . $winner->stock->name
-        . " (" . $sign . number_format(abs($winner->profit_loss['amount']), 2, ',', '.') . "€ / "
-        . $sign . number_format(abs($winner->profit_loss['percent']), 2, ',', '.') . "%)</li>";
-}
+                                echo "<li>"
+                                    . $winner->stock->name
+                                    . " (" . $sign . number_format(abs($winner->profit_loss['amount']), 2, ',', '.') . "€ / "
+                                    . $sign . number_format(abs($winner->profit_loss['percent']), 2, ',', '.') . "%)</li>";
+                            }
 
                         @endphp
                     </ul>
@@ -58,13 +59,13 @@ foreach ($depotInfo['tops']['topThreeUp'] as $winner) {
                     <ul class="space-y-1">
                         @php
 
-foreach ($depotInfo['tops']['topThreeDown'] as $winner) {
-    echo "<li>"
-        . $winner->stock->name
-        . " (" . number_format($winner->profit_loss['amount'], 2, ',', '.') . "€ / "
-        . number_format($winner->profit_loss['percent'], 2, ',', '.') . "%)</li>";
+                            foreach ($depotInfo['tops']['topThreeDown'] as $winner) {
+                                echo "<li>"
+                                    . $winner->stock->name
+                                    . " (" . number_format($winner->profit_loss['amount'], 2, ',', '.') . "€ / "
+                                    . number_format($winner->profit_loss['percent'], 2, ',', '.') . "%)</li>";
 
-}
+                            }
                         @endphp
                     </ul>
                 </div>
@@ -81,12 +82,12 @@ foreach ($depotInfo['tops']['topThreeDown'] as $winner) {
                     <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
                         📅 Dividendenkalender
                     </h3>
-                
+
                     <ul class="divide-y divide-gray-200 dark:divide-gray-700">
                         @forelse($depotInfo['nextDividens'] as $dividend)
                             @php
-    $isFuture = \Carbon\Carbon::parse($dividend['next_dividend'])->isFuture();
-    $dateFormatted = \Carbon\Carbon::parse($dividend['next_dividend'])->format('d.m.Y');
+                                $isFuture = \Carbon\Carbon::parse($dividend['next_dividend'])->isFuture();
+                                $dateFormatted = \Carbon\Carbon::parse($dividend['next_dividend'])->format('d.m.Y');
                             @endphp
 
                             <li class="py-3 flex justify-between items-center">
