@@ -21,14 +21,14 @@ class BuyTransaction extends Transaction
             ->where('stock_id', $stockId);
 
         $totalValue = $buyTransactions->get()->sum(function ($transaction) {
-            return $transaction->quantity * self::getPriceAtBuyForTransaction($transaction);
+            return $transaction->quantity * ($transaction->price_at_buy ?? 0);
         });
 
         $totalInvested = $user->transactions()
             ->where('type', 'buy')
             ->get() // ->get() macht eine Collection
             ->sum(function ($transaction) {
-                return $transaction->quantity * self::getPriceAtBuyForTransaction($transaction);
+                return $transaction->quantity * ($transaction->price_at_buy ?? 0);
             });
 
 

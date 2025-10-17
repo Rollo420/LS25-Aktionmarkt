@@ -11,7 +11,7 @@ use App\Models\BuyTransaction;
 class StockService
 {
     /**
-     * Gesamtwert des Depots inkl. Bankguthaben
+     * Gesamtwert des Portfolios inkl. Bankguthaben
      */
     public function getTotalPortfolioValue(): float
     {
@@ -20,7 +20,7 @@ class StockService
 
         $totalStocksValue = $user->transactions
             ->where('type', 'buy')
-            ->map(fn($t) => $t->quantity * $t->stock->getCurrentPrice())
+            ->map(fn($t) => $t->quantity * ($t->stock->getCurrentPrice() ?? 0))
             ->sum();
 
         return $totalStocksValue + $bankBalance;
@@ -35,80 +35,70 @@ class StockService
 
         return $user->transactions
             ->where('type', 'buy')
-            ->reduce(function ($carry, $t) {
-                $price = $this->getPriceAtBuyForTransaction($t);
-                return $carry + ($t->quantity * $price);
-            }, 0);
+            ->reduce(fn($carry, $t) => $carry + ($t->quantity * $this->getPriceAtBuyForTransaction($t)), 0);
     }
 
     /**
-     * Durchschnittlicher Kaufpreis für eine Aktie berechnen
+     * Berechnet den Preis einer Transaktion
+     */
+    public function getPriceAtBuyForTransaction($transaction): float
+    {
+        if ($transaction->price_at_buy > 0) {
+            return $transaction->price_at_buy;
+        }
+
+        // Fallback auf aktuellen Preis
+        return $transaction->stock->getCurrentPrice();
+    }
+
+    /**
+     * Durchschnittlicher Kaufpreis
      */
     public function calculateAverageBuyPrice($transactions): float
     {
-        $transactions = collect($transactions);
-        $totalQuantity = $transactions->sum('quantity');
+        if (empty($transactions))
+            return 0;
+
+        $totalQuantity = array_sum(array_map(fn($t) => $t->quantity, $transactions));
         if ($totalQuantity <= 0)
             return 0;
 
-        $totalCost = $transactions->reduce(function ($carry, $t) {
-            $price = $this->getPriceAtBuyForTransaction($t);
-            return $carry + ($price * $t->quantity);
-        }, 0);
+        $totalCost = 0;
+        foreach ($transactions as $t) {
+            $totalCost += $this->getPriceAtBuyForTransaction($t) * $t->quantity;
+        }
 
         return $totalCost / $totalQuantity;
     }
 
     /**
-     * Preis pro Kauf für eine Transaktion ermitteln
+     * Gewinn/Verlust berechnen unter Berücksichtigung Ingame-Monate
      */
-    private function getPriceAtBuyForTransaction($transaction): float
+    public function calculateProfitLoss($transactions, int $currentMonth = null): array
     {
-        if ($transaction->price_at_buy > 0)
-            return $transaction->price_at_buy;
-
-        $priceObj = $transaction->stock->prices()
-            ->where('date', '<=', $transaction->created_at)
-            ->latest('date')
-            ->first();
-
-        return $priceObj?->name ?? $transaction->stock->getCurrentPrice();
-    }
-
-    /**
-     * Gewinn/Verlust berechnen
-     * - nur für Kursbewegungen nach Kaufzeitpunkt
-     * - neue Käufe zum aktuellen Preis liefern noch 0
-     */
-    public function calculateProfitLoss($transactions): array
-    {
-        $transactions = collect($transactions);
-        if ($transactions->isEmpty())
+        if (empty($transactions))
             return ['amount' => 0, 'percent' => 0];
 
-        $stock = $transactions->first()->stock;
-        $profitLossAmount = 0;
-        $totalQuantity = 0;
+        $currentMonth = $currentMonth ?? max(array_map(fn($t) => $t->ingame_month ?? 1, $transactions));
 
-        $currentPrice = $stock->getCurrentPrice();
+        // Nur Transaktionen berücksichtigen, die vor dem aktuellen Monat gekauft wurden
+        $filteredTransactions = array_filter($transactions, fn($t) => ($t->ingame_month ?? 0) < $currentMonth);
 
-        foreach ($transactions as $t) {
-            $buyPrice = $this->getPriceAtBuyForTransaction($t);
+        if (empty($filteredTransactions))
+            return ['amount' => 0, 'percent' => 0];
 
-            // Wenn die Transaktion heute oder später als letzter Kurs, noch kein Profit/Loss
-            if ($t->created_at->gte(now())) {
-                continue;
-            }
-
-            $profitLossAmount += ($currentPrice - $buyPrice) * $t->quantity;
-            $totalQuantity += $t->quantity;
-        }
-
+        $totalQuantity = array_sum(array_map(fn($t) => $t->quantity, $filteredTransactions));
         if ($totalQuantity <= 0)
             return ['amount' => 0, 'percent' => 0];
 
-        $avgBuyPrice = $this->calculateAverageBuyPrice($transactions);
-        $profitLossPercent = ($profitLossAmount / ($totalQuantity * $avgBuyPrice)) * 100;
+        $avgBuyPrice = $this->calculateAverageBuyPrice($filteredTransactions);
+        $currentPrice = $filteredTransactions[0]->stock->getCurrentPrice();
+
+        $totalCost = $avgBuyPrice * $totalQuantity;
+        $currentValue = $currentPrice * $totalQuantity;
+
+        $profitLossAmount = $currentValue - $totalCost;
+        $profitLossPercent = $totalCost > 0 ? ($profitLossAmount / $totalCost) * 100 : 0;
 
         return [
             'amount' => round($profitLossAmount, 2),
@@ -116,27 +106,27 @@ class StockService
         ];
     }
 
-
     /**
      * Aggregierte Kennzahlen pro Aktie
      */
-    public function getStockStatistiks($transactions, $user)
+    public function getStockStatistiks($transactions, $user, int $currentMonth = null)
     {
         if ($transactions instanceof Collection && $transactions->first() instanceof Stock) {
             $transactions = $transactions->all();
         } elseif ($transactions instanceof Stock) {
             $stock = $transactions;
-            $transactions = $this->getUserBuyTransactionsForStock($user, $stock->id);
+            $transactions = $this->getUserBuyTransactionsForStock($user, $stock->id)->all();
         } else {
-            $stock = $transactions->first()->stock;
+            $stock = $transactions[0]->stock;
+            $transactions = $transactions->all();
         }
 
-        $totalQuantity = collect($transactions)->sum('quantity');
+        $totalQuantity = array_sum(array_map(fn($t) => $t->quantity, $transactions));
         $avgBuyPrice = $this->calculateAverageBuyPrice($transactions);
-        $lastBuyDate = collect($transactions)->max('created_at');
+        $lastBuyDate = max(array_map(fn($t) => $t->created_at, $transactions));
         $currentPrice = $stock->getCurrentPrice();
-        $profitLoss = $this->calculateProfitLoss($transactions);
-        $depositShareInPercent = BuyTransaction::getDepositShareInPercent($user->id, $stock->id);
+        $profitLoss = $this->calculateProfitLoss($transactions, $currentMonth);
+        $depositShareInPercent = $this->getDepositShareInPercent($user, $stock);
 
         $dividends = (object) [
             'next_date' => '15.12.2025',
@@ -161,29 +151,65 @@ class StockService
         ];
     }
 
+    /**
+     * Alle Aktien eines Users
+     */
     public function getUserStocks($user)
     {
         return $user->transactions
             ->where('type', 'buy')
             ->groupBy('stock_id')
-            ->map(fn($group) => $group->first()->stock)
+            ->map(fn($group) => $group[0]->stock)
             ->values();
     }
 
-    public function getUserStocksWithStatistiks($user = null)
+    /**
+     * Alle Aktien mit Statistiken
+     */
+    public function getUserStocksWithStatistiks($user = null, int $currentMonth = null)
     {
         $user = $user ?? Auth::user();
 
         return $this->getUserStocks($user)
-            ->map(fn($stock) => $this->getStockStatistiks($stock, $user))
+            ->map(fn($stock) => $this->getStockStatistiks($stock, $user, $currentMonth))
             ->values();
     }
 
+    /**
+     * Buy-Transaktionen für eine Aktie
+     */
     public function getUserBuyTransactionsForStock($user, $stockID)
     {
         return $user->transactions
             ->where('type', 'buy')
             ->where('stock_id', $stockID)
-            ->sortBy('created_at');
+            ->sortBy('created_at')
+            ->values();
+    }
+
+    /**
+     * Anteil der Aktie am Depot basierend auf investiertem Kapital
+     */
+    public function getDepositShareInPercent($user, $stock)
+    {
+        $buyTransactions = $user->transactions
+            ->where('type', 'buy')
+            ->where('stock_id', $stock->id);
+
+        $totalValue = $buyTransactions->sum(function ($transaction) {
+            return $transaction->quantity * ($transaction->price_at_buy ?? 0);
+        });
+
+        $totalInvested = $user->transactions
+            ->where('type', 'buy')
+            ->sum(function ($transaction) {
+                return $transaction->quantity * ($transaction->price_at_buy ?? 0);
+            });
+
+        if ($totalInvested == 0) {
+            return 0; // Vermeidung von Division durch Null
+        }
+
+        return number_format((float) ($totalValue / $totalInvested) * 100, 2, '.', '');
     }
 }
