@@ -55,7 +55,7 @@ Dividendentermine	Nächster Zahlungstermin
         <h5>{{ number_format($stockDetails['dividende']['dividendPerShare'], 2, ",", " ") }} €</h5>
 
         <h3 class="font-semibold">Dividend Yiel (%)</h3>
-        <h5>{{ number_format($stockDetails['dividende']['dividendYield'], 2, ",", " ") }} €</h5>
+        <h5>{{ number_format($stockDetails['dividende']['dividendYield'], 2, ",", " ") }} %</h5>
 
         <h3 class="font-semibold">Next Dividend Date</h3>
         <h5>{{ $stockDetails['dividende']['nextDividendDate'] }}</h5>

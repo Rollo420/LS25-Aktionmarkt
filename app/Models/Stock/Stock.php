@@ -12,28 +12,15 @@ use App\Models\Stock\Transaction;
 class Stock extends Model
 {
     use HasFactory;
-    /**
-     * Die Attribute, die massenweise zuweisbar sind.
-     *
-     * @var array
-     */
-    protected $fillable = ['name',];
 
-    /**
-     * Beziehung: Eine Aktie hat viele Preise.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
+    protected $fillable = ['name'];
+
+    /** Beziehungen **/
     public function prices()
     {
         return $this->hasMany(Price::class);
     }
 
-    /**
-     * Beziehung: Eine Aktie hat viele Transaktionen.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
@@ -44,20 +31,29 @@ class Stock extends Model
         return $this->hasMany(Dividend::class);
     }
 
-    public function getLatestPrice()
+    /** Helper-Methoden **/
+    public function getLatestPrice(): float
     {
-        $lastPrice = $this->prices()->latest()->first();
-        if ($lastPrice) {
-            return $lastPrice->name;
-        }
-        return 0;
-    }
-        
-    public function getCurrentPrice(){
-       return $this->prices()->latest('created_at')->first()->name ?? null;
+        return (float) ($this->prices()->latest('created_at')->first()->name ?? 0);
     }
 
-    public function getDividendenDate(){
-       return $this->dividends()->latest('created_at')->first()->distribution_date ?? null;
+    public function getCurrentPrice(): float
+    {
+        return (float) ($this->prices()->latest('created_at')->first()->name ?? 0);
+    }
+
+    public function getLatestDividend(): ?Dividend
+    {
+        return $this->dividends()->latest('created_at')->first();
+    }
+
+    public function getCurrentDividend(): float
+    {
+        return (float) ($this->getLatestDividend()->amount_per_share ?? 0);
+    }
+
+    public function getNextDividendDate(): ?string
+    {
+        return optional($this->getLatestDividend())->distribution_date;
     }
 }

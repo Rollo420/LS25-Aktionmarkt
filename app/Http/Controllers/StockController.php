@@ -82,9 +82,9 @@ class StockController extends Controller
             ? $details['currentPrice'] / $details['eps']
             : 0;
 
-        //hier fehlt die dividende
+
         $dividendeService = new DividendeService();
-        $dividendDetails = $dividendeService->getDividendeForStock($id);
+        $dividendDetails = $dividendeService->getDividendeForStockID($id);
         $details = array_merge($details, $dividendDetails);
 
         //dd( $details);

@@ -1,34 +1,46 @@
 <?php
+
 namespace App\Services;
 
-use Carbon\Carbon;
-
-use App\Models\Dividend;
 use App\Models\Stock\Stock;
+use Carbon\Carbon;
 
 class DividendeService
 {
-    public function getDividendeForStock($stockId)
+    public function getDividendeForStockID(int $stockId): ?array
     {
+        $stock = Stock::find($stockId);
+        if (!$stock) {
+            return null;
+        }
 
-        $stock = Stock::findOrFail($stockId);
-        $dividend = $stock->dividends()->latest()->first(); // z.B. 2.5
-        $percent = $dividend->amount_per_share; // z.B. 2.5
-
-        $details['dividende'] = [
-            'dividendPerShare' => $stock->getLatestPrice() * ($percent / 100), // Euro Dividende pro Aktie
-            'dividendYield' => $percent, // Dividendenrendite in %
-            'nextDividendDate' => Carbon::parse($dividend->distribution_date)->format(format: 'Y-m-d'),
-        ];
-
-        return $details;
+        return $this->getDividendStatisticsForStock($stock);
     }
 
-    public function getNextDividendDates()
+    public function getDividendStatisticsForStock(Stock $stock): array
     {
-        $dividends = Dividend::orderBy('distribution_date');
+        $dividend = $stock->getLatestDividend();
 
-        $stocks = $dividends->stock();
+        if (!$dividend) {
+            return [
+                'dividende' => [
+                    'dividendPerShare' => 0,
+                    'dividendPercent' => 0,
+                    'nextDividendDate' => null,
+                ],
+            ];
+        }
 
+        $price = $stock->getLatestPrice();
+        $amount = $dividend->amount_per_share;
+        $percent = $price > 0 ? ($amount / $price) * 100 : 0; // Dividendenrendite in %
+
+        return [
+            'dividende' => [
+                'dividendPerShare' => round($amount, 2),
+                'dividendPercent' => round($percent, 2), // Prozentwert
+                'nextDividendDate' => Carbon::parse($dividend->distribution_date)->format('Y-m-d'),
+            ],
+        ];
     }
 }

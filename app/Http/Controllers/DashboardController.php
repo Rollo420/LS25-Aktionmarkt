@@ -39,22 +39,38 @@ class DashboardController extends Controller
             ->get()
             ->toArray();
 
-        
 
-        $depotInfo['nextDividens'] = collect(        
-            $stocks
-                ->sortByDesc(function ($item) {
-                    return $item->stock->getDividendenDate();
-                })
-                ->map(function ($item) {
-                    return [
-                        'name' => $item->stock->name,
-                        'next_dividend' => $item->stock->getDividendenDate(),
-                    ];
-                })
-                ->values()
-                ->toArray()
-        )->take(5)->toArray();
+
+        $dividendeService = new DividendeService();
+
+        $depotInfo['nextDividends'] = collect($stocks)
+            ->sortByDesc(fn($item) => $item->stock->getNextDividendDate())
+            ->map(function ($item) use ($dividendeService) {
+                $stock = $item->stock;
+                $divData = $dividendeService->getDividendStatisticsForStock($stock);
+
+                return [
+                    'name' => $stock->name,
+                    'next_dividend' => $divData['dividende']['nextDividendDate'],
+                    'price' => $stock->getLatestPrice(),                     // aktueller Kurs (€)
+                    'dividend' => $divData['dividende']['dividendPerShare'], // Dividende (€)
+                    'percent' => $divData['dividende']['dividendPercent'],   // Rendite (%)
+                ];
+            })
+            ->values();
+
+        $depotInfo['averages'] = [
+            'avg_stock_price_eur' => round($depotInfo['nextDividends']->avg('price'), 2),       // Durchschnittlicher Aktienkurs (€)
+            'avg_dividend_amount_eur' => round($depotInfo['nextDividends']->avg('dividend'), 2),    // Durchschnittliche Dividende (€)
+            'avg_dividend_percent_total' => round($depotInfo['nextDividends']->avg('percent'), 2),     // Durchschnittliche Dividendenrendite (%)
+        ];
+
+
+        // Nur die Top 5 nächsten Dividenden anzeigen
+        $depotInfo['nextDividends'] = $depotInfo['nextDividends']->take(5)->toArray();
+
+        // Testausgabe
+        #dd($depotInfo);
 
         // Chart-Daten (Ingame-Monate)
         $depotInfo['chartData'] = $this->createChartData($stocks, $user);
