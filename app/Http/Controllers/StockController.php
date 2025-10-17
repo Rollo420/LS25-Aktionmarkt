@@ -21,17 +21,23 @@ class StockController extends Controller
      */
     public function index()
     {
-        $stockWithPrice = [];
-        $stocks = Stock::with('prices')->get(); // Eager Loading für Preise
+        
+        $allStocks = Stock::all();
 
-        foreach ($stocks as $stock)
+        $stocks[] = $allStocks->map(function ($stock)
         {
-            $lastPrice = $stock->prices->last();
-            $priceName = $lastPrice ? $lastPrice->name : 'No Price';
-            array_push($stockWithPrice, [$stock->id, $stock->name, $priceName]);
-        }
-        // dd($stockWithPrice);
-        return view('Stock.index', ['stocks' => $stockWithPrice]);
+            return [
+                    'id' => $stock->id,
+                    'name' => $stock->name,
+                    'price' => $stock->getCurrentPrice()
+            ];
+            
+        });
+        
+        
+        $stocks = collect($stocks);
+        
+        return view('Stock.index', ['stocks' => $stocks->first()]);
     }
 
     /**
@@ -45,9 +51,10 @@ class StockController extends Controller
         $details = [];
 
         $stock = Stock::with('prices')->findOrFail($id); // Eager Loading für Preise
+        
         //current price
         $prices = $stock->prices; // Get all prices
-        $details['currentPrice'] = $prices->last()->name; // Last price
+        $details['currentPrice'] = $stock->getCurrentPrice(); // Last price
         //dd($details['currentPrice']);
 
         //price change

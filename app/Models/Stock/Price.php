@@ -14,7 +14,7 @@ class Price extends Model
      *
      * @var array
      */
-    protected $fillable = ['id', 'created_at', 'updated_at', 'price', 'stock_id', 'date', 'name'];
+    protected $fillable = ['id', 'created_at', 'updated_at', 'name', 'stock_id', 'date', 'name'];
 
     /**
      * Beziehung: Ein Preis gehört zu einer Aktie.

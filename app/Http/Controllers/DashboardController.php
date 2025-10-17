@@ -2,26 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BuyTransaction;
+use App\Models\Stock\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\StockService;
 use App\Services\DividendeService;
-
-use App\Models\Stock\Transaction;
-
-
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-
     public function index(StockService $stockService, DividendeService $dividendeService)
     {
-        $depotInfo = [];
-
         $user = Auth::user();
         $stocks = $stockService->getUserStocksWithStatistiks($user);
+
         $depotInfo['totalPortfolioValue'] = $stockService->getTotalPortfolioValue();
 
+        // Top/Flop Aktien
         $depotInfo['tops'] = [
             'topThreeUp' => $stocks->take(3)->values()->map( function (object $item) use ($stockService) {
                 #dd($item);
@@ -33,6 +31,7 @@ class DashboardController extends Controller
             })->toArray(),
         ];
 
+        // Letzte 5 Transaktionen
         $depotInfo['lastTransactions'] = Transaction::where('user_id', $user->id)
             ->with('stock')
             ->latest()
@@ -57,68 +56,73 @@ class DashboardController extends Controller
                 ->toArray()
         )->take(5)->toArray();
 
-        #$depotInfo['avg_dividend'] = $stockService
-        #    ->getUserStocks($user)
-        #    ->map(fn($stock) => $dividendeService->getDividendeForStock($stock->id))
-        #    ->avg();
-
-
-        $depotInfo['chartData'] = $this->createChartData($stocks);
-
-       
+        // Chart-Daten (Ingame-Monate)
+        $depotInfo['chartData'] = $this->createChartData($stocks, $user);
 
         return view('dashboard', compact('depotInfo'));
     }
 
+    /**
+     * Berechnet den Depotwert pro simuliertem Monat (Ingame-Zeit)
+     */
     private function getHistoricalPortfolioValues($user, $months = 12)
     {
         $values = [];
-        $currentDate = now();
 
-        for ($i = $months - 1; $i >= 0; $i--) {
-            $date = $currentDate->copy()->subMonths($i)->endOfMonth();
+        $transactions = Transaction::where('user_id', $user->id)
+            ->whereIn('type', ['buy', 'sell'])
+            ->orderBy('created_at')
+            ->get();
 
-            // Get all transactions up to this date
-            $transactions = Transaction::where('user_id', $user->id)
-                ->whereIn('type', ['buy', 'sell'])
-                ->where('created_at', '<=', $date)
-                ->orderBy('created_at')
-                ->get();
+        if ($transactions->isEmpty()) {
+            return array_fill(0, $months, 0);
+        }
 
+        $stockIds = $transactions->pluck('stock_id')->unique()->all();
+
+        $prices = \App\Models\Stock\Price::whereIn('stock_id', $stockIds)
+            ->orderBy('date', 'asc')
+            ->get()
+            ->groupBy('stock_id');
+
+        $allDates = $prices->flatten()
+            ->pluck('date')
+            ->unique()
+            ->sort()
+            ->map(fn($d) => Carbon::parse($d))
+            ->values();
+
+        $simulatedMonths = $allDates->slice(-$months);
+
+        $holdingsByStock = [];
+        foreach ($stockIds as $stockId) {
+            $holdingsByStock[$stockId] = 0;
+        }
+
+        foreach ($simulatedMonths as $monthDate) {
             $portfolioValue = 0;
-            $holdings = [];
 
-            // Calculate holdings by processing transactions chronologically
-            foreach ($transactions as $transaction) {
-                $stockId = $transaction->stock_id;
-                if (!isset($holdings[$stockId])) {
-                    $holdings[$stockId] = 0;
-                }
+            foreach ($stockIds as $stockId) {
+                $holdingsByStock[$stockId] = $transactions
+                    ->where('stock_id', $stockId)
+                    ->filter(function ($tx) use ($monthDate, $allDates) {
+                        $txCreated = Carbon::parse($tx->created_at);
+                        $txMonth = $allDates->first(fn($d) => $d->gte($txCreated));
+                        return $txMonth && $txMonth->lte($monthDate);
+                    })
+                    ->reduce(fn($carry, $tx) => $carry + ($tx->type === 'buy' ? $tx->quantity : -$tx->quantity), $holdingsByStock[$stockId]);
 
-                if ($transaction->type === 'buy') {
-                    $holdings[$stockId] += $transaction->quantity;
-                } elseif ($transaction->type === 'sell') {
-                    $holdings[$stockId] -= $transaction->quantity;
-                }
-            }
+                if ($holdingsByStock[$stockId] <= 0)
+                    continue;
 
-            // Calculate portfolio value based on current holdings
-            foreach ($holdings as $stockId => $quantity) {
-                if ($quantity > 0) {
-                    // Get the last price for this stock up to the date
-                    $lastPrice = \App\Models\Stock\Price::where('stock_id', $stockId)
-                        ->where('created_at', '<=', $date)
-                        ->latest('created_at')
-                        ->first();
+                $price = optional($prices->get($stockId))
+                    ->filter(fn($p) => Carbon::parse($p->date) <= $monthDate)
+                    ->last();
 
-                    if ($lastPrice) {
-                        $portfolioValue += $quantity * $lastPrice->name;
-                    }
+                if ($price && $price->name > 0) {
+                    $portfolioValue += $holdingsByStock[$stockId] * $price->name;
                 }
             }
-
-            // Add bank balance (assuming current balance, as historical bank data may not be available)
-            #$portfolioValue += $user->bank->balance;
 
             $values[] = round($portfolioValue, 2);
         }
@@ -126,21 +130,32 @@ class DashboardController extends Controller
         return $values;
     }
 
-    private function createChartData($stocks)
+    /**
+     * Erzeugt Chart-Daten für Blade / Chart.js
+     */
+    private function createChartData($stocks, $user)
     {
-        $user = Auth::user();
-        $labels = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+        $months = 12;
 
-        // Get historical portfolio values
-        $data = $this->getHistoricalPortfolioValues($user, 12);
+        $allDates = \App\Models\Stock\Price::orderBy('date', 'asc')
+            ->pluck('date')
+            ->unique()
+            ->map(fn($d) => Carbon::parse($d))
+            ->values();
+
+        $simulatedMonths = $allDates->slice(-$months);
+
+        $labels = $simulatedMonths->map(fn($d) => $d->format('M Y'))->all();
+
+        $data = $this->getHistoricalPortfolioValues($user, $months);
 
         return [
             'labels' => $labels,
             'datasets' => [
                 [
-                    'label' => 'Depotentwicklung 2025',
+                    'label' => 'Depotentwicklung (Ingame)',
                     'data' => $data,
-                    'borderColor' => '#10B981', // Grün (Tailwind Emerald)
+                    'borderColor' => '#10B981',
                     'backgroundColor' => 'rgba(16,185,129,0.1)',
                     'tension' => 0.3,
                     'fill' => true,
@@ -150,6 +165,4 @@ class DashboardController extends Controller
             ],
         ];
     }
-
-    
 }
