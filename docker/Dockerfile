@@ -20,9 +20,9 @@ RUN npm install
 
 COPY ../docker/copy-vendor-moduls.sh /app/copy-vendor-moduls.sh
 #RUN chmod +x /app/copy-vendor-moduls.sh
-#RUN chmod -R 777 /app/copy-vendor-moduls.sh
+RUN chmod -R 777 /app/copy-vendor-moduls.sh
 COPY --from=composer /var/www/html/vendor /app/vendor
 
-RUN chmod -R 777 /var/www/html/node_modules
+#RUN chmod -R 777 /var/www/html/node_modules
 
 ENTRYPOINT [ "/app/copy-vendor-moduls.sh" ]
