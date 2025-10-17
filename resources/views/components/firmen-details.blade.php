@@ -21,20 +21,30 @@ Dividendentermine	Nächster Zahlungstermin
 -->
 
 <div class="mt-4">
-    <h2 class="font-semibold text-xl text-gray-10 dark:text-gray-10 leading-tight">
+    <h2 class="font-semibold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl 3xl:text-6xl 4xl:text-7xl 5xl:text-8xl text-gray-800 dark:text-gray-200 leading-tight">
         {{ __('Firm Details') }}
     </h2>
 
-    <div class="tow-grid">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
 
-        <h3>Firma</h2>
-            <h6> {{ $firmenDetails->frima }}</h6>
-            <h3>Sector</h3>
-            <h4>{{ $firmenDetails->sector }}</h4>
+        <div>
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Firma</h3>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ $firmenDetails->frima }}</p>
+        </div>
 
-            <h3>Land</h3>
-            <h4>{{ $firmenDetails->land }}</h4>
-            <h3>Description</h>
-            <h4>{{ $firmenDetails->description }}</h4>
+        <div>
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Sector</h3>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ $firmenDetails->sector }}</p>
+        </div>
+
+        <div>
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Land</h3>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ $firmenDetails->land }}</p>
+        </div>
+
+        <div>
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Description</h3>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ $firmenDetails->description }}</p>
+        </div>
     </div>
 </div>

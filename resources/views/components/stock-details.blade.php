@@ -22,42 +22,60 @@ Dividendentermine	Nächster Zahlungstermin
 @props(['stockDetails'])
 
 <div class="mt-4">
-    <h2 class="font-semibold text-xl text-gray-10 dark:text-gray-10 leading-tight">
+    <h2 class="font-semibold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl 3xl:text-6xl 4xl:text-7xl 5xl:text-8xl text-gray-800 dark:text-gray-200 leading-tight">
         {{ __('Stock Details') }}
     </h2>
 
-    <div class="tow-grid">
-        <h3>Price</h3>
-        <h5>{{ number_format($stockDetails['currentPrice'], 2, ",", " ") }} €</h5>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        <div>
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Price</h3>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ number_format($stockDetails['currentPrice'], 2, ",", " ") }} €</p>
+        </div>
 
-        <h3>Price Development (€)</h3>
-        <h5 class="{{ $stockDetails['priceDevelopment'] >= 0 ? 'text-green-500' : 'text-red-500' }}">
-            {{ $stockDetails['priceDevelopment'] >= 0 ? '+' : '' }}
-            {{ number_format($stockDetails["priceDevelopment"], 6, ",", " ") }} €
-        </h5>
+        <div>
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Price Development (€)</h3>
+            <p class="text-sm sm:text-base {{ $stockDetails['priceDevelopment'] >= 0 ? 'text-green-500' : 'text-red-500' }}">
+                {{ $stockDetails['priceDevelopment'] >= 0 ? '+' : '' }}
+                {{ number_format($stockDetails["priceDevelopment"], 6, ",", " ") }} €
+            </p>
+        </div>
 
-        <h3>Percentage Development (%)</h3>
-        <h5 class="{{ $stockDetails['percentageDevelopment'] >= 0 ? 'text-green-500' : 'text-red-500' }}">
-            {{ $stockDetails['percentageDevelopment'] >= 0 ? '+' : '' }}
-            {{ number_format($stockDetails["percentageDevelopment"], 6, ",", " ") }} %
-        </h5>
+        <div>
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Percentage Development (%)</h3>
+            <p class="text-sm sm:text-base {{ $stockDetails['percentageDevelopment'] >= 0 ? 'text-green-500' : 'text-red-500' }}">
+                {{ $stockDetails['percentageDevelopment'] >= 0 ? '+' : '' }}
+                {{ number_format($stockDetails["percentageDevelopment"], 6, ",", " ") }} %
+            </p>
+        </div>
 
-        <h3>EPS (Earnings per Share)</h3>
-        <h5>{{ $stockDetails["eps"]}} €</h5>
+        <div>
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">EPS (Earnings per Share)</h3>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ $stockDetails["eps"]}} €</p>
+        </div>
 
-        <h3>Payout Ratio (%)</h3>
-        <h5>{{ number_format($stockDetails["payoutRatio"], 6, ",", " ") }} %</h5>
+        <div>
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Payout Ratio (%)</h3>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ number_format($stockDetails["payoutRatio"], 6, ",", " ") }} %</p>
+        </div>
 
-        <h3>PER (Price-to-earnings ratio)</h3>
-        <h5>{{ number_format($stockDetails["kgv"], 6, ",", " ") }}</h5>
+        <div>
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">PER (Price-to-earnings ratio)</h3>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ number_format($stockDetails["kgv"], 6, ",", " ") }}</p>
+        </div>
 
-        <h3 class="font-semibold">Dividend per Share (€)</h3>
-        <h5>{{ number_format($stockDetails['dividende']['dividendPerShare'], 2, ",", " ") }} €</h5>
+        <div>
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Dividend per Share (€)</h3>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ number_format($stockDetails['dividende']['dividendPerShare'], 2, ",", " ") }} €</p>
+        </div>
 
-        <h3 class="font-semibold">Dividend Yiel (%)</h3>
-        <h5>{{ number_format($stockDetails['dividende']['dividendPercent'], 2, ",", " ") }} %</h5>
+        <div>
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Dividend Yield (%)</h3>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ number_format($stockDetails['dividende']['dividendPercent'], 2, ",", " ") }} %</p>
+        </div>
 
-        <h3 class="font-semibold">Next Dividend Date</h3>
-        <h5>{{ $stockDetails['dividende']['nextDividendDate'] }}</h5>
+        <div class="sm:col-span-2">
+            <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Next Dividend Date</h3>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ $stockDetails['dividende']['nextDividendDate'] }}</p>
+        </div>
     </div>
 </div>

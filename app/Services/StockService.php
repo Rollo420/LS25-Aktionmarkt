@@ -47,18 +47,15 @@ class StockService
             ->where('type', 'buy')
             ->sortBy('created_at');
 
-        // Gesamtkosten aller Käufe berechnen
+        // Gesamtkosten aller Käufe berechnen (NUR Kaufpreise)
         $totalCost = $transactions->reduce(function ($carry, $t) {
-            $priceAtBuy = $t->stock->prices()
-                ->where('created_at', '<=', $t->created_at)
-                ->latest('created_at')
-                ->first()
-                ->name ?? 0;
+            $priceAtBuy = $t->price_at_buy ?? 0; // <-- direkt den gespeicherten Kaufpreis verwenden
             return $carry + ($t->quantity * $priceAtBuy);
         }, 0);
 
         return $totalCost;
     }
+
 
     /**
      * Berechnet aggregierte Kennzahlen für eine Aktie basierend auf den Buy-Transaktionen.

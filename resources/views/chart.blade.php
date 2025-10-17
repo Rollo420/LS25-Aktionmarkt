@@ -5,10 +5,14 @@
         </h2>
     </x-slot>
 
-    <x-chart-show
-        type="line" 
-        :data="$chartData" 
-        :options="$chartOptions" 
-    />
-    
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto space-y-8">
+            <x-chart-show
+                type="line"
+                :data="$chartData"
+                :options="$chartOptions"
+            />
+        </div>
+    </div>
+
 </x-app-layout>

@@ -11,7 +11,7 @@
                 </div>
             @endif
         @endforeach
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+        <div class="max-w-7xl mx-auto space-y-8">
 
             <!-- Übersicht Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

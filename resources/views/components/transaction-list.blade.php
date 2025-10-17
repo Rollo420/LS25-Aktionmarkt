@@ -1,6 +1,6 @@
 <div class="mt-4">
-    <p class="text-gray-200 mb-2">Letzte Transaktionen:</p>
-    <ul class="list-disc ml-6 text-gray-400">
+    <p class="text-sm sm:text-base text-gray-200 mb-2">Letzte Transaktionen:</p>
+    <ul class="list-disc ml-4 sm:ml-6 text-xs sm:text-sm text-gray-400">
        @foreach($transaktionens as $transaction)
             <li class="mb-2">
                 <span class="font-semibold">{{ $transaction['type'] }}</span>:

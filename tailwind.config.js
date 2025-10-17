@@ -12,6 +12,11 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            screens: {
+                '3xl': '1920px', // Full HD
+                '4xl': '2560px', // 4K
+                '5xl': '3840px', // Ultra HD
+            },
         },
     },
     plugins: [],
