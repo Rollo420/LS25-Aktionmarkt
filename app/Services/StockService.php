@@ -151,15 +151,14 @@ class StockService
      * @return \Illuminate\Support\Collection
      */
     public function getUserStocks($user)
-    {
+{
+    return $user->transactions
+        ->where('type', 'buy')
+        ->groupBy('stock_id')
+        ->map(fn($group) => $group->first()->stock)
+        ->values(); // gibt Collection aus Stock-Objekten zurück
+}
 
-        // Alle Buy-Transaktionen des Users
-        $buyTransactions = $user->transactions->where('type', 'buy');
-        $stocks = $buyTransactions->pluck('stock')->unique();
-        // Transaktionen nach Aktie gruppieren und Kennzahlen berechnen
-        #dd($stocks);
-        return $stocks->groupBy('stock_id');
-    }
 
     public function getUserStocksWithStatistiks($user = null)
     {
@@ -169,7 +168,7 @@ class StockService
         //    return
         //}));
 
-        return $this->getUserStocks($user)->first()
+        return $this->getUserStocks($user)
             ->map(function ($transactions) use ($user) {
                 #dd($transactions->first());
                 return $this->getStockStatistiks($transactions, $user);
