@@ -4,6 +4,13 @@
     </x-slot>
 
     <div class="py-12">
+        @foreach (['success', 'error', 'warning', 'info'] as $msg)
+            @if(session($msg))
+                <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg']" class="alert alert-{{ $msg }} mb-4">
+                    {{ session($msg) }}
+                </div>
+            @endif
+        @endforeach
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
 
             <!-- Übersicht Cards -->
@@ -31,7 +38,7 @@
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Gewinn / Verlust</div>
                     <div class="text-2xl font-bold mt-2 {{ $stockData->profit_loss['amount'] >= 0 ? 'text-green-500' : 'text-red-500' }}">
-                        {{ number_format($stockData->profit_loss['amount'],2, ',', '.') }} €
+                        {{ number_format($stockData->profit_loss['amount'], 2, ',', '.') }} €
                         ({{ $stockData->profit_loss['percent'] }} %)
                     </div>
 
@@ -120,6 +127,8 @@
                     </tbody>
                 </table>
             </div>
+
+            <x-buy_sell-buttons :stock="$stock" />
 
         </div>
     </div>

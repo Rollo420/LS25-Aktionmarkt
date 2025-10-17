@@ -1,12 +1,17 @@
-# Portfolio Chart Implementation Plan
+# TODO: Buy/Sell Button Integration and Alerts
 
 ## Tasks
-- [x] Add private method `getHistoricalPortfolioValues($user, $months = 12)` to DashboardController
-- [x] Update `createChartData($stocks)` in DashboardController to use historical data instead of static data
-- [ ] Test the chart in the dashboard view
+- [x] Improve buy_sell-buttons.blade.php design (add icons, better styling, animations)
+- [x] Add alert loop to depotStockDetails.blade.php
+- [ ] Test functionality after changes
+- [ ] Compile SCSS if needed
 
-## Details
-- The new method will calculate portfolio value for each of the last 12 months based on transactions and stock prices.
-- For each month, aggregate holdings up to month-end, multiply by last price of the month, add bank balance.
-- Now includes buy and sell transactions for accurate holdings calculation.
-- Labels remain months, data becomes dynamic.
+## Dependent Files
+- resources/views/components/buy_sell-buttons.blade.php
+- resources/views/depot/depotStockDetails.blade.php
+- resources/sass/_paymentAlert.scss (already included)
+
+## Notes
+- Keep existing project design (Tailwind CSS, SCSS alerts)
+- Ensure OrderController sets session messages correctly
+- Test buy/sell transactions work with alerts

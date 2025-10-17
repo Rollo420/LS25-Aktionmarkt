@@ -21,14 +21,14 @@ class DashboardController extends Controller
 
         // Top/Flop Aktien
         $depotInfo['tops'] = [
-            'topThreeUp' => $stocks->take(3)->values()->map( function (object $item) use ($stockService) {
+            'topThreeUp' => $stocks->take(3)->values()->map(function (object $item) use ($stockService) {
                 #dd($item);
                 return $stockService->getStockStatistiks($item->stock, Auth::user());
             })->toArray(),
             'topThreeDown' => $stocks->slice(3)->sortBy('profit_loss.amount')
                 ->take(limit: 3)->values()->map(function ($item) use ($stockService) {
                     return $stockService->getStockStatistiks($item->stock, Auth::user());
-            })->toArray(),
+                })->toArray(),
         ];
 
         // Letzte 5 Transaktionen
@@ -38,7 +38,6 @@ class DashboardController extends Controller
             ->take(5)
             ->get()
             ->toArray();
-
 
 
         $dividendeService = new DividendeService();
@@ -52,15 +51,15 @@ class DashboardController extends Controller
                 return [
                     'name' => $stock->name,
                     'next_dividend' => $divData['dividende']['nextDividendDate'],
-                    'price' => $stock->getLatestPrice(),                     // aktueller Kurs (€)
+                    'price' => $stock->getLatestPrice(),                        // aktueller Kurs (€)
                     'dividend' => $divData['dividende']['dividendPerShare'], // Dividende (€)
-                    'percent' => $divData['dividende']['dividendPercent'],   // Rendite (%)
+                    'percent' => $divData['dividende']['dividendPercent'],    // Rendite (%)
                 ];
             })
             ->values();
 
         $depotInfo['averages'] = [
-            'avg_stock_price_eur' => round($depotInfo['nextDividends']->avg('price'), 2),       // Durchschnittlicher Aktienkurs (€)
+            'avg_stock_price_eur' => round($depotInfo['nextDividends']->avg('price'), 2),        // Durchschnittlicher Aktienkurs (€)
             'avg_dividend_amount_eur' => round($depotInfo['nextDividends']->avg('dividend'), 2),    // Durchschnittliche Dividende (€)
             'avg_dividend_percent_total' => round($depotInfo['nextDividends']->avg('percent'), 2),     // Durchschnittliche Dividendenrendite (%)
         ];
@@ -68,6 +67,48 @@ class DashboardController extends Controller
 
         // Nur die Top 5 nächsten Dividenden anzeigen
         $depotInfo['nextDividends'] = $depotInfo['nextDividends']->take(5)->toArray();
+
+
+        // --- HINZUFÜGEN DER NEUEN DUMMY-DATEN ---
+
+        // Performance-Metriken (3-Monats, 6-Monats & Benchmark)
+        $depotInfo["monthly_performance"] = [
+            "3_month" => [
+                "amount" => 150.50, // Betrag der 3-Monats-Performance
+                "percent" => 1.24,  // Prozent der 3-Monats-Performance
+            ],
+            "6_month" => [
+                "amount" => 450.00,
+                "percent" => 3.71,
+            ],
+            "benchmark_ytd_percent" => 5.20, // Benchmark-Performance (für 1.3)
+            "benchmark_name" => "MSCI World", // Benchmark-Name (für 1.3)
+        ];
+
+        // Risiko-Metriken (Cash-Anteil, Beta-Wert)
+        $depotInfo["risk_metrics"] = [
+            "cash_balance" => 3500.00, // Beispiel Cash-Guthaben
+            "total_capital" => $depotInfo['totalPortfolioValue'] + 3500.00,
+            "portfolio_beta" => 1.15, // Beispiel Beta-Wert
+        ];
+
+        // Daten für den Dividenden-Chart
+        $depotInfo["dividend_chart"] = [
+            "labels" => ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
+            "data" => [30, 45, 60, 35, 70, 50, 40, 55, 65, 80, 55, 60], // Erwarteter Betrag pro Monat
+        ];
+
+        // Kaufkraft-Metrik
+        $depotInfo["purchasing_power"] = [
+            "stock_name" => "Apple (AAPL)",
+            "stock_price" => 170.00,
+            "annual_gross_dividend" => 305.00, // Summe aller erwarteten Dividenden
+            "can_buy_quantity" => 305.00 / 170.00, // Dummy-Berechnung
+        ];
+
+        // --- Ende der neuen Dummy-Daten ---
+
+
 
         // Testausgabe
         #dd($depotInfo);
