@@ -165,10 +165,14 @@ class StockService
     {
         $user = $user ?? Auth::user();
 
-        return $this->getUserStocks($user)
+        //dd($this->getUserStocks($user)->first()->map(function($stocks){
+        //    return
+        //}));
+
+        return $this->getUserStocks($user)->first()
             ->map(function ($transactions) use ($user) {
                 #dd($transactions->first());
-                return $this->getStockStatistiks($transactions->first(), $user);
+                return $this->getStockStatistiks($transactions, $user);
             })
             ->values();
     }

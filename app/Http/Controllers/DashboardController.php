@@ -40,6 +40,7 @@ class DashboardController extends Controller
             ->get()
             ->toArray();
 
+
         $depotInfo['nextDividens'] = collect(        
             $stocks
                 ->sortByDesc(function ($item) {
@@ -55,10 +56,10 @@ class DashboardController extends Controller
                 ->toArray()
         )->take(5)->toArray();
 
-        $depotInfo['avg_dividend'] = $stockService
-            ->getUserStocks($user)
-            ->map(fn($stock) => $dividendeService->getDividendeForStock($stock->id))
-            ->avg();
+        //$depotInfo['avg_dividend'] = $stockService
+        //    ->getUserStocks($user)
+        //    ->map(fn($stock) => $dividendeService->getDividendeForStock($stock->id))
+        //    ->avg();
 
 
         $depotInfo['chartData'] = $this->createChartData($stocks);
