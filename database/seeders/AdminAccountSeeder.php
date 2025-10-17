@@ -40,6 +40,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => 'closed',
                     'type' => 'buy',
                     'quantity' => 15,
+                    'price_at_buy' => \App\Models\Stock\Stock::find(2)?->getCurrentPrice() ?? 37.54, // Aktueller Preis der Aktie
                 ],
                 [
                     'user_id' => $woodly->id,
@@ -47,6 +48,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => 'open',
                     'type' => 'sell',
                     'quantity' => 30,
+                    'price_at_buy' => 0, // Sell-Transaktionen brauchen keinen price_at_buy, aber NULL ist nicht erlaubt
                 ],
             ];
             foreach ($transactions as $transaction) {
@@ -78,6 +80,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => 'open',
                     'type' => 'buy',
                     'quantity' => 10,
+                    'price_at_buy' => \App\Models\Stock\Stock::find(1)?->getCurrentPrice() ?? 25.00, // Aktueller Preis der Aktie
                 ],
                 [
                     'user_id' => $maro->id,
@@ -85,6 +88,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => 'closed',
                     'type' => 'sell',
                     'quantity' => 20,
+                    'price_at_buy' => 0, // Sell-Transaktionen brauchen keinen price_at_buy, aber NULL ist nicht erlaubt
                 ],
             ];
             foreach ($transactions as $transaction) {

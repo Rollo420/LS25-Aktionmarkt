@@ -20,10 +20,7 @@ class StockService
 
         $totalStocksValue = $user->transactions
             ->where('type', 'buy')
-            ->map(function ($transaction) {
-                $lastPrice = $transaction->stock?->getCurrentPrice() ?? 0;
-                return $transaction->quantity * $lastPrice;
-            })
+            ->map(fn($t) => $t->quantity * $t->stock->getCurrentPrice())
             ->sum();
 
         return $totalStocksValue + $bankBalance;
@@ -39,7 +36,7 @@ class StockService
         return $user->transactions
             ->where('type', 'buy')
             ->reduce(function ($carry, $t) {
-                $price = $t->price_at_buy ?? $t->stock?->getCurrentPrice() ?? 0;
+                $price = $this->getPriceAtBuyForTransaction($t);
                 return $carry + ($t->quantity * $price);
             }, 0);
     }
@@ -49,47 +46,69 @@ class StockService
      */
     public function calculateAverageBuyPrice($transactions): float
     {
+        $transactions = collect($transactions);
         $totalQuantity = $transactions->sum('quantity');
         if ($totalQuantity <= 0)
             return 0;
 
-        $totalCost = 0;
-        foreach ($transactions as $t) {
-            // 1) Preis bei Kauf aus der Transaktion
-            if ($t->price_at_buy > 0) {
-                $price = $t->price_at_buy;
-            } else {
-                // 2) Historischen Preis ermitteln, fallback auf aktuellen Preis
-                $priceObj = $t->stock->prices()
-                    ->where('date', '<=', $t->created_at)
-                    ->latest('date')
-                    ->first();
-                $price = $priceObj?->name ?? $t->stock->getCurrentPrice();
-            }
-            $totalCost += $price * $t->quantity;
-        }
+        $totalCost = $transactions->reduce(function ($carry, $t) {
+            $price = $this->getPriceAtBuyForTransaction($t);
+            return $carry + ($price * $t->quantity);
+        }, 0);
 
         return $totalCost / $totalQuantity;
     }
 
+    /**
+     * Preis pro Kauf für eine Transaktion ermitteln
+     */
+    private function getPriceAtBuyForTransaction($transaction): float
+    {
+        if ($transaction->price_at_buy > 0)
+            return $transaction->price_at_buy;
+
+        $priceObj = $transaction->stock->prices()
+            ->where('date', '<=', $transaction->created_at)
+            ->latest('date')
+            ->first();
+
+        return $priceObj?->name ?? $transaction->stock->getCurrentPrice();
+    }
 
     /**
-     * Gewinn/Verlust berechnen – keine sofortigen Verluste nach Kauf
+     * Gewinn/Verlust berechnen
+     * - nur für Kursbewegungen nach Kaufzeitpunkt
+     * - neue Käufe zum aktuellen Preis liefern noch 0
      */
     public function calculateProfitLoss($transactions): array
     {
-        $totalQuantity = $transactions->sum('quantity');
+        $transactions = collect($transactions);
+        if ($transactions->isEmpty())
+            return ['amount' => 0, 'percent' => 0];
+
+        $stock = $transactions->first()->stock;
+        $profitLossAmount = 0;
+        $totalQuantity = 0;
+
+        $currentPrice = $stock->getCurrentPrice();
+
+        foreach ($transactions as $t) {
+            $buyPrice = $this->getPriceAtBuyForTransaction($t);
+
+            // Wenn die Transaktion heute oder später als letzter Kurs, noch kein Profit/Loss
+            if ($t->created_at->gte(now())) {
+                continue;
+            }
+
+            $profitLossAmount += ($currentPrice - $buyPrice) * $t->quantity;
+            $totalQuantity += $t->quantity;
+        }
+
         if ($totalQuantity <= 0)
             return ['amount' => 0, 'percent' => 0];
 
         $avgBuyPrice = $this->calculateAverageBuyPrice($transactions);
-        $currentPrice = $transactions->first()->stock->getCurrentPrice();
-
-        $totalCost = $avgBuyPrice * $totalQuantity;
-        $currentValue = $currentPrice * $totalQuantity;
-
-        $profitLossAmount = $currentValue - $totalCost;
-        $profitLossPercent = $totalCost > 0 ? ($profitLossAmount / $totalCost) * 100 : 0;
+        $profitLossPercent = ($profitLossAmount / ($totalQuantity * $avgBuyPrice)) * 100;
 
         return [
             'amount' => round($profitLossAmount, 2),
@@ -97,12 +116,12 @@ class StockService
         ];
     }
 
+
     /**
      * Aggregierte Kennzahlen pro Aktie
      */
     public function getStockStatistiks($transactions, $user)
     {
-        // Standardisiere Transaktionen auf Collection pro Aktie
         if ($transactions instanceof Collection && $transactions->first() instanceof Stock) {
             $transactions = $transactions->all();
         } elseif ($transactions instanceof Stock) {
@@ -112,14 +131,13 @@ class StockService
             $stock = $transactions->first()->stock;
         }
 
-        $totalQuantity = $transactions->sum('quantity');
+        $totalQuantity = collect($transactions)->sum('quantity');
         $avgBuyPrice = $this->calculateAverageBuyPrice($transactions);
-        $lastBuyDate = $transactions->max('created_at');
+        $lastBuyDate = collect($transactions)->max('created_at');
         $currentPrice = $stock->getCurrentPrice();
         $profitLoss = $this->calculateProfitLoss($transactions);
         $depositShareInPercent = BuyTransaction::getDepositShareInPercent($user->id, $stock->id);
 
-        // Dummy Dividenden-Daten
         $dividends = (object) [
             'next_date' => '15.12.2025',
             'next_amount' => 0.85,
@@ -143,9 +161,6 @@ class StockService
         ];
     }
 
-    /**
-     * Alle Aktien eines Users
-     */
     public function getUserStocks($user)
     {
         return $user->transactions
@@ -155,9 +170,6 @@ class StockService
             ->values();
     }
 
-    /**
-     * Alle Aktien mit Statistiken
-     */
     public function getUserStocksWithStatistiks($user = null)
     {
         $user = $user ?? Auth::user();
@@ -167,9 +179,6 @@ class StockService
             ->values();
     }
 
-    /**
-     * Buy-Transaktionen für eine Aktie
-     */
     public function getUserBuyTransactionsForStock($user, $stockID)
     {
         return $user->transactions
