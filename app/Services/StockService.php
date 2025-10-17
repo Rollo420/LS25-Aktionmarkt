@@ -4,7 +4,6 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
-
 use App\Models\Stock\Stock;
 use App\Models\Stock\Transaction;
 use App\Models\BuyTransaction;
@@ -19,12 +18,13 @@ class StockService
         $user = Auth::user();
         $bankBalance = $user->bank?->balance ?? 0;
 
-        $transactions = Transaction::where('user_id', $user->id)->get();
-
-        $totalStocksValue = $transactions->map(function ($transaction) {
-            $lastPrice = $transaction->stock?->prices->last()?->name ?? 0;
-            return $transaction->quantity * $lastPrice;
-        })->sum();
+        $totalStocksValue = $user->transactions
+            ->where('type', 'buy')
+            ->map(function ($transaction) {
+                $lastPrice = $transaction->stock?->getCurrentPrice() ?? 0;
+                return $transaction->quantity * $lastPrice;
+            })
+            ->sum();
 
         return $totalStocksValue + $bankBalance;
     }
@@ -39,8 +39,62 @@ class StockService
         return $user->transactions
             ->where('type', 'buy')
             ->reduce(function ($carry, $t) {
-                return $carry + ($t->quantity * ($t->price_at_buy ?? 0));
+                $price = $t->price_at_buy ?? $t->stock?->getCurrentPrice() ?? 0;
+                return $carry + ($t->quantity * $price);
             }, 0);
+    }
+
+    /**
+     * Durchschnittlicher Kaufpreis für eine Aktie berechnen
+     */
+    public function calculateAverageBuyPrice($transactions): float
+    {
+        $totalQuantity = $transactions->sum('quantity');
+        if ($totalQuantity <= 0)
+            return 0;
+
+        $totalCost = 0;
+        foreach ($transactions as $t) {
+            // 1) Preis bei Kauf aus der Transaktion
+            if ($t->price_at_buy > 0) {
+                $price = $t->price_at_buy;
+            } else {
+                // 2) Historischen Preis ermitteln, fallback auf aktuellen Preis
+                $priceObj = $t->stock->prices()
+                    ->where('date', '<=', $t->created_at)
+                    ->latest('date')
+                    ->first();
+                $price = $priceObj?->name ?? $t->stock->getCurrentPrice();
+            }
+            $totalCost += $price * $t->quantity;
+        }
+
+        return $totalCost / $totalQuantity;
+    }
+
+
+    /**
+     * Gewinn/Verlust berechnen – keine sofortigen Verluste nach Kauf
+     */
+    public function calculateProfitLoss($transactions): array
+    {
+        $totalQuantity = $transactions->sum('quantity');
+        if ($totalQuantity <= 0)
+            return ['amount' => 0, 'percent' => 0];
+
+        $avgBuyPrice = $this->calculateAverageBuyPrice($transactions);
+        $currentPrice = $transactions->first()->stock->getCurrentPrice();
+
+        $totalCost = $avgBuyPrice * $totalQuantity;
+        $currentValue = $currentPrice * $totalQuantity;
+
+        $profitLossAmount = $currentValue - $totalCost;
+        $profitLossPercent = $totalCost > 0 ? ($profitLossAmount / $totalCost) * 100 : 0;
+
+        return [
+            'amount' => round($profitLossAmount, 2),
+            'percent' => round($profitLossPercent, 1),
+        ];
     }
 
     /**
@@ -48,7 +102,7 @@ class StockService
      */
     public function getStockStatistiks($transactions, $user)
     {
-        // Typen abfragen, um Collection oder Stock zu standardisieren
+        // Standardisiere Transaktionen auf Collection pro Aktie
         if ($transactions instanceof Collection && $transactions->first() instanceof Stock) {
             $transactions = $transactions->all();
         } elseif ($transactions instanceof Stock) {
@@ -58,25 +112,11 @@ class StockService
             $stock = $transactions->first()->stock;
         }
 
-        // Gesamtmenge der gekauften Aktien
         $totalQuantity = $transactions->sum('quantity');
-
-        // Gesamtwert aller Käufe basierend auf price_at_buy
-        $totalCost = $transactions->reduce(fn($carry, $t) => $carry + ($t->price_at_buy ?? 0) * $t->quantity, 0);
-
-        // Durchschnittlicher Kaufpreis
-        $avgBuyPrice = $totalQuantity > 0 ? $totalCost / $totalQuantity : 0;
-
-        // Letztes Kaufdatum
+        $avgBuyPrice = $this->calculateAverageBuyPrice($transactions);
         $lastBuyDate = $transactions->max('created_at');
-
-        // Aktueller Aktienpreis
         $currentPrice = $stock->getCurrentPrice();
-
-        // Gewinn/Verlust (€ und %) – kein direktes Minus nach Kauf
         $profitLoss = $this->calculateProfitLoss($transactions);
-
-        // Anteil der Aktie am Depot
         $depositShareInPercent = BuyTransaction::getDepositShareInPercent($user->id, $stock->id);
 
         // Dummy Dividenden-Daten
@@ -136,28 +176,5 @@ class StockService
             ->where('type', 'buy')
             ->where('stock_id', $stockID)
             ->sortBy('created_at');
-    }
-
-    /**
-     * Gewinn/Verlust berechnen – modular, kein direktes Minus nach Kauf
-     */
-    public function calculateProfitLoss($transactions)
-    {
-        $totalQuantity = $transactions->sum('quantity');
-
-        // Gesamtkosten basierend auf price_at_buy
-        $totalCost = $transactions->reduce(fn($carry, $t) => $carry + ($t->quantity * ($t->price_at_buy ?? 0)), 0);
-
-        // Aktueller Kurs
-        $currentPrice = $transactions->first()->stock->getCurrentPrice();
-
-        // Gewinn/Verlust: min 0 nach Kauf
-        $profitLossAmount = max(0, $totalQuantity * ($currentPrice - ($totalQuantity > 0 ? $totalCost / $totalQuantity : 0)));
-        $profitLossPercent = $totalCost > 0 ? ($profitLossAmount / $totalCost) * 100 : 0;
-
-        return [
-            'amount' => round($profitLossAmount, 2),
-            'percent' => round($profitLossPercent, 1),
-        ];
     }
 }

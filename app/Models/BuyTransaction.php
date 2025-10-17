@@ -21,28 +21,28 @@ class BuyTransaction extends Transaction
             ->where('stock_id', $stockId);
 
         $totalValue = $buyTransactions->get()->sum(function ($transaction) {
-            $latestPrice = $transaction->stock->prices()
-                ->latest('created_at')
-                ->first()
-                ->name ?? 1;
-
-            return $transaction->quantity * $latestPrice;
+            $price = $transaction->price_at_buy ?? 0;
+            if ($price <= 0) {
+                // Für alte Transaktionen ohne price_at_buy verwende aktuellen Preis
+                $price = $transaction->stock->getCurrentPrice();
+            }
+            return $transaction->quantity * $price;
         });
 
         $totalInvested = $user->transactions()
             ->where('type', 'buy')
             ->get() // ->get() macht eine Collection
             ->sum(function ($transaction) {
-                $latestPrice = $transaction->stock->prices()
-                    ->latest('created_at')
-                    ->first()
-                    ->name ?? 1;
-
-                return $transaction->quantity * $latestPrice;
+                $price = $transaction->price_at_buy ?? 0;
+                if ($price <= 0) {
+                    // Für alte Transaktionen ohne price_at_buy verwende aktuellen Preis
+                    $price = $transaction->stock->getCurrentPrice();
+                }
+                return $transaction->quantity * $price;
             });
 
 
-        if ($totalValue == 0) {
+        if ($totalInvested == 0) {
             return 0; // Vermeidung von Division durch Null
         }
 

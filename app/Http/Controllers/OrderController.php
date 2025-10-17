@@ -71,7 +71,7 @@ class OrderController extends Controller
 
                 $user->refresh();
                 $bank = $user->bank()->first();
-                $latestPrice = $stock->prices->last()->price;
+                $latestPrice = $stock->prices->last()->name;
 
                 $sellQuantity = $sellTransaction->quantity;
                 $buyTransactions = BuyTransaction::where('user_id', $user->id)
