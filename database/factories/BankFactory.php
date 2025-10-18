@@ -18,7 +18,7 @@ class BankFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => fake()->numberBetween(1, 5), // Assuming you have 5 users
+            'user_id' => User::factory(), // Use User factory to create a user
             'balance' => fake()->randomFloat(2, 0, 10000),
         ];
     }

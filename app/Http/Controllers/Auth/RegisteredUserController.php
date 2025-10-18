@@ -43,15 +43,14 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-        
 
         $user->bank()->create(
             [
                 'iban' => Bank::generateIban(), // Generiere eine eindeutige Konto-Nummer
                 'balance' => 0.00, // Standard-Kontostand
             ]);
-        
-        $user->roles()->attach(5);
+
+        $user->roles()->attach(5); // 'default user' role
         
         event(new Registered($user));
 
