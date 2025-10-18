@@ -24,7 +24,7 @@ class AdminAccountSeeder extends Seeder
             ]);
             $woodly->bank()->create([
                 'iban' => Bank::generateIban(),
-                'balance' => 10000.0,
+                'balance' => 1000000.0, // 1 Million Euro für Admin
             ])->credits()->create([
                 'bank_id' => $woodly->bank->id,
                 'name' => 'KFZ-Sparplan',
@@ -64,7 +64,7 @@ class AdminAccountSeeder extends Seeder
             ]);
             $maro->bank()->create([
                 'iban' => Bank::generateIban(),
-                'balance' => 10000.0,
+                'balance' => 1000000.0, // 1 Million Euro für Admin
             ])->credits()->create([
                 'bank_id' => $maro->bank->id,
                 'name' => 'Bausparvertrag',
