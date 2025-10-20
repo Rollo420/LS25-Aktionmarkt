@@ -13,8 +13,15 @@ return new class extends Migration
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('price_id')->constrained();
-            $table->foreignId('product_type_id')->constrained();
+            $table->foreignId('product_type_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->string('firma');
+            $table->string('sektor');
+            $table->string('land');
+            $table->text('description');
+            $table->float('net_income');
+            $table->integer('dividend_frequency');
+            
             $table->timestamps();
         });
     }
@@ -23,12 +30,7 @@ return new class extends Migration
      * Reverse the migrations.
      */
     public function down(): void
-    {
-        Schema::table('stocks', function (Blueprint $table): void {
-            $table->dropForeign(['price_id']);
-            $table->dropForeign(['product_type_id']);
-        });
-
-        Schema::dropIfExists('stocks');
+    {      
+          Schema::dropIfExists('stocks');
     }
 };

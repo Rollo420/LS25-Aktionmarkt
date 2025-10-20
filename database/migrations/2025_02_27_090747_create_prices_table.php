@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('stocks', function (Blueprint $table) {
-            $table->integer('dividend_frequency')->nullable(false)->after('net_income');
+        Schema::create('prices', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('stock_id')->constrained()->onDelete('cascade');
+            $table->foreignId('game_time_id')->constrained()->onDelete('cascade');
+            $table->float('name');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('stocks', function (Blueprint $table) {
-            $table->dropColumn('dividend_frequency');
-        });
+        Schema::dropIfExists('prices');
     }
 };

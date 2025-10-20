@@ -11,15 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('stocks', function (Blueprint $table): void {
-            if (Schema::hasColumn('stocks', 'product_type_id')) {
-                $table->dropForeign(['product_type_id']);
-                $table->dropColumn('product_type_id');
-                $table->string('name')->after('id');
-            }
+        Schema::create('game_times', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('month_id')->constrained()->cascadeOnDelete();
+            $table->integer('current_year')->unsigned()->nullable();
+            $table->timestamps();
         });
-
-        Schema::drop('product_types');
     }
 
     /**
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('game_times');
     }
 };

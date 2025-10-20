@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('dividends', function (Blueprint $table) {
             $table->id();
             $table->foreignId('stock_id')->references('id')->on('stocks')->constrained()->cascadeOnDelete();
-            $table->dateTime('distribution_date')->nullable(false);
+            $table->foreignId('game_time_id')->constrained()->cascadeOnDelete();
             $table->float('amount_per_share')->nullable(false);
             $table->timestamps();
         });

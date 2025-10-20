@@ -15,6 +15,9 @@ use App\Models\Stock\Transaction;
 use App\Models\Role;
 use App\Models\Bank;
 use App\Models\Credit;
+use App\Models\Month;
+use App\Models\GameTime;
+use App\Models\ProductType;
 
 
 //My Factory
@@ -29,10 +32,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            GameTimeSeeder::class,
+            ProductType::class,
             StockSeeder::class,
+            PriceSeeder::class,
         ]);
-                    
-        $this->call(class: PriceSeeder::class);
 
         User::factory(5)->hasBank()->create();
         Transaction::factory(5)->create();

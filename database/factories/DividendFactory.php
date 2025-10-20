@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\GameTime;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Stock\Stock;
 use App\Models\Dividend;
@@ -21,7 +22,7 @@ class DividendFactory extends Factory
     {
         return [
             'stock_id' => Stock::factory(), // fallback
-            'distribution_date' => now(),
+            'game_time_id' => GameTime::factory(),
             'amount_per_share' => $this->faker->randomFloat(2, 0.5, 2.5),
         ];
     }

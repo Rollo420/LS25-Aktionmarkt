@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Stock;
 
+use App\Models\ProductType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
 use App\Models\Stock\Stock;
@@ -36,6 +37,7 @@ class TransactionFactory extends Factory
 
         return [
             'user_id' => User::inRandomOrder()->first()?->id ?? 1,
+            'game_time_id' => ProductType::inRandomOrder()->first()->id ?? 1,
             'stock_id' => $stockId,
             'status' => fake()->randomElement(['open', 'closed', 'pending', 'completed', 'failed', 'cancelled' ]),
             'quantity' => fake()->numberBetween(1, 100),

@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('prices', function (Blueprint $table) {
-            $table->renameColumn('price', 'name');
+        Schema::create('months', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('prices', function (Blueprint $table) {
-            $table->renameColumn('name', 'price');
-        });
+        Schema::dropIfExists('months');
     }
 };

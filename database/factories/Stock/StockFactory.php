@@ -4,6 +4,7 @@ namespace Database\Factories\Stock;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+use App\Models\ProductType;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Stock\Stock>
  */
@@ -18,9 +19,10 @@ class StockFactory extends Factory
     public function definition(): array
     {
         return [
+            'product_type_id' => ProductType::inRandomOrder()->first()->id,
             'name' => fake()->word(),
-            'frima' => fake()->word(),
-            'sector' => fake()->word(),
+            'firma' => fake()->word(),
+            'sektor' => fake()->word(),
             'land' => fake()->word(),
             'description' => fake()->text(),
             'net_income' => fake()->randomFloat(2, 1000, 1000000),    

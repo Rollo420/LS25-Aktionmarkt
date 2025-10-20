@@ -24,16 +24,15 @@ class StockSeeder extends Seeder
             $monthsBetween = (int) (12 / $frequency);
 
             //Auch die jahre plus rechenen if anweisung fallback 
-            $distributionDate = Carbon::createFromDate(2000,  1, 1);
+            
 
             for ($i = 0; $i < $frequency; $i++) {
                 Dividend::create([
                     'stock_id' => $stock->id,
-                    'distribution_date' => $distributionDate->copy(),
+                    
                     'amount_per_share' => $faker->randomFloat(2, 0.5, 2.5),
                 ]);
 
-                $distributionDate->addMonths($monthsBetween);
             }
         }
     }
