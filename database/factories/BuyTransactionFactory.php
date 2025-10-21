@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
+use App\Models\GameTime;
 use App\Models\Stock\Stock;
 
 /**
@@ -22,9 +23,10 @@ class BuyTransactionFactory extends Factory
 
         return [
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory()->create()->id,
+            'game_time_id' => GameTime::inRandomOrder()->first()?->id ?? GameTime::factory()->create()->id,
             'stock_id' => $stock->id,
             'quantity' => fake()->numberBetween(1, 100),
-            'status' => fake()->randomElement(['open', 'closed', 'pending', 'completed', 'failed', 'cancelled']),
+            'status' => fake()->boolean(),
             'type' => 'buy',
             'price_at_buy' => $stock->getCurrentPrice(),
         ];

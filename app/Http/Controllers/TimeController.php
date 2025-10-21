@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\Stock\Price;
 use App\Models\Stock\Stock;
+use App\Services\GameTimeService;
 
 class TimeController extends Controller
 {
@@ -61,33 +62,61 @@ class TimeController extends Controller
     public function skipTime($selectedMonth)
     {
         $stocks = Stock::all();
+        $gtService = new GameTimeService();
 
         foreach ($stocks as $stock) {
 
-            $lastPriceRecord = $stock->prices()->latest('date')->first();
-            $lastPrice = $lastPriceRecord ? $lastPriceRecord->name : 100;
-            $lastDate = $lastPriceRecord ? new \DateTime($lastPriceRecord->date) : new \DateTime();
+            // find the last known GameTime (if any) or derive from last price
+            $lastPriceRecord = $stock->prices()->orderByDesc('game_time_id')->orderByDesc('created_at')->first();
+            if ($lastPriceRecord && isset($lastPriceRecord->game_time_id) && $lastPriceRecord->game_time_id) {
+                $lastGameTime = \App\Models\GameTime::find($lastPriceRecord->game_time_id);
+                $lastMonth = $lastGameTime?->month_id ?? (int) date('m');
+                $lastYear = $lastGameTime?->current_year ?? (int) date('Y');
+                $lastPrice = $lastPriceRecord->name;
+            } else {
+                // fallback to created_at of last price
+                $lastPrice = $lastPriceRecord ? $lastPriceRecord->name : 100;
+                $lastDateObj = $lastPriceRecord ? Carbon::parse($lastPriceRecord->created_at) : Carbon::now();
+                $lastMonth = (int) $lastDateObj->format('m');
+                $lastYear = (int) $lastDateObj->format('Y');
+            }
 
-            $selectedMonthNum = date("m", strtotime($selectedMonth));
-            $monthDifference = (12 + (int) $selectedMonthNum - (int) $lastDate->format("m")) % 12;
-            if ($monthDifference == 0)
-                $monthDifference = 12;
+            // target month number from selectedMonth string like 'April' or numeric input
+            $selectedMonthNum = is_numeric($selectedMonth) ? (int) $selectedMonth : (int) date('m', strtotime($selectedMonth));
 
-            for ($i = 0; $i < $monthDifference; $i++) {
+            // compute how many months to advance from lastMonth/lastYear to reach selectedMonth in the future
+            $monthsToAdvance = 0;
+            $currentMonth = $lastMonth;
+            $currentYear = $lastYear;
+            // move at least one month forward (skip to next occurrence of selectedMonth)
+            while (true) {
+                // advance one month
+                $currentMonth++;
+                if ($currentMonth > 12) { $currentMonth = 1; $currentYear++; }
+                $monthsToAdvance++;
+                if ($currentMonth === $selectedMonthNum) break;
+                // safety: avoid infinite loops
+                if ($monthsToAdvance > 1200) break;
+            }
 
-                $nextDate = Carbon::parse($lastDate)->addMonth();
+            for ($i = 0; $i < $monthsToAdvance; $i++) {
+                // compute month/year for this new period
+                $lastMonth++;
+                if ($lastMonth > 12) { $lastMonth = 1; $lastYear++; }
 
-                // ===== Generiere neuen Preis modular =====
+                // find or create the GameTime for this month/year using service
+                $gameTime = $gtService->getOrCreate($lastYear, $lastMonth);
+
+                // generate price for this month
                 $newPrice = $this->generatePrice($lastPrice, $i);
 
-                // Speichern
-                Price::create([
-                    'stock_id' => $stock->id,
-                    'date' => $nextDate,
-                    'name' => $newPrice,
-                ]);
+                // create Price linked to this GameTime; do NOT modify created_at — keep real-life timestamp
+                $price = new Price();
+                $price->stock_id = $stock->id;
+                $price->name = $newPrice;
+                $price->game_time_id = $gameTime->id;
+                $price->save();
 
-                $lastDate = $nextDate;
                 $lastPrice = $newPrice;
             }
         }

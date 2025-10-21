@@ -35,7 +35,7 @@ class StockService
 
         return $user->transactions
             ->where('type', 'buy')
-            ->reduce(fn($carry, $t) => $carry + ($t->quantity * $this->getPriceAtBuyForTransaction($t)), 0);
+            ->reduce(fn($carry, $t) => $carry + ($t->quantity * ($t->resolvedPriceAtBuy() ?? 0)), 0);
     }
 
     /**
@@ -43,12 +43,8 @@ class StockService
      */
     public function getPriceAtBuyForTransaction($transaction): float
     {
-        if ($transaction->price_at_buy > 0) {
-            return $transaction->price_at_buy;
-        }
-
-        // Fallback auf aktuellen Preis
-        return $transaction->stock->getCurrentPrice();
+        // Use resolvedPriceAtBuy which handles stored value and fallbacks
+        return (float) ($transaction->resolvedPriceAtBuy() ?? $transaction->stock?->getCurrentPrice() ?? 0);
     }
 
     /**
@@ -65,7 +61,8 @@ class StockService
 
         $totalCost = 0;
         foreach ($transactions as $t) {
-            $totalCost += $this->getPriceAtBuyForTransaction($t) * $t->quantity;
+            $price = $t->resolvedPriceAtBuy() ?? $this->getPriceAtBuyForTransaction($t);
+            $totalCost += ($price ?? 0) * $t->quantity;
         }
 
         return $totalCost / $totalQuantity;
@@ -79,19 +76,43 @@ class StockService
         if (empty($transactions))
             return ['amount' => 0, 'percent' => 0];
 
-        $currentMonth = $currentMonth ?? max(array_map(fn($t) => $t->ingame_month ?? 1, $transactions));
+        // Determine current month number from provided game_time or infer from transactions
+        if ($currentMonth === null) {
+            $months = array_map(function ($t) {
+                if (isset($t->game_time_id) && $t->game_time_id) {
+                    $gt = \App\Models\GameTime::find($t->game_time_id);
+                    return $gt?->month_id ?? 1;
+                }
+                return 1;
+            }, $transactions);
+            $currentMonth = max($months ?: [1]);
+        }
 
-        // Nur Transaktionen berücksichtigen, die vor dem aktuellen Monat gekauft wurden
-        $filteredTransactions = array_filter($transactions, fn($t) => ($t->ingame_month ?? 0) < $currentMonth);
+        // Only include transactions that were bought before the current month
+        $filteredTransactions = array_filter($transactions, function ($t) use ($currentMonth) {
+            $month = 1;
+            if (isset($t->game_time_id) && $t->game_time_id) {
+                $gt = \App\Models\GameTime::find($t->game_time_id);
+                $month = $gt?->month_id ?? 1;
+            }
+            return $month < $currentMonth;
+        });
 
         if (empty($filteredTransactions))
             return ['amount' => 0, 'percent' => 0];
+
+        // reindex the filtered transactions so numeric index 0 exists
+        $filteredTransactions = array_values($filteredTransactions);
 
         $totalQuantity = array_sum(array_map(fn($t) => $t->quantity, $filteredTransactions));
         if ($totalQuantity <= 0)
             return ['amount' => 0, 'percent' => 0];
 
         $avgBuyPrice = $this->calculateAverageBuyPrice($filteredTransactions);
+        // Ensure we have at least one transaction before using index 0
+        if (!isset($filteredTransactions[0])) {
+            return ['amount' => 0, 'percent' => 0];
+        }
         $currentPrice = $filteredTransactions[0]->stock->getCurrentPrice();
 
         $totalCost = $avgBuyPrice * $totalQuantity;
@@ -197,13 +218,13 @@ class StockService
             ->where('stock_id', $stock->id);
 
         $totalValue = $buyTransactions->sum(function ($transaction) {
-            return $transaction->quantity * ($transaction->price_at_buy ?? 0);
+            return $transaction->quantity * ($transaction->resolvedPriceAtBuy() ?? 0);
         });
 
         $totalInvested = $user->transactions
             ->where('type', 'buy')
             ->sum(function ($transaction) {
-                return $transaction->quantity * ($transaction->price_at_buy ?? 0);
+                return $transaction->quantity * ($transaction->resolvedPriceAtBuy() ?? 0);
             });
 
         if ($totalInvested == 0) {

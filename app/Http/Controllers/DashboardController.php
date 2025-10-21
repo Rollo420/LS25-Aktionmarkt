@@ -137,19 +137,30 @@ class DashboardController extends Controller
 
         $stockIds = $transactions->pluck('stock_id')->unique()->all();
 
-        $prices = \App\Models\Stock\Price::whereIn('stock_id', $stockIds)
-            ->orderBy('date', 'asc')
-            ->get()
-            ->groupBy('stock_id');
+            // group prices by stock and by associated game_time (month/year)
+            $prices = \App\Models\Stock\Price::whereIn('stock_id', $stockIds)
+                ->orderBy('game_time_id', 'asc')
+                ->orderBy('created_at', 'asc')
+                ->get()
+                ->groupBy('stock_id');
 
-        $allDates = $prices->flatten()
-            ->pluck('date')
-            ->unique()
-            ->sort()
-            ->map(fn($d) => Carbon::parse($d))
-            ->values();
+            // collect unique GameTime month/year combos (use year-month key to dedupe)
+            $dateMap = [];
+            foreach ($prices->flatten() as $p) {
+                if (isset($p->gameTime) && $p->gameTime) {
+                    $year = $p->gameTime->current_year ?? date('Y');
+                    $month = $p->gameTime->month_id ?? 1;
+                } else {
+                    $dt = Carbon::parse($p->created_at ?? now());
+                    $year = (int) $dt->format('Y');
+                    $month = (int) $dt->format('m');
+                }
+                $key = sprintf('%04d-%02d', $year, $month);
+                $dateMap[$key] = Carbon::createFromDate($year, $month, 1);
+            }
+            $allDates = collect(array_values($dateMap))->sortBy(fn($d) => $d->timestamp)->values();
 
-        $simulatedMonths = $allDates->slice(-$months);
+            $simulatedMonths = $allDates->slice(-$months);
 
         $holdingsByStock = [];
         foreach ($stockIds as $stockId) {
@@ -173,7 +184,14 @@ class DashboardController extends Controller
                     continue;
 
                 $price = optional($prices->get($stockId))
-                    ->filter(fn($p) => Carbon::parse($p->date) <= $monthDate)
+                    ->filter(function($p) use ($monthDate) {
+                        if (isset($p->gameTime) && $p->gameTime) {
+                            $d = Carbon::createFromDate($p->gameTime->current_year ?? date('Y'), $p->gameTime->month_id ?? 1, 1);
+                            return $d->lte($monthDate);
+                        }
+                        // fallback to created_at if no GameTime present
+                        return Carbon::parse($p->created_at ?? now())->lte($monthDate);
+                    })
                     ->last();
 
                 if ($price && $price->name > 0) {
@@ -194,15 +212,25 @@ class DashboardController extends Controller
     {
         $months = 12;
 
-        $allDates = \App\Models\Stock\Price::orderBy('date', 'asc')
-            ->pluck('date')
-            ->unique()
-            ->map(fn($d) => Carbon::parse($d))
-            ->values();
+            // Build global unique month/year list from all prices (dedupe by year-month key)
+            $dateMap = [];
+            foreach (\App\Models\Stock\Price::orderBy('game_time_id', 'asc')->get() as $p) {
+                if (isset($p->gameTime) && $p->gameTime) {
+                    $year = $p->gameTime->current_year ?? date('Y');
+                    $month = $p->gameTime->month_id ?? 1;
+                } else {
+                    $dt = Carbon::parse($p->created_at ?? now());
+                    $year = (int) $dt->format('Y');
+                    $month = (int) $dt->format('m');
+                }
+                $key = sprintf('%04d-%02d', $year, $month);
+                $dateMap[$key] = Carbon::createFromDate($year, $month, 1);
+            }
+            $allDates = collect(array_values($dateMap))->sortBy(fn($d) => $d->timestamp)->values();
 
-        $simulatedMonths = $allDates->slice(-$months);
+            $simulatedMonths = $allDates->slice(-$months);
 
-        $labels = $simulatedMonths->map(fn($d) => $d->format('M Y'))->all();
+            $labels = $simulatedMonths->map(fn($d) => $d->format('M Y'))->all();
 
         $data = $this->getHistoricalPortfolioValues($user, $months);
 

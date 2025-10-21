@@ -27,9 +27,12 @@ class StockSeeder extends Seeder
             
 
             for ($i = 0; $i < $frequency; $i++) {
+                $gtService = new \App\Services\GameTimeService();
+                $now = now();
+                $gt = $gtService->getOrCreate((int)$now->format('Y'), (int)$now->format('m'));
                 Dividend::create([
                     'stock_id' => $stock->id,
-                    
+                    'game_time_id' => $gt->id,
                     'amount_per_share' => $faker->randomFloat(2, 0.5, 2.5),
                 ]);
 

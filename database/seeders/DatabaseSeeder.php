@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             GameTimeSeeder::class,
-            ProductType::class,
+            ProductTypeSeeder::class,
             StockSeeder::class,
             PriceSeeder::class,
         ]);

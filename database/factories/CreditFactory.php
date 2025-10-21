@@ -23,7 +23,6 @@ class CreditFactory extends Factory
         $bankIds = Bank::pluck('id')->toArray();
         return [
             'bank_id' => fake()->randomElement($bankIds),
-            'game_time_id' => GameTime::inRandomOrder()->first()->id ?? 1,
             'name' => fake()->word(),
             'amount' => fake()->randomFloat(2, 0, 10000),
             'interest_rate' => fake()->randomFloat(2, 1, 5),

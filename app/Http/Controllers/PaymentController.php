@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Services\PaymentService;
+use App\Services\GameTimeService;
 
 use App\Models\Stock\Transaction;
 use App\Models\User;
@@ -20,10 +21,9 @@ class PaymentController extends Controller
             ->get();
         $orders = Transaction::where('user_id', auth()->id())
             ->whereIn('type', ['buy', 'sell', 'deposit', 'withdraw', 'transfer'])
-            ->where('status', 'open')
+            ->where('status', true)
             ->orderBy('created_at', 'desc')
             ->get();
-
         //dd($transaktionen, $orders);
         return view('payment.index', [
             'transaktionens' => $transaktionen,
@@ -48,16 +48,23 @@ class PaymentController extends Controller
             $payin = new Transaction();
 
             $payin->type = 'deposit';
-            $payin->status = 'open';
+            $payin->status = true; // open
             $payin->quantity = $request->input('payin');
             $payin->user_id = auth()->id();
+
+            // Attach current game_time_id so DB-V2 semantics are respected
+            $gts = new GameTimeService();
+            $gt = $gts->getOrCreate((int) date('Y'), (int) date('m'));
+            $payin->game_time_id = $gt->id;
+            // deposit has no price at buy
+            $payin->price_at_buy = null;
 
             $payin->save();
         } catch (\Exception $e) {
             return redirect()->route('payment.index')->with('error', 'Error processing pay-in: ' . $e->getMessage());
         }
 
-        return redirect()->route('payment.index')->with('success', 'Pay-in processed successfully!');
+    return redirect()->route('payment.index')->with('success', 'Pay-in processed successfully!');
     }
 
     public function payout(Request $request)
@@ -71,9 +78,16 @@ class PaymentController extends Controller
             $payout = new Transaction();
 
             $payout->type = 'withdraw';
-            $payout->status = 'open';
+            $payout->status = true; // open
             $payout->quantity = $request->input('payout');
             $payout->user_id = $user->id;
+
+            // Attach current game_time
+            $gts = new GameTimeService();
+            $gt = $gts->getOrCreate((int) date('Y'), (int) date('m'));
+            $payout->game_time_id = $gt->id;
+            // withdraw has no price at buy
+            $payout->price_at_buy = null;
 
             if (PaymentService::checkUserBalance($payout->quantity)) {
                 $payout->save();
@@ -121,9 +135,17 @@ class PaymentController extends Controller
 
                     $transfer = new Transaction();
                     $transfer->type = 'transfer';
-                    $transfer->status = 'confirmed';
+                    $transfer->status = false; // confirmed -> final
                     $transfer->quantity = $amount;
                     $transfer->user_id = auth()->id();
+
+                    // Attach current game_time
+                    $gts = new GameTimeService();
+                    $gt = $gts->getOrCreate((int) date('Y'), (int) date('m'));
+                    $transfer->game_time_id = $gt->id;
+                    // transfer has no price at buy
+                    $transfer->price_at_buy = null;
+
                     $transfer->save();
                 }
 

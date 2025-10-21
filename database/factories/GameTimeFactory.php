@@ -19,8 +19,9 @@ class GameTimeFactory extends Factory
     public function definition(): array
     {
         return [
-            'month_id' => Month::inRandomOrder()->first()->id ?? 1,
-            'current_year' => fake()->numberBetween(1,12)
+            'month_id' => Month::inRandomOrder()->first()?->id ?? \App\Models\Month::factory()->create()->id,
+            // realistic in-game years (e.g. 2000-2050) to avoid tiny year numbers like 14 in charts
+            'current_year' => fake()->numberBetween(2000, 2050)
         ];
     }
 }

@@ -29,12 +29,19 @@ class PriceSeeder extends Seeder
         foreach ($stocks as $stock) 
         {            
             $defaultDate = '2000-01-01'; // Startdatum im richtigen Format
+            $gtService = new \App\Services\GameTimeService();
             for ($i = 0; $i <= 50; $i++)
             {
                 $price = new Price(); // Neues Price-Objekt für jede Iteration
                 $price->stock_id = $stock->id;
-                $price->date = date("Y-m-d", strtotime($defaultDate)); // Korrektes Datumsformat
-                $defaultDate = date("Y-m-d", strtotime($defaultDate . ' +1 month')); // Nächstes Datum
+                // ensure a game_time exists using service (create/dedupe)
+                // cycle months forward from start year 2000
+                [$y, $m] = explode('-', $defaultDate);
+                $gameTime = $gtService->getOrCreate((int)$y, (int)$m);
+                $price->game_time_id = $gameTime->id;
+                // V2: we no longer write a separate 'date' column — use game_time_id/created_at instead
+                // keep defaultDate progression for historic-like values if needed in the future
+                $defaultDate = date("Y-m-d", strtotime($defaultDate . ' +1 month'));
                 $price->name = fake()->randomFloat(2, 1, 100);
                 $price->save(); // Speichere das Price-Objekt in der Datenbank
             }

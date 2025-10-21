@@ -12,12 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transactions', function (Blueprint $table) {
-            $table->id()->autoIncrement()->unique();
+            $table->id();
             $table->foreignId('game_time_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('stock_id')->nullable()->constrained()->onDelete('cascade')->default(null);
+            $table->foreignId('stock_id')->nullable()->constrained()->onDelete('cascade');
             $table->integer('quantity');
-            $table->float('price_at_buy');
+            // allow null for non-buy transactions (we store price only for buys)
+            $table->float('price_at_buy')->nullable();
             $table->boolean('status');
             $table->string('type');
             $table->timestamps();

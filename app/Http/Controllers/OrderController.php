@@ -26,7 +26,11 @@ class OrderController extends Controller
         DB::beginTransaction();
 
         try {
-            $currentMonth = $request->input('current_month', 1); // aktueller Ingame-Monat
+            $currentMonth = (int) $request->input('current_month', 1); // aktueller Ingame-Monat (1-12)
+            // find or fallback GameTime for the selected month
+            $gameTime = \App\Models\GameTime::where('month_id', $currentMonth)->latest()->first()
+                ?? \App\Models\GameTime::latest()->first()
+                ?? \App\Models\GameTime::factory()->create(['month_id' => $currentMonth]);
 
             if ($request->has('buy')) {
                 $quantityToBuy = $request->input('quantity');
@@ -41,7 +45,8 @@ class OrderController extends Controller
                 // Gewichteter Durchschnittspreis
                 $totalQuantity = $previousBuys->sum('quantity') + $quantityToBuy;
                 $totalCost = $previousBuys->reduce(function ($carry, $t) {
-                    return $carry + ($t->quantity * $t->price_at_buy);
+                    $price = $t->resolvedPriceAtBuy() ?? $t->stock?->getCurrentPrice() ?? 0;
+                    return $carry + ($t->quantity * $price);
                 }, 0) + ($quantityToBuy * $currentPrice);
 
                 $averagePrice = $totalQuantity > 0 ? $totalCost / $totalQuantity : $currentPrice;
@@ -53,8 +58,8 @@ class OrderController extends Controller
                 $buyTransaction->quantity = $quantityToBuy;
                 $buyTransaction->price_at_buy = $averagePrice;
                 $buyTransaction->type = 'buy';
-                $buyTransaction->status = 'close';
-                $buyTransaction->ingame_month = $currentMonth; // Ingame-Monat speichern
+                $buyTransaction->status = false; // closed
+                $buyTransaction->game_time_id = $gameTime->id; // link to game_time
                 $buyTransaction->save();
 
                 // Bank prüfen und abbuchen
@@ -80,16 +85,16 @@ class OrderController extends Controller
                 $sellTransaction->user_id = $user->id;
                 $sellTransaction->stock_id = $stock->id;
                 $sellTransaction->quantity = $sellQuantity;
-                $sellTransaction->status = 'close';
+                $sellTransaction->status = false; // closed
                 $sellTransaction->type = 'sell';
-                $sellTransaction->ingame_month = $currentMonth; // Ingame-Monat speichern
+                $sellTransaction->game_time_id = $gameTime->id; // link to game_time
 
                 // Alte Käufe abrufen (FIFO)
                 $buyTransactions = BuyTransaction::where('user_id', $user->id)
                     ->where('stock_id', $stock->id)
                     ->where('quantity', '>', 0)
                     ->where('type', 'buy')
-                    ->orderBy('ingame_month', 'asc')
+                    ->orderBy('game_time_id', 'asc')
                     ->get();
 
                 $totalAvailable = $buyTransactions->sum('quantity');
@@ -105,7 +110,7 @@ class OrderController extends Controller
                     $buy->quantity -= $toSell;
 
                     if ($buy->quantity == 0) {
-                        $buy->status = 'closed';
+                        $buy->status = false; // closed
                     }
                     $buy->save();
                     $sellQuantity -= $toSell;

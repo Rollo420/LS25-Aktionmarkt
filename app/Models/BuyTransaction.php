@@ -21,14 +21,14 @@ class BuyTransaction extends Transaction
             ->where('stock_id', $stockId);
 
         $totalValue = $buyTransactions->get()->sum(function ($transaction) {
-            return $transaction->quantity * ($transaction->price_at_buy ?? 0);
+            return $transaction->quantity * ($transaction->resolvedPriceAtBuy() ?? 0);
         });
 
         $totalInvested = $user->transactions()
             ->where('type', 'buy')
-            ->get() // ->get() macht eine Collection
+            ->get()
             ->sum(function ($transaction) {
-                return $transaction->quantity * ($transaction->price_at_buy ?? 0);
+                return $transaction->quantity * ($transaction->resolvedPriceAtBuy() ?? 0);
             });
 
 
@@ -45,21 +45,6 @@ class BuyTransaction extends Transaction
      */
     private static function getPriceAtBuyForTransaction($transaction): float
     {
-        // 1) Direkt gespeicherter Preis bei Kauf
-        if ($transaction->price_at_buy > 0) {
-            return $transaction->price_at_buy;
-        }
-
-        // 2) Historischer Preis zum Zeitpunkt der Transaktion
-        $priceObj = $transaction->stock->prices()
-            ->where('date', '<=', $transaction->created_at)
-            ->latest('date')
-            ->first();
-        if ($priceObj) {
-            return $priceObj->name;
-        }
-
-        // 3) Fallback auf aktuellen Preis
-        return $transaction->stock->getCurrentPrice();
+        return (float) ($transaction->resolvedPriceAtBuy() ?? $transaction->stock?->getCurrentPrice() ?? 0);
     }
 }

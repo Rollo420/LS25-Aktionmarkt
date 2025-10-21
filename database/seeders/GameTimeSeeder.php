@@ -30,17 +30,15 @@ class GameTimeSeeder extends Seeder
             Month::firstOrCreate(['name' => $name]);
         }
 
-        // Dann GameTime für 12 Jahre erstellen
-        $currentMonthIndex = 1; // optionale Laufvariable für aktuelle Ingame-Zeit
-        for ($year = 1; $year <= 12; $year++) {
+        // Dann GameTime für einen realistischen Zeitraum erstellen (z.B. Jahre 2000–2010)
+        $startYear = 2000;
+        $endYear = 2010;
+        for ($year = $startYear; $year <= $endYear; $year++) {
             foreach ($monthNames as $index => $monthName) {
-                GameTime::firstOrCreate(
-                    [
-                        'current_year' => $year,
-                        'month_id' => $index + 1, // 1–12
-                    ],
-                );
-                $currentMonthIndex++;
+                GameTime::firstOrCreate([
+                    'current_year' => $year,
+                    'month_id' => $index + 1, // 1–12
+                ]);
             }
         }
     }

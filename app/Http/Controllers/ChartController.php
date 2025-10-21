@@ -93,16 +93,30 @@ class ChartController extends Controller
         $stock = Stock::findOrFail($id);
         $color = $this->randomRGBA(0.2);
         //dd($stock);
-        $prices = Price::where('stock_id', $id)->orderBy('date', 'desc')->take($limit)->get();
+        // Order primarily by linked game_time (if present), otherwise by created_at
+        $prices = Price::where('stock_id', $id)
+            ->orderByDesc('game_time_id')
+            ->orderByDesc('created_at')
+            ->take($limit)
+            ->get();
 
-        $sortedPrices = $prices->sortBy(function ($price) {
-            return isset($price->date) ? strtotime($price->date) : 0; // Fallback auf 0, wenn 'date' fehlt
+        $sortedPrices = $prices->sortByDesc(function ($price) {
+            if (isset($price->gameTime) && $price->gameTime) {
+                return ($price->gameTime->current_year ?? 0) * 100 + ($price->gameTime->month_id ?? 0);
+            }
+            return strtotime($price->created_at ?? 0);
         })->values();
 
 
         $listStock = [
             'labels' => $sortedPrices->map(function ($price) {
-                return isset($price->date) ? date('F y', strtotime($price->date)) : 'Unknown Date';
+                if (isset($price->gameTime) && $price->gameTime) {
+                    $monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                    $m = $price->gameTime->month_id ?? 1;
+                    $yr = $price->gameTime->current_year ?? date('Y');
+                    return ($monthNames[$m - 1] ?? 'Month') . ' ' . substr($yr, -2);
+                }
+                return isset($price->created_at) ? date('F y', strtotime($price->created_at)) : 'Unknown Date';
             })->toArray(),
             'datasets' => [[
                 'label' => $stock->name,

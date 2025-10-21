@@ -37,18 +37,20 @@ class AdminAccountSeeder extends Seeder
                 [
                     'user_id' => $woodly->id,
                     'stock_id' => 2,
-                    'status' => 'closed',
+                    'status' => false, // closed -> false
                     'type' => 'buy',
                     'quantity' => 15,
+                    'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate((int)date('Y'), (int)date('m'))->id,
                     'price_at_buy' => \App\Models\Stock\Stock::find(2)?->getCurrentPrice() ?? 37.54, // Aktueller Preis der Aktie
                 ],
                 [
                     'user_id' => $woodly->id,
                     'stock_id' => 4,
-                    'status' => 'open',
+                    'status' => true, // open -> true
                     'type' => 'sell',
                     'quantity' => 30,
-                    'price_at_buy' => 0, // Sell-Transaktionen brauchen keinen price_at_buy, aber NULL ist nicht erlaubt
+                    'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate((int)date('Y'), (int)date('m'))->id,
+                    'price_at_buy' => null, // Sell-Transaktionen brauchen keinen price_at_buy
                 ],
             ];
             foreach ($transactions as $transaction) {
@@ -77,18 +79,20 @@ class AdminAccountSeeder extends Seeder
                 [
                     'user_id' => $maro->id,
                     'stock_id' => 1,
-                    'status' => 'open',
+                    'status' => true, // open -> true
                     'type' => 'buy',
-                    'quantity' => 10,
-                    'price_at_buy' => \App\Models\Stock\Stock::find(1)?->getCurrentPrice() ?? 25.00, // Aktueller Preis der Aktie
+                        'quantity' => 10,
+                        'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate((int)date('Y'), (int)date('m'))->id,
+                        'price_at_buy' => \App\Models\Stock\Stock::find(1)?->getCurrentPrice() ?? 25.00, // Aktueller Preis der Aktie
                 ],
                 [
                     'user_id' => $maro->id,
                     'stock_id' => 5,
-                    'status' => 'closed',
+                    'status' => false, // closed -> false
                     'type' => 'sell',
-                    'quantity' => 20,
-                    'price_at_buy' => 0, // Sell-Transaktionen brauchen keinen price_at_buy, aber NULL ist nicht erlaubt
+                        'quantity' => 20,
+                        'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate((int)date('Y'), (int)date('m'))->id,
+                        'price_at_buy' => null, // Sell-Transaktionen brauchen keinen price_at_buy
                 ],
             ];
             foreach ($transactions as $transaction) {

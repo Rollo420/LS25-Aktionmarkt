@@ -11,7 +11,7 @@ class PaymentAuthorizationController extends Controller
 {
     public function index()
     {
-        $openTransactions = Transaction::where('status', 'open')
+        $openTransactions = Transaction::where('status', true)
             ->whereIn('type', ['withdraw', 'deposit'])
             ->get();
 
@@ -46,7 +46,7 @@ class PaymentAuthorizationController extends Controller
                             $bank->balance += $transaction->quantity;
                         }
                         
-                        $transaction->status = 'confirmed';
+                        $transaction->status = false; // confirmed -> final
             
                         $transaction->save();
                         $bank->save();
@@ -65,7 +65,7 @@ class PaymentAuthorizationController extends Controller
             try
             {
                 $transaction = Transaction::findOrFail($request->input('decline_id'));
-                $transaction->status = 'failed';
+                $transaction->status = false; // failed -> final
                 $transaction->save();
             }
             catch (\Exception $e)
