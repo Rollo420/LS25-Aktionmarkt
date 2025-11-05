@@ -95,7 +95,7 @@
                         Mehr anzeigen
                     </button>
                 </div>
-
+                
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead>
                         <tr class="text-left text-sm text-gray-500 dark:text-gray-400">
@@ -106,23 +106,17 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                        <tr>
-                            <td class="px-4 py-2">07.10.2025</td>
-                            <td class="px-4 py-2">50</td>
-                            <td class="px-4 py-2">120,00 €</td>
-                            <td class="px-4 py-2">6.000 €</td>
-                        </tr>
-                        <tr>
-                            <td class="px-4 py-2">05.10.2025</td>
-                            <td class="px-4 py-2">30</td>
-                            <td class="px-4 py-2">118,50 €</td>
-                            <td class="px-4 py-2">3.555 €</td>
-                        </tr>
-                        <tr>
-                            <td class="px-4 py-2">02.10.2025</td>
-                            <td class="px-4 py-2">65</td>
-                            <td class="px-4 py-2">123,00 €</td>
-                            <td class="px-4 py-2">7.995 €</td>
+                        @foreach ($stockTransactionsHistory as $stockTransaction)
+
+                            <tr>
+                                <td class="px-4 py-2">{{ $stockTransaction->gameTime()->latest()->value('name')  }}</td>
+                                <td class="px-4 py-2">{{ $stockTransaction->quantity }}</td>
+                                <td class="px-4 py-2">{{$stockTransaction->resolvedPriceAtBuy()}} €</td>
+                                <td class="px-4 py-2">{{ $stockTransaction->quantity * $stockTransaction->resolvedPriceAtBuy()}} €</td>
+                            </tr>
+                           
+                        @endforeach
+                            
                         </tr>
                     </tbody>
                 </table>

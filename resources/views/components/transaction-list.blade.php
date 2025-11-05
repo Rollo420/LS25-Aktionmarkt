@@ -1,37 +1,31 @@
 <div class="mt-4">
     <p class="text-sm sm:text-base text-gray-200 mb-2">Letzte Transaktionen:</p>
-    <ul class="list-disc ml-4 sm:ml-6 text-xs sm:text-sm text-gray-400">
-       @foreach($transaktionens as $transaction)
-            <li class="mb-2">
-                <span class="font-semibold">{{ $transaction['type'] }}</span>:
-                {{ $transaction['quantity']}}
-                @switch($transaction['status'])
-                    @case('completed')
-                        <span class="text-green-500">({{ $transaction['status'] }})</span>
-                        @break
-                    @case('pending')
-                        <span class="text-yellow-500">({{ $transaction['status'] }})</span>
-                        @break
-                    @case('cancelled')
-                        <span class="text-gray-500">({{ $transaction['status'] }})</span>
-                        @break
-                    @case('failed')
-                        <span class="text-red-500">({{ $transaction['status'] }})</span>
-                        @break
-                    @case('open')
-                        <span class="text-yellow-400">({{ $transaction['status'] }})</span>
-                        @break
-                    @case('closed')
-                        <span class="text-blue-500">({{ $transaction['status'] }})</span>
-                        @break
-                    @default
-                        <span class="text-gray-400">({{ $transaction['status'] }})</span>
-                @endswitch
-                <span class="text-gray-500">
-                    - {{ \Carbon\Carbon::parse($transaction['created_at'])->format('d.m.Y H:i') }}
-                </span>
 
+    <ul class="list-disc ml-4 sm:ml-6 text-xs sm:text-sm text-gray-400">
+        @foreach($transaktionens as $transaction)
+            <li class="mb-2">
+                <span class="font-semibold">
+                    {{ $transaction['type'] ?? 'Unbekannt' }}:
+                </span> 
+                {{ $transaction['quantity'] ?? 0 }}
+
+                {{-- Statusanzeige (Boolean) --}}
+                @php
+                    $isClosed = $transaction['status'] ?? false; // true = geschlossen
+                @endphp
+
+                @if($isClosed)
+                    <span class="text-green-500">(Close)</span>
+                @else
+                    <span class="text-yellow-400">(Offen)</span>
+                @endif
+
+                <span class="text-gray-500">
+                    - {{ isset($transaction['created_at'])
+            ? \Carbon\Carbon::parse($transaction['created_at'])->format('d.m.Y H:i')
+            : 'Unbekanntes Datum' }}
+                </span>
             </li>
-       @endforeach
+        @endforeach
     </ul>
 </div>

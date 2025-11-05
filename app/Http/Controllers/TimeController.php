@@ -70,8 +70,9 @@ class TimeController extends Controller
             $lastPriceRecord = $stock->prices()->orderByDesc('game_time_id')->orderByDesc('created_at')->first();
             if ($lastPriceRecord && isset($lastPriceRecord->game_time_id) && $lastPriceRecord->game_time_id) {
                 $lastGameTime = \App\Models\GameTime::find($lastPriceRecord->game_time_id);
-                $lastMonth = $lastGameTime?->month_id ?? (int) date('m');
-                $lastYear = $lastGameTime?->current_year ?? (int) date('Y');
+                $lastDate = $lastGameTime ? Carbon::parse($lastGameTime->name) : Carbon::now();
+                $lastMonth = (int) $lastDate->format('m');
+                $lastYear = (int) $lastDate->format('Y');
                 $lastPrice = $lastPriceRecord->name;
             } else {
                 // fallback to created_at of last price
@@ -105,7 +106,7 @@ class TimeController extends Controller
                 if ($lastMonth > 12) { $lastMonth = 1; $lastYear++; }
 
                 // find or create the GameTime for this month/year using service
-                $gameTime = $gtService->getOrCreate($lastYear, $lastMonth);
+                $gameTime = $gtService->getOrCreate(Carbon::create($lastYear, $lastMonth, 1));
 
                 // generate price for this month
                 $newPrice = $this->generatePrice($lastPrice, $i);

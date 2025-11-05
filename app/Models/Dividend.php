@@ -14,4 +14,8 @@ class Dividend extends Model
     public function stock() {
         return $this->belongsTo(Stock::class);
     }
+
+    public function gameTime(){
+        return $this->belongsTo(GameTime::class);
+    }
 }

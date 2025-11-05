@@ -1,6 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Controllers;
+
+use Carbon\Carbon;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,9 +31,16 @@ class OrderController extends Controller
         try {
             $currentMonth = (int) $request->input('current_month', 1); // aktueller Ingame-Monat (1-12)
             // find or fallback GameTime for the selected month
-            $gameTime = \App\Models\GameTime::where('month_id', $currentMonth)->latest()->first()
-                ?? \App\Models\GameTime::latest()->first()
-                ?? \App\Models\GameTime::factory()->create(['month_id' => $currentMonth]);
+            // Prefer an existing GameTime for the requested month, otherwise create via GameTimeService
+            $gtService = new \App\Services\GameTimeService();
+            $candidate = \App\Models\GameTime::where('name', date('Y-m-d', strtotime(date('Y') . '-' . $currentMonth . '-01')))->latest()->first()
+                ?? \App\Models\GameTime::latest()->first();
+            if ($candidate) {
+                $gameTime = $candidate;
+            } else {
+                $gameTime = $gtService->getOrCreate(Carbon::create(date('Y'), $currentMonth, 1));
+            }
+            $bank = $user->bank()->first();
 
             if ($request->has('buy')) {
                 $quantityToBuy = $request->input('quantity');
@@ -60,10 +70,7 @@ class OrderController extends Controller
                 $buyTransaction->type = 'buy';
                 $buyTransaction->status = false; // closed
                 $buyTransaction->game_time_id = $gameTime->id; // link to game_time
-                $buyTransaction->save();
 
-                // Bank prüfen und abbuchen
-                $bank = $user->bank()->first();
                 $totalCostForThisBuy = $quantityToBuy * $currentPrice;
 
                 if ($bank->balance < $totalCostForThisBuy) {
@@ -72,6 +79,8 @@ class OrderController extends Controller
 
                 $bank->balance -= $totalCostForThisBuy;
                 $bank->save();
+
+                $buyTransaction->save();
 
                 DB::commit();
                 return redirect()->back()->with('success', 'Kauf erfolgreich! Neuer Kontostand: ' . $bank->balance);
@@ -85,6 +94,7 @@ class OrderController extends Controller
                 $sellTransaction->user_id = $user->id;
                 $sellTransaction->stock_id = $stock->id;
                 $sellTransaction->quantity = $sellQuantity;
+                $sellTransaction->price_at_buy = $stock->getCurrentPrice();
                 $sellTransaction->status = false; // closed
                 $sellTransaction->type = 'sell';
                 $sellTransaction->game_time_id = $gameTime->id; // link to game_time

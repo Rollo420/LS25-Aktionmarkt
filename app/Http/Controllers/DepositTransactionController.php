@@ -8,6 +8,7 @@ use App\Services\StockService;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Stock\Stock;
 use App\Models\BuyTransaction;
+use App\Models\Stock\Transaction;
 
 class DepositTransactionController extends Controller
 {
@@ -43,17 +44,22 @@ class DepositTransactionController extends Controller
         // Aktie anhand der ID laden
         $stock = Stock::findOrFail($id);
 
-        // Alle Buy-Transaktionen des Users für diese Aktie
-        $stockBuyTransactions = $stockService->getUserBuyTransactionsForStock($user, $id);
-
+        // Alle Transaktionen des Users für diese Aktie
+        $stockTransactionsHistory = $this->getUserStockTransactions($id)->get();
+                
         // Aggregierte Kennzahlen berechnen
-        $stockData = $stockService->getStockStatistiks($stockBuyTransactions, $user);
-
-        // Letzte 3 Käufe für die Kaufhistorie
-        $stockBuyHistory = $stockBuyTransactions->take(-3);
-
+        $stockData = $stockService->getStockStatistiks($stockTransactionsHistory, $user);
+        
         // View mit allen Daten zurückgeben
-        return view('depot.depotStockDetails', compact('stock', 'stockData', 'stockBuyHistory'));
+        return view('depot.depotStockDetails', compact('stock', 'stockData', 'stockTransactionsHistory'));
+    }
+
+    public function getUserStockTransactions($stockId, $limit = 3)
+    {
+        $user = Auth::user();
+
+        return Transaction::whereUserId($user->id)->whereStockId($stockId)->take($limit); 
+        
     }
 
     

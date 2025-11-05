@@ -8,45 +8,68 @@ use Carbon\Carbon;
 class GameTimeService
 {
     /**
-     * Get or create a GameTime for the given year and month.
+     * Get or create a GameTime for the given date.
+     * Ensures uniqueness via firstOrCreate.
+     *
+     * @param Carbon $date
+     * @return GameTime
+     */
+    public function getOrCreate(Carbon $date): GameTime
+    {
+        return GameTime::firstOrCreate([
+            'name' => $date->toDateString(),
+        ]);
+    }
+
+    /**
+     * Get or create a GameTime for the given year and month using strtotime.
      * Ensures uniqueness via firstOrCreate.
      *
      * @param int $year
      * @param int $month
      * @return GameTime
      */
-    public function getOrCreate(int $year, int $month): GameTime
+    public function getOrCreateByYearMonth(int $year, int $month): GameTime
     {
-        $normalizedMonth = (($month - 1) % 12) + 1;
-        $normalizedYear = $year + intdiv($month - 1, 12);
-
+        $dateString = sprintf('%04d-%02d-01', $year, $month);
         return GameTime::firstOrCreate([
-            'month_id' => $normalizedMonth,
-            'current_year' => $normalizedYear,
+            'name' => $dateString,
         ]);
     }
 
     /**
-     * Advance a month/year pair by $steps months and return the new pair.
+     * Advance a date by $steps months using strtotime and return the new date.
      *
-     * @param int $year
-     * @param int $month
+     * @param string $dateString
      * @param int $steps
-     * @return array [year, month]
+     * @return string
      */
-    public function advanceMonths(int $year, int $month, int $steps = 1): array
+    public function advanceMonthsStrtotime(string $dateString, int $steps = 1): string
     {
-        $total = ($year * 12 + ($month - 1)) + $steps;
-        $newYear = intdiv($total, 12);
-        $newMonth = ($total % 12) + 1;
-        return [$newYear, $newMonth];
+        $timestamp = strtotime($dateString);
+        for ($i = 0; $i < $steps; $i++) {
+            $timestamp = strtotime('+1 month', $timestamp);
+        }
+        return date('Y-m-d', $timestamp);
     }
 
     /**
-     * Return a Carbon date representing the start of the given GameTime (year-month-01)
+     * Advance a date by $steps months and return the new date.
+     *
+     * @param Carbon $date
+     * @param int $steps
+     * @return Carbon
+     */
+    public function advanceMonths(Carbon $date, int $steps = 1): Carbon
+    {
+        return $date->copy()->addMonths($steps);
+    }
+
+    /**
+     * Return a Carbon date representing the given GameTime
      */
     public function toDate(GameTime $gt): Carbon
     {
-        return Carbon::createFromDate($gt->current_year ?? date('Y'), $gt->month_id ?? 1, 1);
+        return Carbon::parse($gt->name);
     }
 }

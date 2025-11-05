@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BuyTransaction;
-use App\Models\Stock\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\StockService;
 use App\Services\DividendeService;
 use Carbon\Carbon;
+
+use App\Models\Stock\{Stock, Transaction, Price};
+use App\Models\{BuyTransaction, GameTime};
+use App\Services\GameTimeService;
+use App\Services\PriceResolverService;
 
 class DashboardController extends Controller
 {
@@ -120,82 +123,143 @@ class DashboardController extends Controller
     }
 
     /**
+     * Resolve a price value for a given stock and month with fallbacks.
+     * Order of preference:
+     *  - Price with exact same GameTime month
+     *  - Latest price <= month
+     *  - Earliest price > month
+     *  - Transaction.price_at_buy (if transaction provided)
+     *  - Current stock price
+     *
+     * @param int $stockId
+     * @param \Carbon\Carbon $monthDate
+     * @param \Illuminate\Support\Collection $pricesByStock grouped by stock_id
+     * @param Transaction|null $tx optional transaction for using price_at_buy as fallback
+     * @return float
+     */
+    private function resolvePriceForStockMonth(int $stockId, Carbon $monthDate, $pricesByStock, $tx = null): float
+    {
+        $prices = collect($pricesByStock->get($stockId) ?? []);
+
+        // 1) exact same gameTime month
+        $exact = $prices->first(function ($p) use ($monthDate) {
+            if (isset($p->gameTime) && $p->gameTime) {
+                $d = Carbon::parse($p->gameTime->name ?? now()->toDateString());
+                return $d->eq($monthDate);
+            }
+            return false;
+        });
+        if ($exact) {
+            $raw = $exact->name ?? 0;
+            return is_string($raw) ? floatval(str_replace(',', '.', $raw)) : (float)$raw;
+        }
+
+        // 2) latest price <= month
+        $latestBefore = $prices->filter(function ($p) use ($monthDate) {
+            if (isset($p->gameTime) && $p->gameTime) {
+                $d = Carbon::parse($p->gameTime->name ?? now()->toDateString());
+                return $d->lte($monthDate);
+            }
+            return Carbon::parse($p->created_at ?? now())->startOfMonth()->lte($monthDate);
+        })->last();
+        if ($latestBefore) {
+            $raw = $latestBefore->name ?? 0;
+            return is_string($raw) ? floatval(str_replace(',', '.', $raw)) : (float)$raw;
+        }
+
+        // 3) earliest price > month
+        $earliestAfter = $prices->filter(function ($p) use ($monthDate) {
+            if (isset($p->gameTime) && $p->gameTime) {
+                $d = Carbon::parse($p->gameTime->name ?? now()->toDateString());
+                return $d->gt($monthDate);
+            }
+            return Carbon::parse($p->created_at ?? now())->startOfMonth()->gt($monthDate);
+        })->first();
+        if ($earliestAfter) {
+            $raw = $earliestAfter->name ?? 0;
+            return is_string($raw) ? floatval(str_replace(',', '.', $raw)) : (float)$raw;
+        }
+
+        // 4) transaction price_at_buy if provided
+        if ($tx && isset($tx->price_at_buy) && $tx->price_at_buy !== null) {
+            return (float)$tx->price_at_buy;
+        }
+
+        // 5) fallback to current stock price
+        $stock = Stock::find($stockId);
+        if ($stock) {
+            return (float) $stock->getCurrentPrice();
+        }
+
+        return 0.0;
+    }
+
+    /**
      * Berechnet den Depotwert pro simuliertem Monat (Ingame-Zeit)
      */
-    private function getHistoricalPortfolioValues($user, $months = 12)
+    /**
+     * Berechnet den Depotwert pro simuliertem Monat (Ingame-Zeit) nur basierend auf Aktien (ohne Cash)
+     *
+     * @param \Illuminate\Support\Collection $simulatedMonths Collection von Carbon-Monatsstarts (aufsteigend)
+     * @return array
+     */
+    private function getHistoricalPortfolioValues($user, $simulatedMonths)
     {
         $values = [];
 
+        // load all buy/sell transactions for the user
         $transactions = Transaction::where('user_id', $user->id)
             ->whereIn('type', ['buy', 'sell'])
             ->orderBy('created_at')
             ->get();
 
-        if ($transactions->isEmpty()) {
-            return array_fill(0, $months, 0);
+        if ($transactions->isEmpty() || $simulatedMonths->isEmpty()) {
+            return $simulatedMonths->map(fn() => 0.0)->all();
         }
 
-        $stockIds = $transactions->pluck('stock_id')->unique()->all();
+        $stockIds = $transactions->pluck('stock_id')->unique()->filter()->all();
 
-            // group prices by stock and by associated game_time (month/year)
-            $prices = \App\Models\Stock\Price::whereIn('stock_id', $stockIds)
-                ->orderBy('game_time_id', 'asc')
-                ->orderBy('created_at', 'asc')
-                ->get()
-                ->groupBy('stock_id');
+        // load prices grouped by stock
+        $pricesByStock = Price::whereIn('stock_id', $stockIds)
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->groupBy('stock_id');
 
-            // collect unique GameTime month/year combos (use year-month key to dedupe)
-            $dateMap = [];
-            foreach ($prices->flatten() as $p) {
-                if (isset($p->gameTime) && $p->gameTime) {
-                    $year = $p->gameTime->current_year ?? date('Y');
-                    $month = $p->gameTime->month_id ?? 1;
-                } else {
-                    $dt = Carbon::parse($p->created_at ?? now());
-                    $year = (int) $dt->format('Y');
-                    $month = (int) $dt->format('m');
-                }
-                $key = sprintf('%04d-%02d', $year, $month);
-                $dateMap[$key] = Carbon::createFromDate($year, $month, 1);
-            }
-            $allDates = collect(array_values($dateMap))->sortBy(fn($d) => $d->timestamp)->values();
-
-            $simulatedMonths = $allDates->slice(-$months);
-
-        $holdingsByStock = [];
-        foreach ($stockIds as $stockId) {
-            $holdingsByStock[$stockId] = 0;
-        }
-
+        // For each simulated month compute holdings and value
         foreach ($simulatedMonths as $monthDate) {
-            $portfolioValue = 0;
+            $portfolioValue = 0.0;
 
             foreach ($stockIds as $stockId) {
-                $holdingsByStock[$stockId] = $transactions
+                // compute holdings up to and including this month
+                $holdings = $transactions
                     ->where('stock_id', $stockId)
-                    ->filter(function ($tx) use ($monthDate, $allDates) {
-                        $txCreated = Carbon::parse($tx->created_at);
-                        $txMonth = $allDates->first(fn($d) => $d->gte($txCreated));
-                        return $txMonth && $txMonth->lte($monthDate);
-                    })
-                    ->reduce(fn($carry, $tx) => $carry + ($tx->type === 'buy' ? $tx->quantity : -$tx->quantity), $holdingsByStock[$stockId]);
-
-                if ($holdingsByStock[$stockId] <= 0)
-                    continue;
-
-                $price = optional($prices->get($stockId))
-                    ->filter(function($p) use ($monthDate) {
-                        if (isset($p->gameTime) && $p->gameTime) {
-                            $d = Carbon::createFromDate($p->gameTime->current_year ?? date('Y'), $p->gameTime->month_id ?? 1, 1);
-                            return $d->lte($monthDate);
+                    ->reduce(function ($carry, $tx) use ($monthDate) {
+                        // determine tx month (prefer gameTime if present)
+                        if (isset($tx->game_time_id) && $tx->game_time_id) {
+                            $gt = GameTime::find($tx->game_time_id);
+                            if ($gt) {
+                                $txMonth = Carbon::parse($gt->name ?? now()->toDateString());
+                            } else {
+                                $txMonth = Carbon::parse($tx->created_at)->startOfMonth();
+                            }
+                        } else {
+                            $txMonth = Carbon::parse($tx->created_at)->startOfMonth();
                         }
-                        // fallback to created_at if no GameTime present
-                        return Carbon::parse($p->created_at ?? now())->lte($monthDate);
-                    })
-                    ->last();
 
-                if ($price && $price->name > 0) {
-                    $portfolioValue += $holdingsByStock[$stockId] * $price->name;
+                        if ($txMonth->lte($monthDate)) {
+                            return $carry + ($tx->type === 'buy' ? $tx->quantity : -$tx->quantity);
+                        }
+                        return $carry;
+                    }, 0);
+
+                if ($holdings <= 0) {
+                    continue;
+                }
+
+                // resolve price for this stock and month with sensible fallbacks
+                $priceValue = $this->resolvePriceForStockMonth($stockId, $monthDate, $pricesByStock);
+                if ($priceValue > 0) {
+                    $portfolioValue += $holdings * $priceValue;
                 }
             }
 
@@ -212,39 +276,178 @@ class DashboardController extends Controller
     {
         $months = 12;
 
-            // Build global unique month/year list from all prices (dedupe by year-month key)
-            $dateMap = [];
-            foreach (\App\Models\Stock\Price::orderBy('game_time_id', 'asc')->get() as $p) {
-                if (isset($p->gameTime) && $p->gameTime) {
-                    $year = $p->gameTime->current_year ?? date('Y');
-                    $month = $p->gameTime->month_id ?? 1;
-                } else {
-                    $dt = Carbon::parse($p->created_at ?? now());
-                    $year = (int) $dt->format('Y');
-                    $month = (int) $dt->format('m');
-                }
-                $key = sprintf('%04d-%02d', $year, $month);
-                $dateMap[$key] = Carbon::createFromDate($year, $month, 1);
+        // determine stock ids from provided $stocks collection (structure from StockService)
+        $stockIds = collect($stocks)->map(fn($item) => data_get($item, 'stock.id'))->filter()->unique()->all();
+
+        // Build unique month/year list only from prices of the user's stocks
+        $dateMap = [];
+        $prices = Price::whereIn('stock_id', $stockIds)->orderBy('created_at', 'asc')->get();
+        foreach ($prices as $p) {
+            if (isset($p->gameTime) && $p->gameTime) {
+                $date = Carbon::parse($p->gameTime->name ?? now()->toDateString());
+                $year = $date->year;
+                $month = $date->month;
+            } else {
+                $dt = Carbon::parse($p->created_at ?? now());
+                $year = (int) $dt->format('Y');
+                $month = (int) $dt->format('m');
             }
-            $allDates = collect(array_values($dateMap))->sortBy(fn($d) => $d->timestamp)->values();
+            $key = sprintf('%04d-%02d', $year, $month);
+            $dateMap[$key] = Carbon::createFromDate($year, $month, 1);
+        }
 
-            $simulatedMonths = $allDates->slice(-$months);
+        // Also include months from the user's transactions (so months where user bought/sold are present)
+        $txMonths = Transaction::where('user_id', $user->id)
+            ->whereIn('type', ['buy', 'sell'])
+            ->get();
+        foreach ($txMonths as $tx) {
+            if (isset($tx->game_time_id) && $tx->game_time_id) {
+                $gt = GameTime::find($tx->game_time_id);
+                if ($gt) {
+                    $date = Carbon::parse($gt->name ?? now()->toDateString());
+                    $y = $date->year;
+                    $m = $date->month;
+                } else {
+                    $dt = Carbon::parse($tx->created_at ?? now());
+                    $y = (int)$dt->format('Y');
+                    $m = (int)$dt->format('m');
+                }
+            } else {
+                $dt = Carbon::parse($tx->created_at ?? now());
+                $y = (int)$dt->format('Y');
+                $m = (int)$dt->format('m');
+            }
+            $k = sprintf('%04d-%02d', $y, $m);
+            $dateMap[$k] = Carbon::createFromDate($y, $m, 1);
+        }
 
-            $labels = $simulatedMonths->map(fn($d) => $d->format('M Y'))->all();
+    // Determine an appropriate end month: prefer latest GameTime (so time-skip is reflected),
+    // then latest price month, then latest transaction month, then now
+        $latestPrice = Price::whereIn('stock_id', $stockIds)->orderBy('created_at', 'desc')->first();
+        $latestPriceMonth = null;
+        if ($latestPrice) {
+            if (isset($latestPrice->gameTime) && $latestPrice->gameTime) {
+                $gt = $latestPrice->gameTime;
+                $latestPriceMonth = Carbon::parse($gt->name ?? now()->toDateString());
+            } else {
+                $latestPriceMonth = Carbon::parse($latestPrice->created_at ?? now())->startOfMonth();
+            }
+        }
 
-        $data = $this->getHistoricalPortfolioValues($user, $months);
+        $latestTx = Transaction::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
+        $latestTxMonth = null;
+        if ($latestTx) {
+            if (isset($latestTx->game_time_id) && $latestTx->game_time_id) {
+                $gt = GameTime::find($latestTx->game_time_id);
+                if ($gt) {
+                    $latestTxMonth = Carbon::parse($gt->name ?? now()->toDateString());
+                }
+            }
+            if (!$latestTxMonth) {
+                $latestTxMonth = Carbon::parse($latestTx->created_at ?? now())->startOfMonth();
+            }
+        }
+
+        $endMonth = collect([$latestPriceMonth, $latestTxMonth, Carbon::now()->startOfMonth()])->filter()->sortByDesc(fn($d) => $d->timestamp)->first();
+        if (!$endMonth) $endMonth = Carbon::now()->startOfMonth();
+
+        // Prefer the latest GameTime present in DB (created by time-skip). This ensures charts end at the
+        // current ingame month (we orient exclusively on in-game time for the dashboard).
+        $gtService = new GameTimeService();
+        $latestGameTime = GameTime::orderBy('created_at', 'desc')->first();
+        if ($latestGameTime) {
+            $latestGameTimeMonth = $gtService->toDate($latestGameTime)->startOfMonth();
+            // Use the latest created GameTime as the canonical current in-game month
+            $endMonth = $latestGameTimeMonth;
+        }
+
+        // Also determine the earliest GameTime we have so we can avoid building months before game start
+        $firstGameTime = GameTime::orderBy('created_at', 'asc')->first();
+        $firstGameTimeMonth = $firstGameTime ? $gtService->toDate($firstGameTime)->startOfMonth() : null;
+
+        // Build simulated months ending at $endMonth (ascending). Stop early if we reach the first known GameTime.
+        $simulatedMonths = collect();
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $candidate = $endMonth->copy()->subMonths($i);
+            if ($firstGameTimeMonth && $candidate->lt($firstGameTimeMonth)) {
+                // skip months before the first recorded GameTime — produce a shorter series instead
+                continue;
+            }
+            $simulatedMonths->push($candidate);
+        }
+
+        // labels use month name + two-digit year
+        $labels = $simulatedMonths->map(fn($d) => $d->format('F y'))->all();
+
+        $portfolioValues = $this->getHistoricalPortfolioValues($user, $simulatedMonths);
+
+        // compute monthly P&L as difference between months (month i minus month i-1)
+        $monthlyPnl = [];
+        for ($i = 0; $i < count($portfolioValues); $i++) {
+            if ($i === 0) {
+                $monthlyPnl[] = round($portfolioValues[0], 2);
+            } else {
+                $monthlyPnl[] = round($portfolioValues[$i] - $portfolioValues[$i - 1], 2);
+            }
+        }
+
+        // compute monthly net investments: sum of (qty * month_price) for transactions occurring in that month
+        $transactions = Transaction::where('user_id', $user->id)->whereIn('type', ['buy', 'sell'])->get();
+        $pricesByStock = Price::whereIn('stock_id', $stockIds)->orderBy('created_at', 'asc')->get()->groupBy('stock_id');
+
+        $monthlyInvest = [];
+        $priceResolver = new PriceResolverService();
+        foreach ($simulatedMonths as $monthDate) {
+            $sum = 0.0;
+            foreach ($transactions as $tx) {
+                // D) Strict game_time-based matching: only count transactions that have a game_time_id
+                // and whose GameTime month equals the simulated month. This makes monthlyInvest purely in-game.
+                if (!isset($tx->game_time_id) || !$tx->game_time_id) continue;
+                $gt = GameTime::find($tx->game_time_id);
+                if (!$gt) continue;
+                $txMonth = Carbon::parse($gt->name ?? now()->toDateString());
+                if (!$txMonth->eq($monthDate)) continue;
+
+                // resolve month price for tx stock (use resolver service; tx used as fallback)
+                $priceVal = $priceResolver->resolvePriceForStockMonth($tx->stock_id, $monthDate, $pricesByStock, $tx);
+
+                $qty = $tx->quantity * ($tx->type === 'buy' ? 1 : -1);
+                $sum += $qty * $priceVal;
+            }
+            $monthlyInvest[] = round($sum, 2);
+        }
 
         return [
             'labels' => $labels,
             'datasets' => [
                 [
-                    'label' => 'Depotentwicklung (Ingame)',
-                    'data' => $data,
+                    'label' => 'Depotwert (Ingame)',
+                    'data' => $portfolioValues,
                     'borderColor' => '#10B981',
                     'backgroundColor' => 'rgba(16,185,129,0.1)',
                     'tension' => 0.3,
                     'fill' => true,
                     'pointRadius' => 4,
+                    'borderWidth' => 2,
+                ],
+                [
+                    'label' => 'Monatlicher Gewinn (P/L)',
+                    'data' => $monthlyPnl,
+                    'borderColor' => '#3B82F6',
+                    'backgroundColor' => 'rgba(59,130,246,0.08)',
+                    'tension' => 0.2,
+                    'fill' => false,
+                    'pointRadius' => 3,
+                    'borderWidth' => 2,
+                ],
+                [
+                    'label' => 'Monatliche Investition (Netto)',
+                    'data' => $monthlyInvest,
+                    'borderColor' => '#F59E0B',
+                    'backgroundColor' => 'rgba(245,158,11,0.08)',
+                    'tension' => 0.2,
+                    'fill' => false,
+                    'pointRadius' => 3,
                     'borderWidth' => 2,
                 ],
             ],

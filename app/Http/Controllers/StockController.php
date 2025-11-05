@@ -50,15 +50,17 @@ class StockController extends Controller
     {
         $details = [];
 
-        $stock = Stock::with('prices')->findOrFail($id); // Eager Loading für Preise
-        
+        $stock = Stock::with(['prices' => function ($query) {
+            $query->orderBy('game_time_id', 'desc');
+        }])->findOrFail($id); // Eager Loading für Preise, ordered by game_time_id desc
+
         //current price
-        $prices = $stock->prices; // Get all prices
+        $prices = $stock->prices; // Get all prices, now ordered by game_time_id desc
         $details['currentPrice'] = $stock->getCurrentPrice(); // Last price
         //dd($details['currentPrice']);
 
         //price change
-        $previousPrice = $prices->slice(-2, 1)->first(); // Second-to-last price
+        $previousPrice = $prices->skip(1)->first(); // Second price in the ordered list (previous month)
         $details['priceDevelopment'] = $previousPrice ? $details['currentPrice'] - $previousPrice->name : 0;
 
         //percentage development

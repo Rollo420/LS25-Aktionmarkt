@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
 use App\Models\GameTime;
 use App\Models\Stock\Stock;
+use Carbon\Carbon;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\BuyTransaction>
@@ -23,7 +24,8 @@ class BuyTransactionFactory extends Factory
 
         return [
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory()->create()->id,
-            'game_time_id' => GameTime::inRandomOrder()->first()?->id ?? GameTime::factory()->create()->id,
+            // ensure consistent in-game month using the GameTimeService (current month)
+            'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
             'stock_id' => $stock->id,
             'quantity' => fake()->numberBetween(1, 100),
             'status' => fake()->boolean(),

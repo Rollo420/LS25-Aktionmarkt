@@ -54,7 +54,7 @@ class PaymentController extends Controller
 
             // Attach current game_time_id so DB-V2 semantics are respected
             $gts = new GameTimeService();
-            $gt = $gts->getOrCreate((int) date('Y'), (int) date('m'));
+            $gt = $gts->getOrCreateByYearMonth((int) date('Y'), (int) date('m'));
             $payin->game_time_id = $gt->id;
             // deposit has no price at buy
             $payin->price_at_buy = null;
@@ -84,13 +84,15 @@ class PaymentController extends Controller
 
             // Attach current game_time
             $gts = new GameTimeService();
-            $gt = $gts->getOrCreate((int) date('Y'), (int) date('m'));
+            $gt = $gts->getOrCreateByYearMonth((int) date('Y'), (int) date('m'));
             $payout->game_time_id = $gt->id;
             // withdraw has no price at buy
             $payout->price_at_buy = null;
 
             if (PaymentService::checkUserBalance($payout->quantity)) {
                 $payout->save();
+            } else {
+                throw new \Exception('Nicht genug Guthaben für die Auszahlung!');
             }
 
 
@@ -141,7 +143,7 @@ class PaymentController extends Controller
 
                     // Attach current game_time
                     $gts = new GameTimeService();
-                    $gt = $gts->getOrCreate((int) date('Y'), (int) date('m'));
+                    $gt = $gts->getOrCreateByYearMonth((int) date('Y'), (int) date('m'));
                     $transfer->game_time_id = $gt->id;
                     // transfer has no price at buy
                     $transfer->price_at_buy = null;

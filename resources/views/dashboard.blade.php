@@ -68,6 +68,9 @@
                     <x-chart-show type="line" :data="$depotInfo['chartData'] ?? []" :options="['aspectRatio' => 3]"
                         class="h-80" />
                 </div>
+                <div class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    Hinweis: Der dargestellte historische Depotwert basiert ausschließlich auf den gehaltenen Aktien (Kurswert pro Monat) und berücksichtigt kein Cash/Guthaben oder sonstige Kontostände.
+                </div>
             </div>
 
             ---

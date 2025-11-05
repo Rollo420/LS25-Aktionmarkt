@@ -4,41 +4,28 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\GameTime;
-use App\Models\Month;
+use Carbon\Carbon;
 
 class GameTimeSeeder extends Seeder
 {
     public function run(): void
     {
-        // Zuerst die Monate einmalig erstellen
-        $monthNames = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December'
-        ];
+        // Create GameTime entries for each month from 2000 to 2010 using mktime
+        $year = 2000;
+        $month = 1;
 
-        foreach ($monthNames as $name) {
-            Month::firstOrCreate(['name' => $name]);
-        }
+        while ($year < 2011 || ($year == 2010 && $month <= 12)) {
+            $timestamp = mktime(0, 0, 0, $month, 1, $year);
+            $dateString = date('Y-m-d', $timestamp);
 
-        // Dann GameTime für einen realistischen Zeitraum erstellen (z.B. Jahre 2000–2010)
-        $startYear = 2000;
-        $endYear = 2010;
-        for ($year = $startYear; $year <= $endYear; $year++) {
-            foreach ($monthNames as $index => $monthName) {
-                GameTime::firstOrCreate([
-                    'current_year' => $year,
-                    'month_id' => $index + 1, // 1–12
-                ]);
+            GameTime::firstOrCreate([
+                'name' => $dateString,
+            ]);
+
+            $month++;
+            if ($month > 12) {
+                $month = 1;
+                $year++;
             }
         }
     }

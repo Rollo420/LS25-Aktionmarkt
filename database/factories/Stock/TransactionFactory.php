@@ -38,7 +38,8 @@ class TransactionFactory extends Factory
 
         return [
             'user_id' => User::inRandomOrder()->first()?->id ?? 1,
-            'game_time_id' => GameTime::inRandomOrder()->first()?->id ?? 1,
+            // prefer GameTimeService to ensure a consistent GameTime exists (current month)
+            'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
             'stock_id' => $stockId,
             // Status: boolean in DB. true = active/open/pending, false = closed/finished
             'status' => fake()->boolean(),

@@ -15,7 +15,6 @@ use App\Models\Stock\Transaction;
 use App\Models\Role;
 use App\Models\Bank;
 use App\Models\Credit;
-use App\Models\Month;
 use App\Models\GameTime;
 use App\Models\ProductType;
 
@@ -36,14 +35,15 @@ class DatabaseSeeder extends Seeder
             ProductTypeSeeder::class,
             StockSeeder::class,
             PriceSeeder::class,
+            DividendSeeder::class,
         ]);
+
+        $this->call(class: RoleSeeder::class);
 
         User::factory(5)->hasBank()->create();
         Transaction::factory(5)->create();
 
-        $this->call(class: RoleSeeder::class);
-        
-
+        // Create user roles after users are created
         for ($i = 0; $i <= 4; $i++)
         {
             UserRoleFactory::new()->definition();

@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('game_times', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('month_id')->constrained()->cascadeOnDelete();
-            $table->integer('current_year')->unsigned()->nullable();
+            $table->date('name');
             $table->timestamps();
         });
     }

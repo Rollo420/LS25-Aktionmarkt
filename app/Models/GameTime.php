@@ -9,4 +9,6 @@ class GameTime extends Model
 {
     /** @use HasFactory<\Database\Factories\GameTimeFactory> */
     use HasFactory;
+
+    protected $fillable = ['name'];
 }

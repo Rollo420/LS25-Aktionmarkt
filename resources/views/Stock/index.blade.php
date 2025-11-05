@@ -24,7 +24,7 @@
                             </thead>
                             <tbody>
                                 @foreach($stocks as $stock)
-                                <tr onclick="window.location='{{ route('stock.store', $stock['id'] )}}'">
+                                <tr onclick="window.location='{{ route('stock.store',  $stock['id'] )}}'">
                                     <th>
                                         <p>{{ $stock['name'] }}</p>
                                     </th>

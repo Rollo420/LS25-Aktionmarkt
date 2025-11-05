@@ -40,7 +40,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => false, // closed -> false
                     'type' => 'buy',
                     'quantity' => 15,
-                    'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate((int)date('Y'), (int)date('m'))->id,
+                    'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
                     'price_at_buy' => \App\Models\Stock\Stock::find(2)?->getCurrentPrice() ?? 37.54, // Aktueller Preis der Aktie
                 ],
                 [
@@ -49,7 +49,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => true, // open -> true
                     'type' => 'sell',
                     'quantity' => 30,
-                    'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate((int)date('Y'), (int)date('m'))->id,
+                    'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
                     'price_at_buy' => null, // Sell-Transaktionen brauchen keinen price_at_buy
                 ],
             ];
@@ -82,7 +82,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => true, // open -> true
                     'type' => 'buy',
                         'quantity' => 10,
-                        'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate((int)date('Y'), (int)date('m'))->id,
+                        'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
                         'price_at_buy' => \App\Models\Stock\Stock::find(1)?->getCurrentPrice() ?? 25.00, // Aktueller Preis der Aktie
                 ],
                 [
@@ -91,7 +91,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => false, // closed -> false
                     'type' => 'sell',
                         'quantity' => 20,
-                        'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate((int)date('Y'), (int)date('m'))->id,
+                        'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
                         'price_at_buy' => null, // Sell-Transaktionen brauchen keinen price_at_buy
                 ],
             ];

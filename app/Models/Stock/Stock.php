@@ -39,7 +39,7 @@ class Stock extends Model
 
     public function getCurrentPrice(): float
     {
-        return (float) ($this->prices()->latest('created_at')->first()->name ?? 0);
+        return (float) ($this->prices()->orderBy('game_time_id', 'desc')->first()->name ?? 0);
     }
 
     public function getLatestDividend(): ?Dividend
