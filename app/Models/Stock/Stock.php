@@ -13,7 +13,16 @@ class Stock extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'product_type_id',
+        'name',
+        'firma',
+        'sektor',
+        'land',
+        'description',
+        'net_income',
+        'dividend_frequency'
+    ];
 
     /** Beziehungen **/
     public function prices()

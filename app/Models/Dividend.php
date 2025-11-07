@@ -11,6 +11,8 @@ class Dividend extends Model
     /** @use HasFactory<\Database\Factories\DividendFactory> */
     use HasFactory;
 
+    protected $fillable = ['stock_id', 'game_time_id', 'amount_per_share'];
+
     public function stock() {
         return $this->belongsTo(Stock::class);
     }
@@ -18,5 +20,5 @@ class Dividend extends Model
     public function gameTime(){
         return $this->belongsTo(GameTime::class);
     }
-    
+
 }

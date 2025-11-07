@@ -66,8 +66,11 @@ Route::middleware('auth')->group(function () {
 });
 
 //Admin routes
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin',  [AdminController::class, 'index'])->name('admin');
+    Route::get('/admin/stock/create', [AdminController::class, 'create'])->name('admin.stock.create');
+    Route::post('/admin/stock', [AdminController::class, 'store'])->name('admin.stock.store');
+    Route::post('/admin/generate-field', [AdminController::class, 'generateField'])->name('admin.generate-field');
     //Route::get('/stock/{id}', [ChartController::class, 'OneChart'])->name('stock.store');
 });
 

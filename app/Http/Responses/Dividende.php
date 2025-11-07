@@ -6,17 +6,15 @@ use Carbon\Carbon;
 
 class Dividende
 {
-    public float $dividendPerShare;
-    public float $dividendPercent;
-    public ?string $next_date;
-    public float $next_amount;
-    public ?string $last_date;
-    public float $last_amount;
-    public int $frequency_per_year;
-    public float $total_received;
-    public float $expected_next_12m;
-    public float $yield_percent;
-
-   
+    public float $dividendPerShare = 0.0;
+    public float $dividendPercent = 0.0;
+    public ?string $next_date = null;
+    public float $next_amount = 0.0;
+    public ?string $last_date = null;
+    public float $last_amount = 0.0;
+    public int $frequency_per_year = 0;
+    public float $total_received = 0.0;
+    public float $expected_next_12m = 0.0;
+    public float $yield_percent = 0.0;
 
 }

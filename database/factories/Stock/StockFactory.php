@@ -19,14 +19,14 @@ class StockFactory extends Factory
     public function definition(): array
     {
         return [
-            'product_type_id' => ProductType::inRandomOrder()->first()?->id ?? \App\Models\ProductType::create(['name' => 'default'])->id,
+            'product_type_id' => ProductType::inRandomOrder()->first()?->id ?? ProductType::factory()->create()->id,
             'name' => fake()->word(),
             'firma' => fake()->word(),
             'sektor' => fake()->word(),
             'land' => fake()->word(),
             'description' => fake()->text(),
-            'net_income' => fake()->randomFloat(2, 1000, 1000000),    
-            'dividend_frequency' => rand(0,4),        
+            'net_income' => fake()->randomFloat(2, 1000, 1000000),
+            'dividend_frequency' => rand(0,4),
         ];
     }
 

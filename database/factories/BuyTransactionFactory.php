@@ -24,8 +24,8 @@ class BuyTransactionFactory extends Factory
 
         return [
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory()->create()->id,
-            // ensure consistent in-game month using the GameTimeService (current month)
-            'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
+            // Always use the latest GameTime for synchronization with Price
+            'game_time_id' => \App\Models\GameTime::latest()->first()?->id ?? \App\Models\GameTime::factory()->create()->id,
             'stock_id' => $stock->id,
             'quantity' => fake()->numberBetween(1, 100),
             'status' => fake()->boolean(),

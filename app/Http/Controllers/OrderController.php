@@ -29,16 +29,25 @@ class OrderController extends Controller
         DB::beginTransaction();
 
         try {
-            $currentMonth = (int) $request->input('current_month', 1); // aktueller Ingame-Monat (1-12)
-            // find or fallback GameTime for the selected month
-            // Prefer an existing GameTime for the requested month, otherwise create via GameTimeService
-            $gtService = new \App\Services\GameTimeService();
-            $candidate = \App\Models\GameTime::where('name', date('Y-m-d', strtotime(date('Y') . '-' . $currentMonth . '-01')))->latest()->first()
-                ?? \App\Models\GameTime::latest()->first();
-            if ($candidate) {
-                $gameTime = $candidate;
-            } else {
-                $gameTime = $gtService->getOrCreate(Carbon::create(date('Y'), $currentMonth, 1));
+            // Always use the latest GameTime for synchronization with Price
+            $gameTime = \App\Models\GameTime::latest()->first();
+            if (!$gameTime) {
+                // If no GameTime exists, create one for current date
+                $gtService = new \App\Services\GameTimeService();
+                $gameTime = $gtService->getOrCreate(Carbon::now());
+            }
+
+            // Ensure a Price exists for this GameTime and Stock
+            $existingPrice = \App\Models\Stock\Price::where('stock_id', $stock->id)
+                ->where('game_time_id', $gameTime->id)
+                ->first();
+            if (!$existingPrice) {
+                // Create a new Price with current price value
+                $newPrice = new \App\Models\Stock\Price();
+                $newPrice->stock_id = $stock->id;
+                $newPrice->game_time_id = $gameTime->id;
+                $newPrice->name = $stock->getCurrentPrice(); // Use current price as base
+                $newPrice->save();
             }
             $bank = $user->bank()->first();
 

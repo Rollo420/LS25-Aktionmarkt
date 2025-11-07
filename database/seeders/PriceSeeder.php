@@ -17,10 +17,10 @@ class PriceSeeder extends Seeder
      */
     public function run(): void
     {
-        
         $result = $this->defaultDate();
-        
-        
+
+        // Ensure Prices exist for the latest GameTime for all stocks
+        $this->ensureLatestPrices();
     }
 
 
@@ -56,6 +56,33 @@ class PriceSeeder extends Seeder
         }
 
         return true; // Rückgabe, falls benötigt
+    }
+
+    private function ensureLatestPrices()
+    {
+        $stocks = Stock::all();
+        $latestGameTime = \App\Models\GameTime::latest()->first();
+
+        if (!$latestGameTime) {
+            // If no GameTime exists, create one for current date
+            $gtService = new \App\Services\GameTimeService();
+            $latestGameTime = $gtService->getOrCreate(\Carbon\Carbon::now());
+        }
+
+        foreach ($stocks as $stock) {
+            $existingPrice = \App\Models\Stock\Price::where('stock_id', $stock->id)
+                ->where('game_time_id', $latestGameTime->id)
+                ->first();
+
+            if (!$existingPrice) {
+                // Create a new Price with a generated value
+                $price = new Price();
+                $price->stock_id = $stock->id;
+                $price->game_time_id = $latestGameTime->id;
+                $price->name = fake()->randomFloat(2, 1, 100); // Generate a random price
+                $price->save();
+            }
+        }
     }
 }
 

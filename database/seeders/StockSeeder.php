@@ -23,19 +23,25 @@ class StockSeeder extends Seeder
 
             $monthsBetween = (int) (12 / $frequency);
 
-            //Auch die jahre plus rechenen if anweisung fallback 
-            
+            // Berechne realistische Dividendentermine basierend auf aktueller Zeit
+            $currentDate = now();
 
             for ($i = 0; $i < $frequency; $i++) {
+                // Berechne das nächste Dividendendatum basierend auf der Frequenz
+                $dividendDate = $currentDate->copy()->addMonths($i * $monthsBetween);
+
                 $gtService = new \App\Services\GameTimeService();
-                $now = now();
-                $gt = $gtService->getOrCreate(Carbon::create((int)$now->format('Y'), (int)$now->format('m'), 1));
+                $gt = $gtService->getOrCreate(Carbon::create(
+                    (int)$dividendDate->format('Y'),
+                    (int)$dividendDate->format('m'),
+                    1
+                ));
+
                 Dividend::create([
                     'stock_id' => $stock->id,
                     'game_time_id' => $gt->id,
-                    'amount_per_share' => $faker->randomFloat(2, 0.5, 2.5),
+                    'amount_per_share' => $faker->randomFloat(2, 0.1, 5.0), // Realistischere Beträge
                 ]);
-
             }
         }
     }

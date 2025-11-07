@@ -39,6 +39,14 @@
                         </x-nav-link>
                     </div>
                 @endif
+                <!-- Admin Link -->
+                @if (Auth::check() && Auth::user()->isAdministrator())
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('admin')" :active="request()->routeIs('admin.*')">
+                            {{ __('Admin') }}
+                        </x-nav-link>
+                    </div>
+                @endif
             </div>
 
             <!-- Settings Dropdown -->
@@ -105,6 +113,9 @@
             @if (Auth::check() && Auth::user()->isAdministrator())
                 <x-responsive-nav-link :href="route('time.index')" :active="request()->routeIs('time.*')">
                     {{ __('Time') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin')" :active="request()->routeIs('admin.*')">
+                    {{ __('Admin') }}
                 </x-responsive-nav-link>
             @endif
         </div>

@@ -274,107 +274,46 @@ class DashboardController extends Controller
      */
     private function createChartData($stocks, $user)
     {
-        $months = 12;
+        $months = session('timelineSelectedMonth', 12);
 
         // determine stock ids from provided $stocks collection (structure from StockService)
         $stockIds = collect($stocks)->map(fn($item) => data_get($item, 'stock.id'))->filter()->unique()->all();
-
-        // Build unique month/year list only from prices of the user's stocks
-        $dateMap = [];
-        $prices = Price::whereIn('stock_id', $stockIds)->orderBy('created_at', 'asc')->get();
-        foreach ($prices as $p) {
-            if (isset($p->gameTime) && $p->gameTime) {
-                $date = Carbon::parse($p->gameTime->name ?? now()->toDateString());
-                $year = $date->year;
-                $month = $date->month;
-            } else {
-                $dt = Carbon::parse($p->created_at ?? now());
-                $year = (int) $dt->format('Y');
-                $month = (int) $dt->format('m');
-            }
-            $key = sprintf('%04d-%02d', $year, $month);
-            $dateMap[$key] = Carbon::createFromDate($year, $month, 1);
-        }
-
-        // Also include months from the user's transactions (so months where user bought/sold are present)
-        $txMonths = Transaction::where('user_id', $user->id)
-            ->whereIn('type', ['buy', 'sell'])
-            ->get();
-        foreach ($txMonths as $tx) {
-            if (isset($tx->game_time_id) && $tx->game_time_id) {
-                $gt = GameTime::find($tx->game_time_id);
-                if ($gt) {
-                    $date = Carbon::parse($gt->name ?? now()->toDateString());
-                    $y = $date->year;
-                    $m = $date->month;
-                } else {
-                    $dt = Carbon::parse($tx->created_at ?? now());
-                    $y = (int)$dt->format('Y');
-                    $m = (int)$dt->format('m');
-                }
-            } else {
-                $dt = Carbon::parse($tx->created_at ?? now());
-                $y = (int)$dt->format('Y');
-                $m = (int)$dt->format('m');
-            }
-            $k = sprintf('%04d-%02d', $y, $m);
-            $dateMap[$k] = Carbon::createFromDate($y, $m, 1);
-        }
-
-    // Determine an appropriate end month: prefer latest GameTime (so time-skip is reflected),
-    // then latest price month, then latest transaction month, then now
-        $latestPrice = Price::whereIn('stock_id', $stockIds)->orderBy('created_at', 'desc')->first();
-        $latestPriceMonth = null;
-        if ($latestPrice) {
-            if (isset($latestPrice->gameTime) && $latestPrice->gameTime) {
-                $gt = $latestPrice->gameTime;
-                $latestPriceMonth = Carbon::parse($gt->name ?? now()->toDateString());
-            } else {
-                $latestPriceMonth = Carbon::parse($latestPrice->created_at ?? now())->startOfMonth();
-            }
-        }
-
-        $latestTx = Transaction::where('user_id', $user->id)->orderBy('created_at', 'desc')->first();
-        $latestTxMonth = null;
-        if ($latestTx) {
-            if (isset($latestTx->game_time_id) && $latestTx->game_time_id) {
-                $gt = GameTime::find($latestTx->game_time_id);
-                if ($gt) {
-                    $latestTxMonth = Carbon::parse($gt->name ?? now()->toDateString());
-                }
-            }
-            if (!$latestTxMonth) {
-                $latestTxMonth = Carbon::parse($latestTx->created_at ?? now())->startOfMonth();
-            }
-        }
-
-        $endMonth = collect([$latestPriceMonth, $latestTxMonth, Carbon::now()->startOfMonth()])->filter()->sortByDesc(fn($d) => $d->timestamp)->first();
-        if (!$endMonth) $endMonth = Carbon::now()->startOfMonth();
 
         // Prefer the latest GameTime present in DB (created by time-skip). This ensures charts end at the
         // current ingame month (we orient exclusively on in-game time for the dashboard).
         $gtService = new GameTimeService();
         $latestGameTime = GameTime::orderBy('created_at', 'desc')->first();
-        if ($latestGameTime) {
-            $latestGameTimeMonth = $gtService->toDate($latestGameTime)->startOfMonth();
-            // Use the latest created GameTime as the canonical current in-game month
-            $endMonth = $latestGameTimeMonth;
+        if (!$latestGameTime) {
+            // Fallback if no GameTime exists
+            return [
+                'labels' => [],
+                'datasets' => [
+                    [
+                        'label' => 'Depotwert (Ingame)',
+                        'data' => [],
+                        'borderColor' => '#10B981',
+                        'backgroundColor' => 'rgba(16,185,129,0.1)',
+                        'tension' => 0.3,
+                        'fill' => true,
+                        'pointRadius' => 4,
+                        'borderWidth' => 2,
+                    ],
+                ],
+            ];
         }
+
+        $endMonth = $gtService->toDate($latestGameTime)->startOfMonth();
 
         // Also determine the earliest GameTime we have so we can avoid building months before game start
         $firstGameTime = GameTime::orderBy('created_at', 'asc')->first();
         $firstGameTimeMonth = $firstGameTime ? $gtService->toDate($firstGameTime)->startOfMonth() : null;
 
         // Build simulated months ending at $endMonth (ascending). Stop early if we reach the first known GameTime.
-        $simulatedMonths = collect();
-        for ($i = $months - 1; $i >= 0; $i--) {
-            $candidate = $endMonth->copy()->subMonths($i);
-            if ($firstGameTimeMonth && $candidate->lt($firstGameTimeMonth)) {
-                // skip months before the first recorded GameTime — produce a shorter series instead
-                continue;
-            }
-            $simulatedMonths->push($candidate);
-        }
+        // Only use GameTime months, not calendar months
+        $allGameTimes = GameTime::orderBy('created_at', 'asc')->get()->map(fn($gt) => $gtService->toDate($gt)->startOfMonth());
+
+        // Filter to get the most recent $months GameTime months
+        $simulatedMonths = $allGameTimes->reverse()->take($months)->reverse()->values();
 
         // labels use month name + two-digit year
         $labels = $simulatedMonths->map(fn($d) => $d->format('F y'))->all();
