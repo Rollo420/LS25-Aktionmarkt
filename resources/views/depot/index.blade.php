@@ -13,7 +13,7 @@
     <thead class="border-b border-gray-700 bg-gray-900/20">
         <tr>
             <th class="px-4 py-2">Name</th>
-            <th class="px-4 py-2">Durchschn. Kaufpreis</th>
+            <th class="px-4 py-2">Kaufpreis</th>
             <th class="px-4 py-2">Aktueller Preis</th>
             <th class="px-4 py-2">Menge</th>
             <th class="px-4 py-2">Letztes Kauf Datum</th>
@@ -35,12 +35,12 @@
                     @endif
                 </td>
                 <td class="px-4 py-2">{{ $stock->quantity }}</td>
-                <td class="px-4 py-2">{{ $stock->bought_at->format('d.m.Y H:i') }}</td>
+                <td class="px-4 py-2">{{ $stock->stock->getLastBuyTransactionDateForStock()}}</td>
                 <td class="px-4 py-2 font-semibold">
-                    @if($stock->profit_loss['amount'] >= 0)
-                    <span class="text-green-400">+{{ number_format($stock->profit_loss['amount'], 2) }} €</span>
+                    @if($stock->profit_loss >= 0)
+                    <span class="text-green-400">+ {{ number_format($stock->profit_loss, 2) }} €</span>
                     @else
-                    <span class="text-red-400">{{ number_format($stock->profit_loss['amount'], 2) }} €</span>
+                    <span class="text-red-400">- {{ number_format(-$stock->profit_loss, 2) }} €</span>
                     @endif
                 </td>
 

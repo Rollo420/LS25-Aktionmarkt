@@ -53,10 +53,10 @@ class DashboardController extends Controller
 
                 return [
                     'name' => $stock->name,
-                    'next_dividend' => $divData['dividende']['nextDividendDate'],
+                    'next_dividend' => $divData->next_date,
                     'price' => $stock->getLatestPrice(),                        // aktueller Kurs (€)
-                    'dividend' => $divData['dividende']['dividendPerShare'], // Dividende (€)
-                    'percent' => $divData['dividende']['dividendPercent'],    // Rendite (%)
+                    'dividend' => $divData->dividendPerShare, // Dividende (€)
+                    'percent' => $divData->dividendPercent,    // Rendite (%)
                 ];
             })
             ->values();

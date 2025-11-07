@@ -65,17 +65,17 @@ Dividendentermine	Nächster Zahlungstermin
 
         <div>
             <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Dividend per Share (€)</h3>
-            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ number_format($stockDetails['dividende']['dividendPerShare'], 2, ",", " ") }} €</p>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ number_format($stockDetails['dividende']->dividendPerShare, 2, ",", " ") }} €</p>
         </div>
 
         <div>
             <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Dividend Yield (%)</h3>
-            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ number_format($stockDetails['dividende']['dividendPercent'], 2, ",", " ") }} %</p>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ number_format($stockDetails['dividende']->dividendPercent, 2, ",", " ") }} %</p>
         </div>
 
         <div class="sm:col-span-2">
             <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Next Dividend Date</h3>
-            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ $stockDetails['dividende']['nextDividendDate'] }}</p>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ $stockDetails['dividende']->next_date }}</p>
         </div>
     </div>
 </div>

@@ -34,7 +34,11 @@ class Stock extends Model
     /** Helper-Methoden **/
     public function getLatestPrice(): float
     {
-        return (float) ($this->prices()->latest('created_at')->first()->name ?? 0);
+        $latestPrice = $this->prices()->with('gameTime') // Relation laden
+            ->orderByDesc('game_time_id')              // nach neuestem GameTime sortieren
+            ->first();                                 // erstes Ergebnis holen
+
+        return $latestPrice?->name ?? 0;               // falls kein Preis vorhanden, 0 zurückgeben
     }
 
     public function getCurrentPrice(): float
@@ -44,7 +48,12 @@ class Stock extends Model
 
     public function getLatestDividend(): ?Dividend
     {
-        return $this->dividends()->latest('created_at')->first();
+        return $this->dividends()->orderBy('game_time_id', 'DESC')->get()->first();
+    }
+
+    public function getFirstDividend(): ?Dividend
+    {
+        return $this->dividends()->orderBy('game_time_id')->get()->first();
     }
 
     public function getCurrentDividend(): float
@@ -54,6 +63,35 @@ class Stock extends Model
 
     public function getNextDividendDate(): ?string
     {
-        return optional($this->getLatestDividend())->distribution_date;
+        return $this->getLatestDividend()->gameTime()->get()->first()->name;
+    }
+
+    public function getLastBuyTransactionDateForStock()
+    {
+        return $this->transactions()->where('type', 'buy')->first()
+            ->getLastBuyTransactionDate();
+    }
+
+    public function getFirstBuyTransactionDateForStock()
+    {
+        $firstTransaction = $this->transactions()
+            ->where('type', 'buy')
+            ->orderBy('game_time_id', 'asc')
+            ->with('gameTime') // eager load, um doppelte Querys zu vermeiden
+            ->first();
+
+        return $firstTransaction?->gameTime?->name;
+    }
+
+    public function getCurrentQuantity(): int
+    {
+        return (int) $this->transactions()
+            ->selectRaw("
+            SUM(CASE WHEN type = 'buy' THEN quantity ELSE 0 END)
+            - SUM(CASE WHEN type = 'sell' THEN quantity ELSE 0 END)
+        AS total_quantity
+        ")
+            ->value('total_quantity');
     }
 }
+

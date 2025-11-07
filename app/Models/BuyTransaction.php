@@ -47,4 +47,6 @@ class BuyTransaction extends Transaction
     {
         return (float) ($transaction->resolvedPriceAtBuy() ?? $transaction->stock?->getCurrentPrice() ?? 0);
     }
+
+
 }

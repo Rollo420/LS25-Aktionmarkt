@@ -86,8 +86,8 @@ class StockController extends Controller
 
 
         $dividendeService = new DividendeService();
-        $dividendDetails = $dividendeService->getDividendeForStockID($id);
-        $details = array_merge($details, $dividendDetails);
+        $details['dividende'] = $dividendeService->getDividendeForStockID($id);
+
 
         //dd( $details);
 

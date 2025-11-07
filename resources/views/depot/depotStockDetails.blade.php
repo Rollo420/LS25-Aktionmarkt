@@ -1,6 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <a class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight" href="{{ route('stock.store', $stock->id) }}">{{ $stock->name }}</a>
+        <a class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight"
+            href="{{ route('stock.store', $stock->id) }}">{{ $stock->name }}</a>
     </x-slot>
 
     <div class="py-12">
@@ -17,17 +18,22 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Aktueller Preis</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ $stockData->current_price }} €</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                        {{ number_format($stockData->current_price, 2, ',', '.') }} €
+                    </div>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
-                    <div class="text-gray-500 dark:text-gray-400 text-sm">Durchschn. Einkaufpreis</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ number_format($stockData->avg_buy_price, 2, ) }} €</div>
+                    <div class="text-gray-500 dark:text-gray-400 text-sm">Einkaufpreis</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                        {{ number_format($stockData->avg_buy_price, 2, ',', '.') }} €
+                    </div>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Gesamtmenge</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ $stockData->quantity }} Stk.</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ $stockData->quantity }}
+                        Stk.</div>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
@@ -37,26 +43,29 @@
 
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Gewinn / Verlust</div>
-                    <div class="text-2xl font-bold mt-2 {{ $stockData->profit_loss['amount'] >= 0 ? 'text-green-500' : 'text-red-500' }}">
-                        {{ number_format($stockData->profit_loss['amount'], 2, ',', '.') }} €
-                        ({{ $stockData->profit_loss['percent'] }} %)
+                    <div
+                        class="text-2xl font-bold mt-2 {{ $stockData->profit_loss >= 0 ? 'text-green-500' : 'text-red-500' }}">
+                        {{ number_format($stockData->profit_loss, 2, ',', '.') }} €
+                        ({{ number_format($stockData->profit_loss_percent, 2, ',','.') }} %)
                     </div>
 
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Depot-Anteil</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ $stockData->deposit_share_in_percent }} %</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">
+                        {{ $stockData->deposit_share_in_percent }} %
+                    </div>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Erster Kauf</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">15.03.2022</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ $stockData->first_buy }}</div>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex flex-col items-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Letzter Kauf</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">07.10.2025</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ $stockData->last_buy }}</div>
                 </div>
             </div>
 
@@ -64,38 +73,39 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 text-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Nächste Dividende</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">15.12.2025: 0,85 €</div>
-                    <div class="text-gray-500 dark:text-gray-400 text-sm mt-1">Frequenz: 4× pro Jahr</div>
-                    <div class="text-gray-500 dark:text-gray-400 text-sm mt-1">Dividendenrendite: 1,8 %</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ $stockData->dividende->next_date }} : {{ $stockData->dividende->next_amount }} €</div>
+                    <div class="text-gray-500 dark:text-gray-400 text-sm mt-1">Frequenz: {{ $stockData->dividende->frequency_per_year }}× pro Jahr</div>
+                    <div class="text-gray-500 dark:text-gray-400 text-sm mt-1">Dividendenrendite: {{ $stockData->dividende->yield_percent }} %</div>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 text-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Letzte Dividende</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">15.09.2025: 0,85 €</div>
-                    <div class="text-gray-500 dark:text-gray-400 text-sm mt-1">Erhalten: 123,25 €</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ $stockData->dividende->last_date }}: {{ $stockData->dividende->last_amount }} €</div>
+                    <div class="text-gray-500 dark:text-gray-400 text-sm mt-1">Erhalten: {{ number_format($stockData->quantity * $stockData->dividende->last_amount, 2, ',', '.') }} €</div>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 text-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Gesamtdividenden</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">3.456 €</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ number_format($stockData->dividende->total_received, 2, ',', '.') }}€</div>
                 </div>
 
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 text-center">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Erwartete 12 Monate</div>
-                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">3.680 €</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{{ number_format($stockData->dividende->expected_next_12m, 2, ',', '.') }} €</div>
                 </div>
             </div>
 
 
             <!-- Kaufhistorie -->
-            <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            <div x-data="{ visible: 3 }" class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
                 <div class="flex justify-between items-center mb-4">
                     <div class="text-gray-500 dark:text-gray-400 text-sm">Kauf-Historie</div>
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow text-sm">
+                    <button @click="visible += 25" x-show="visible < {{ count($stockTransactionsHistory) }}"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow text-sm">
                         Mehr anzeigen
                     </button>
                 </div>
-                
+
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead>
                         <tr class="text-left text-sm text-gray-500 dark:text-gray-400">
@@ -105,24 +115,25 @@
                             <th class="px-4 py-2">Gesamtbetrag</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                        @foreach ($stockTransactionsHistory as $stockTransaction)
 
-                            <tr>
-                                <td class="px-4 py-2">{{ $stockTransaction->gameTime()->latest()->value('name')  }}</td>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                        @foreach ($stockTransactionsHistory as $index => $stockTransaction)
+                            <tr x-show="{{ $index }} < visible">
+                                <td class="px-4 py-2">{{ $stockTransaction->gameTime()->latest()->value('name') }}</td>
                                 <td class="px-4 py-2">{{ $stockTransaction->quantity }}</td>
-                                <td class="px-4 py-2">{{$stockTransaction->resolvedPriceAtBuy()}} €</td>
-                                <td class="px-4 py-2">{{ $stockTransaction->quantity * $stockTransaction->resolvedPriceAtBuy()}} €</td>
+                                <td class="px-4 py-2">{{ number_format($stockTransaction->resolvedPriceAtBuy(), 2, ',', '.') }} €</td>
+                                <td class="px-4 py-2">
+                                    {{ number_format($stockTransaction->quantity * $stockTransaction->resolvedPriceAtBuy(), 2, ',', '.') }}
+                                    €
+                                </td>
                             </tr>
-                           
                         @endforeach
-                            
-                        </tr>
                     </tbody>
                 </table>
             </div>
 
             <x-buy_sell-buttons :stock="$stock" />
+
 
         </div>
     </div>

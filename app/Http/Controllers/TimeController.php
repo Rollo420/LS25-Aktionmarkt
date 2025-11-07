@@ -26,7 +26,7 @@ class TimeController extends Controller
         // Saisonaler Effekt
         // ==============================
         'useSeasonalEffect' => true,   // Saisonalität beibehalten (z.B. "Sell in May")
-        'seasonalEffectRange' => 0.015, // Etwas reduziert, um nicht zu dominant zu sein.
+        'seasonalEffectRange' => 0.026, // Etwas reduziert, um nicht zu dominant zu sein.
 
         // ==============================
         // Crash / Rallye Simulation
@@ -64,54 +64,45 @@ class TimeController extends Controller
         $stocks = Stock::all();
         $gtService = new GameTimeService();
 
+        $selectedMonthNum = is_numeric($selectedMonth)
+            ? (int) $selectedMonth
+            : (int) date('m', strtotime($selectedMonth));
+
         foreach ($stocks as $stock) {
 
-            // find the last known GameTime (if any) or derive from last price
-            $lastPriceRecord = $stock->prices()->orderByDesc('game_time_id')->orderByDesc('created_at')->first();
-            if ($lastPriceRecord && isset($lastPriceRecord->game_time_id) && $lastPriceRecord->game_time_id) {
-                $lastGameTime = \App\Models\GameTime::find($lastPriceRecord->game_time_id);
-                $lastDate = $lastGameTime ? Carbon::parse($lastGameTime->name) : Carbon::now();
-                $lastMonth = (int) $lastDate->format('m');
-                $lastYear = (int) $lastDate->format('Y');
-                $lastPrice = $lastPriceRecord->name;
-            } else {
-                // fallback to created_at of last price
-                $lastPrice = $lastPriceRecord ? $lastPriceRecord->name : 100;
-                $lastDateObj = $lastPriceRecord ? Carbon::parse($lastPriceRecord->created_at) : Carbon::now();
-                $lastMonth = (int) $lastDateObj->format('m');
-                $lastYear = (int) $lastDateObj->format('Y');
+            // nur die letzte GameTime
+            $lastGameTime = $stock->prices()
+                ->orderByDesc('game_time_id')
+                ->first()?->gameTime;
+
+            $lastDate = $lastGameTime
+                ? Carbon::parse($lastGameTime->name)
+                : Carbon::now();
+
+            $lastMonth = (int) $lastDate->format('m');
+            $lastYear = (int) $lastDate->format('Y');
+            $lastPrice = $stock->prices()->orderByDesc('game_time_id')->first()?->name ?? 100;
+
+            // Berechne Monate bis zum nächsten gewünschten selectedMonth
+            $monthsToAdvance = ($selectedMonthNum - $lastMonth + 12) % 12;
+            if ($monthsToAdvance === 0) {
+                $monthsToAdvance = 12; // wenn gleiche Monatsnummer, spring gleich ein ganzes Jahr
             }
 
-            // target month number from selectedMonth string like 'April' or numeric input
-            $selectedMonthNum = is_numeric($selectedMonth) ? (int) $selectedMonth : (int) date('m', strtotime($selectedMonth));
+            for ($i = 1; $i <= $monthsToAdvance; $i++) {
+                $nextMonth = $lastMonth + 1;
+                $nextYear = $lastYear;
+                if ($nextMonth > 12) {
+                    $nextMonth = 1;
+                    $nextYear++;
+                }
 
-            // compute how many months to advance from lastMonth/lastYear to reach selectedMonth in the future
-            $monthsToAdvance = 0;
-            $currentMonth = $lastMonth;
-            $currentYear = $lastYear;
-            // move at least one month forward (skip to next occurrence of selectedMonth)
-            while (true) {
-                // advance one month
-                $currentMonth++;
-                if ($currentMonth > 12) { $currentMonth = 1; $currentYear++; }
-                $monthsToAdvance++;
-                if ($currentMonth === $selectedMonthNum) break;
-                // safety: avoid infinite loops
-                if ($monthsToAdvance > 1200) break;
-            }
+                // GameTime erzeugen
+                $gameTime = $gtService->getOrCreate(Carbon::create($nextYear, $nextMonth, 1));
 
-            for ($i = 0; $i < $monthsToAdvance; $i++) {
-                // compute month/year for this new period
-                $lastMonth++;
-                if ($lastMonth > 12) { $lastMonth = 1; $lastYear++; }
-
-                // find or create the GameTime for this month/year using service
-                $gameTime = $gtService->getOrCreate(Carbon::create($lastYear, $lastMonth, 1));
-
-                // generate price for this month
+                // Preis erzeugen
                 $newPrice = $this->generatePrice($lastPrice, $i);
 
-                // create Price linked to this GameTime; do NOT modify created_at — keep real-life timestamp
                 $price = new Price();
                 $price->stock_id = $stock->id;
                 $price->name = $newPrice;
@@ -119,9 +110,12 @@ class TimeController extends Controller
                 $price->save();
 
                 $lastPrice = $newPrice;
+                $lastMonth = $nextMonth;
+                $lastYear = $nextYear;
             }
         }
     }
+
 
     // =========================
     // Preisgenerierung modular

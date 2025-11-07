@@ -89,6 +89,7 @@ class Transaction extends Model
     {
         // Use persisted value if available
         if (isset($this->price_at_buy) && $this->price_at_buy !== null && $this->price_at_buy > 0) {
+            #dd($this->stock());
             return (float) $this->price_at_buy;
         }
 
@@ -116,7 +117,7 @@ class Transaction extends Model
                 // fallback: latest price by created_at
                 $priceObj = $stock->prices()->latest('created_at')->first();
                 if ($priceObj) {
-                    return (float) ($priceObj->name ?? $priceObj->price ?? 0);
+                    return (float) ($priceObj->name ?? $priceObj->name ?? 0);
                 }
 
                 // last resort: stock current price
@@ -129,4 +130,27 @@ class Transaction extends Model
 
         return null;
     }
+
+
+    public function getLastBuyTransactionDate()
+    {
+        $lastTransaction = $this->whereStockId($this->stock_id)
+            ->with('gameTime') // wichtig, damit gameTime geladen wird
+            ->orderBy('game_time_id', 'desc')
+            ->first();
+
+        return $lastTransaction?->gameTime?->name ?? null;
+    }
+
+
+    public function getFirstBuyTransactionDate()
+    {
+        return $this->where('type', 'buy')
+                    ->whereStockId($this->stock_id)
+                    ->orderBy('game_time_id','asc')->get()->first()
+                    ->gameTime()->get()->first()->name;
+    }
+
+   
+
 }

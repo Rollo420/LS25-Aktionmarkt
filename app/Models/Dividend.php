@@ -18,4 +18,5 @@ class Dividend extends Model
     public function gameTime(){
         return $this->belongsTo(GameTime::class);
     }
+    
 }
