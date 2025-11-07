@@ -252,9 +252,8 @@ class DashboardController extends Controller
                         return $carry;
                     }, 0);
 
-                if ($holdings <= 0) {
-                    continue;
-                }
+                // Für historische Berechnungen alle Aktien berücksichtigen (auch wenn aktuell 0)
+                // Der User möchte historische Werte sehen, auch von Aktien die er verkauft hat
 
                 // resolve price for this stock and month with sensible fallbacks
                 $priceValue = $this->resolvePriceForStockMonth($stockId, $monthDate, $pricesByStock);

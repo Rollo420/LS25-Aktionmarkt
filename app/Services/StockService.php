@@ -140,6 +140,7 @@ class StockService
         $user = $user ?? Auth::user();
 
         return $this->getUserStocks($user)
+            ->filter(fn($stock) => $stock->getCurrentQuantity() > 0) // Nur Aktien mit positiver Menge einbeziehen
             ->map(fn($stock) => $this->getStockStatistiks($stock, $user, $currentMonth))
             ->values();
     }
@@ -157,29 +158,25 @@ class StockService
     }
 
     /**
-     * Anteil der Aktie am Depot basierend auf investiertem Kapital
+     * Anteil der Aktie am Depot basierend auf aktuellem Wert (nicht investiertem Kapital)
      */
     public function getDepositShareInPercent($user, $stock)
     {
-        $buyTransactions = $user->transactions
-            ->where('type', 'buy')
-            ->where('stock_id', $stock->id);
+        // Aktueller Wert dieser Aktie im Depot
+        $currentStockValue = $stock->getCurrentQuantity() * $stock->getCurrentPrice();
 
-        $totalValue = $buyTransactions->sum(function ($transaction) {
-            return $transaction->quantity * ($transaction->resolvedPriceAtBuy() ?? 0);
-        });
-
-        $totalInvested = $user->transactions
-            ->where('type', 'buy')
-            ->sum(function ($transaction) {
-                return $transaction->quantity * ($transaction->resolvedPriceAtBuy() ?? 0);
+        // Gesamtwert aller Aktien im Depot (nur Aktien mit positiver Menge)
+        $totalPortfolioValue = $this->getUserStocks($user)
+            ->filter(fn($s) => $s->getCurrentQuantity() > 0)
+            ->sum(function ($s) {
+                return $s->getCurrentQuantity() * $s->getCurrentPrice();
             });
 
-        if ($totalInvested == 0) {
+        if ($totalPortfolioValue == 0) {
             return 0; // Vermeidung von Division durch Null
         }
 
-        return number_format((float) ($totalValue / $totalInvested) * 100, 2, '.', '');
+        return number_format((float) ($currentStockValue / $totalPortfolioValue) * 100, 2, '.', '');
     }
 
 }

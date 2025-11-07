@@ -21,23 +21,27 @@ class StockController extends Controller
      */
     public function index()
     {
-        
-        $allStocks = Stock::all();
+        $allStocks = Stock::with(['dividends' => function ($query) {
+            $query->with('gameTime')->orderBy('game_time_id', 'desc');
+        }])->get();
 
-        $stocks[] = $allStocks->map(function ($stock)
-        {
+        $stocks = $allStocks->map(function ($stock) {
+            $dividendeService = new DividendeService();
+            $dividendData = $dividendeService->getDividendeForStockID($stock->id);
+
             return [
-                    'id' => $stock->id,
-                    'name' => $stock->name,
-                    'price' => $stock->getCurrentPrice()
+                'id' => $stock->id,
+                'name' => $stock->name,
+                'firma' => $stock->firma,
+                'sektor' => $stock->sektor,
+                'land' => $stock->land,
+                'price' => $stock->getCurrentPrice(),
+                'dividend_amount' => $dividendData ? $dividendData->next_amount : null,
+                'next_dividend_date' => $dividendData ? $dividendData->next_date : null,
             ];
-            
         });
-        
-        
-        $stocks = collect($stocks);
-        
-        return view('Stock.index', ['stocks' => $stocks->first()]);
+
+        return view('Stock.index', ['stocks' => $stocks]);
     }
 
     /**

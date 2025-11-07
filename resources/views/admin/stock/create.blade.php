@@ -191,6 +191,43 @@
                                     <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                                 @enderror
                             </div>
+
+                            <!-- Dividend per Share -->
+                            <div>
+                                <label for="dividend_amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    {{ __('Dividend per Share (€)') }}
+                                </label>
+                                <div class="flex">
+                                    <input type="number" step="0.01" name="dividend_amount" id="dividend_amount" value="{{ old('dividend_amount') }}" min="0"
+                                           class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-l-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-900 dark:text-gray-100">
+                                    <button type="button" onclick="generateField('dividend_amount')"
+                                            class="px-3 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        🎲
+                                    </button>
+                                </div>
+                                @error('dividend_amount')
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Next Dividend Date -->
+                            <div>
+                                <label for="next_dividend_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    {{ __('Nächstes Dividendendatum') }}
+                                </label>
+                                <div class="flex">
+                                    <input type="date" name="next_dividend_date" id="next_dividend_date" value="{{ old('next_dividend_date') }}" min="{{ now()->addDay()->format('Y-m-d') }}"
+                                           class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-l-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-900 dark:text-gray-100">
+                                    <button type="button" onclick="generateField('next_dividend_date')"
+                                            class="px-3 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        🎲
+                                    </button>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Das Datum muss in der Zukunft liegen (mindestens morgen).</p>
+                                @error('next_dividend_date')
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
 
                         <!-- Description -->

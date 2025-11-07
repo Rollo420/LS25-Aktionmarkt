@@ -77,6 +77,12 @@ class AdminController extends Controller
             case 'start_price':
                 return response()->json(['value' => fake()->numberBetween(10, 500)]);
 
+            case 'dividend_amount':
+                return response()->json(['value' => fake()->randomFloat(2, 0.5, 2.5)]);
+
+            case 'next_dividend_date':
+                return response()->json(['value' => now()->addMonths(rand(1, 12))->format('Y-m-d')]);
+
             default:
                 return response()->json(['error' => 'Unknown field'], 400);
         }
@@ -94,6 +100,8 @@ class AdminController extends Controller
             'net_income' => 'nullable|numeric',
             'dividend_frequency' => 'nullable|integer|min:0|max:12',
             'start_price' => 'nullable|numeric|min:0',
+            'dividend_amount' => 'nullable|numeric|min:0',
+            'next_dividend_date' => 'nullable|date|after:now',
             'generate_missing' => 'nullable|boolean',
         ]);
 
@@ -140,12 +148,19 @@ class AdminController extends Controller
             'name' => $startPrice,
         ]);
 
-        // Create initial dividend if frequency > 0
-        if ($stock->dividend_frequency > 0) {
-            $dividendAmount = fake()->randomFloat(2, 0.5, 2.5);
+        // Create initial dividend if frequency > 0 or if dividend_amount is provided
+        if ($stock->dividend_frequency > 0 || $request->filled('dividend_amount')) {
+            $dividendAmount = $request->dividend_amount ?: fake()->randomFloat(2, 0.5, 2.5);
+
+            // Use provided date or current game time
+            $dividendGameTime = $currentGameTime;
+            if ($request->filled('next_dividend_date')) {
+                $dividendGameTime = $gameTimeService->getOrCreate(\Carbon\Carbon::parse($request->next_dividend_date));
+            }
+
             \App\Models\Dividend::create([
                 'stock_id' => $stock->id,
-                'game_time_id' => $currentGameTime->id,
+                'game_time_id' => $dividendGameTime->id,
                 'amount_per_share' => $dividendAmount,
             ]);
         }

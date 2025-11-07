@@ -50,12 +50,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/payment/buy', [PaymentController::class, 'buy'])->name('payment.buy');
     Route::post('/payment/sell', [PaymentController::class, 'sell'])->name('payment.sell');
 
+    // Buy/Sell routes für normale User (ohne PaymentAuthorizationMiddleware)
+    Route::post('/stock/{id}/payment/sellBuy', [OrderController::class, 'index'])->name('payment.SellBuy');
+
     Route::middleware('PaymentAuthorizationMiddleware')->group(function (){
         Route::get('/payment/auth', [PaymentAuthorizationController::class, 'index'])->name('payment.auth');
 
         Route::post('/payment/auth-confirmed', [PaymentAuthorizationController::class, 'handlePaymentApproval'])->name('payment.handlePaymentApproval');
-
-        Route::post('/stock/{id}/payment/sellBuy', [OrderController::class, 'index'])->name('payment.SellBuy');
     });
 });
 

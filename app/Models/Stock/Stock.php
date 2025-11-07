@@ -72,7 +72,8 @@ class Stock extends Model
 
     public function getNextDividendDate(): ?string
     {
-        return $this->getLatestDividend()->gameTime()->get()->first()->name;
+        $latestDividend = $this->getLatestDividend();
+        return $latestDividend?->gameTime?->name;
     }
 
     public function getLastBuyTransactionDateForStock()
