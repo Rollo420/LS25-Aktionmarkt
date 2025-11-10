@@ -100,15 +100,28 @@ class Stock extends Model
         return $firstTransaction?->gameTime?->name;
     }
 
-    public function getCurrentQuantity(): int
+    public function getCurrentQuantity($user = null): int
     {
-        return (int) $this->transactions()
+        $query = $this->transactions();
+
+        if ($user) {
+            $query->where('user_id', $user->id);
+        }
+
+        return (int) $query
             ->selectRaw("
             SUM(CASE WHEN type = 'buy' THEN quantity ELSE 0 END)
             - SUM(CASE WHEN type = 'sell' THEN quantity ELSE 0 END)
         AS total_quantity
         ")
             ->value('total_quantity');
+    }
+
+     public function getUserAccount()
+    {
+        return $this->transactions()->get()->map(function ($transaction) {
+            return $transaction->user;
+        })->unique();
     }
 }
 

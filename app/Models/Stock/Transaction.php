@@ -134,7 +134,7 @@ class Transaction extends Model
 
     public function getLastBuyTransactionDate()
     {
-        $lastTransaction = $this->whereStockId($this->stock_id)
+        $lastTransaction = Transaction::where('stock_id', $this->stock_id)
             ->with('gameTime') // wichtig, damit gameTime geladen wird
             ->orderBy('game_time_id', 'desc')
             ->first();
@@ -145,12 +145,14 @@ class Transaction extends Model
 
     public function getFirstBuyTransactionDate()
     {
-        return $this->where('type', 'buy')
-                    ->whereStockId($this->stock_id)
-                    ->orderBy('game_time_id','asc')->get()->first()
-                    ->gameTime()->get()->first()->name;
+        $firstTransaction = Transaction::where('type', 'buy')
+                    ->where('stock_id', $this->stock_id)
+                    ->orderBy('game_time_id','asc')->first();
+
+        return $firstTransaction?->gameTime?->name ?? null;
     }
 
+   
    
 
 }

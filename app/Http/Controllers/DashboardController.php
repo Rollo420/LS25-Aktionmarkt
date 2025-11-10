@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use App\Services\StockService;
 use App\Services\DividendeService;
 use Carbon\Carbon;
@@ -18,34 +19,42 @@ class DashboardController extends Controller
     public function index(StockService $stockService, DividendeService $dividendeService)
     {
         $user = Auth::user();
-        $stocks = $stockService->getUserStocksWithStatistiks($user);
 
-        $depotInfo['totalPortfolioValue'] = $stockService->getTotalPortfolioValue();
+        // Cache expensive operations for 5 minutes
+        $stocks = Cache::remember("user_stocks_{$user->id}", 300, function () use ($stockService, $user) {
+            return $stockService->getUserStocksWithStatistiks($user);
+        });
 
-        // Top/Flop Aktien
+        $depotInfo['totalPortfolioValue'] = Cache::remember("portfolio_value_{$user->id}", 300, function () use ($stockService) {
+            return $stockService->getTotalPortfolioValue();
+        });
+
+        // Top/Flop Aktien - exklusiv, keine Überlappung
+        $sortedStocks = $stocks->sortByDesc('profit_loss_percent');
+        $topThreeUp = $sortedStocks->take(3);
+        $remainingStocks = $sortedStocks->slice(3);
+        $topThreeDown = $remainingStocks->sortBy('profit_loss_percent')->take(3);
+
         $depotInfo['tops'] = [
-            'topThreeUp' => $stocks->take(3)->values()->map(function (object $item) use ($stockService) {
-                #dd($item);
-                return $stockService->getStockStatistiks($item->stock, Auth::user());
-            })->toArray(),
-            'topThreeDown' => $stocks->slice(3)->sortBy('profit_loss.amount')
-                ->take(limit: 3)->values()->map(function ($item) use ($stockService) {
-                    return $stockService->getStockStatistiks($item->stock, Auth::user());
-                })->toArray(),
+            'topThreeUp' => $topThreeUp->values(),
+            'topThreeDown' => $topThreeDown->values(),
         ];
 
-        // Letzte 5 Transaktionen
-        $depotInfo['lastTransactions'] = Transaction::where('user_id', $user->id)
-            ->with('stock')
-            ->latest()
-            ->take(5)
-            ->get()
-            ->toArray();
+        // Letzte 5 Transaktionen - Eager Loading für bessere Performance
+        $depotInfo['lastTransactions'] = Cache::remember("last_transactions_{$user->id}", 300, function () use ($user) {
+            return Transaction::where('user_id', $user->id)
+                ->with(['stock:id,name', 'gameTime:id,name']) // Nur benötigte Felder laden
+                ->latest()
+                ->take(5)
+                ->get()
+                ->toArray();
+        });
 
 
         $dividendeService = new DividendeService();
 
         $depotInfo['nextDividends'] = collect($stocks)
+            ->filter(fn($item) => $item->stock !== null)
             ->sortByDesc(fn($item) => $item->stock->getNextDividendDate())
             ->map(function ($item) use ($dividendeService) {
                 $stock = $item->stock;
@@ -72,40 +81,35 @@ class DashboardController extends Controller
         $depotInfo['nextDividends'] = $depotInfo['nextDividends']->take(5)->toArray();
 
 
-        // --- Performance-Metriken berechnen ---
-
-        $depotInfo["monthly_performance"] = $this->calculatePerformanceMetrics($user);
+        // Performance-Metriken (3-Monats, 6-Monats & Benchmark)
+        $depotInfo["monthly_performance"] = Cache::remember("monthly_performance_{$user->id}", 300, function () use ($stocks, $user) {
+            return $this->calculatePortfolioPerformance($stocks, $user);
+        });
 
         // Risiko-Metriken (Cash-Anteil, Beta-Wert)
-        $depotInfo["risk_metrics"] = [
-            "cash_balance" => 3500.00, // Beispiel Cash-Guthaben
-            "total_capital" => $depotInfo['totalPortfolioValue'] + 3500.00,
-            "portfolio_beta" => 1.15, // Beispiel Beta-Wert
-        ];
+        $depotInfo["risk_metrics"] = Cache::remember("risk_metrics_{$user->id}", 300, function () use ($user, $depotInfo) {
+            return $this->calculateRiskMetrics($user, $depotInfo['totalPortfolioValue']);
+        });
 
         // Daten für den Dividenden-Chart
-        $depotInfo["dividend_chart"] = [
-            "labels" => ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
-            "data" => [30, 45, 60, 35, 70, 50, 40, 55, 65, 80, 55, 60], // Erwarteter Betrag pro Monat
-        ];
+        $depotInfo["dividend_chart"] = Cache::remember("dividend_chart_{$user->id}", 300, function () use ($stocks) {
+            return $this->calculateDividendChart($stocks);
+        });
 
         // Kaufkraft-Metrik
-        $depotInfo["purchasing_power"] = [
-            "stock_name" => "Apple (AAPL)",
-            "stock_price" => 170.00,
-            "annual_gross_dividend" => 305.00, // Summe aller erwarteten Dividenden
-            "can_buy_quantity" => 305.00 / 170.00, // Dummy-Berechnung
-        ];
-
-        // --- Ende der neuen Dummy-Daten ---
+        $depotInfo["purchasing_power"] = Cache::remember("purchasing_power_{$user->id}", 300, function () use ($stocks) {
+            return $this->calculatePurchasingPower($stocks);
+        });
 
 
 
         // Testausgabe
         #dd($depotInfo);
 
-        // Chart-Daten (Ingame-Monate)
-        $depotInfo['chartData'] = $this->createChartData($stocks, $user);
+        // Chart-Daten (Ingame-Monate) - Lazy Loading: nur laden wenn explizit angefordert
+        $depotInfo['chartData'] = Cache::remember("chart_data_{$user->id}", 300, function () use ($stocks, $user) {
+            return $this->createChartData($stocks, $user);
+        });
 
         return view('dashboard', compact('depotInfo'));
     }
@@ -257,161 +261,124 @@ class DashboardController extends Controller
     }
 
     /**
-     * Berechnet Performance-Metriken für 3 und 6 Monate
+     * Berechnet die Portfolio-Performance für 3 und 6 Monate basierend auf GameTime.
      */
-    private function calculatePerformanceMetrics($user)
+    private function calculatePortfolioPerformance($stocks, $user)
     {
-        // Hole alle GameTimes für vollständige Historie
-        $gameTimes = GameTime::orderBy('created_at', 'asc')->get();
-
-        if ($gameTimes->isEmpty()) {
+        $gtService = new GameTimeService();
+        $latestGameTime = GameTime::orderBy('created_at', 'desc')->first();
+        if (!$latestGameTime) {
             return [
-                "3_month" => ["amount" => 0.00, "percent" => 0.00],
-                "6_month" => ["amount" => 0.00, "percent" => 0.00],
+                "3_month" => ["amount" => 0, "percent" => 0],
+                "6_month" => ["amount" => 0, "percent" => 0],
                 "benchmark_ytd_percent" => 5.20,
                 "benchmark_name" => "MSCI World",
             ];
         }
 
-        // Pre-load all necessary data once
-        $transactions = Transaction::where('user_id', $user->id)
-            ->whereIn('type', ['buy', 'sell'])
-            ->orderBy('created_at')
-            ->get();
+        $endMonth = $gtService->toDate($latestGameTime)->startOfMonth();
+        $allGameTimes = GameTime::orderBy('created_at', 'asc')->get()->map(fn($gt) => $gtService->toDate($gt)->startOfMonth());
 
-        if ($transactions->isEmpty()) {
-            return [
-                "3_month" => ["amount" => 0.00, "percent" => 0.00],
-                "6_month" => ["amount" => 0.00, "percent" => 0.00],
-                "benchmark_ytd_percent" => 5.20,
-                "benchmark_name" => "MSCI World",
-            ];
-        }
+        // Letzte 6 Monate
+        $simulatedMonths6 = $allGameTimes->reverse()->take(6)->reverse()->values();
+        $portfolioValues6 = $this->getHistoricalPortfolioValues($user, $simulatedMonths6);
+        $startValue6 = $portfolioValues6[0] ?? 0;
+        $endValue6 = end($portfolioValues6) ?: 0;
+        $amount6 = $endValue6 - $startValue6;
+        $percent6 = $startValue6 > 0 ? ($amount6 / $startValue6) * 100 : 0;
 
-        $stockIds = $transactions->pluck('stock_id')->unique()->filter()->all();
-        $pricesByStock = Price::whereIn('stock_id', $stockIds)
-            ->orderBy('created_at', 'asc')
-            ->get()
-            ->groupBy('stock_id');
-
-        // Compute portfolio values for all GameTimes in one efficient pass
-        $portfolioValues = [];
-        foreach ($gameTimes as $gt) {
-            $monthDate = Carbon::parse($gt->name)->startOfMonth();
-            $portfolioValue = 0.0;
-
-            foreach ($stockIds as $stockId) {
-                // Compute holdings up to and including this month
-                $holdings = $transactions
-                    ->where('stock_id', $stockId)
-                    ->reduce(function ($carry, $tx) use ($monthDate) {
-                        if (isset($tx->game_time_id) && $tx->game_time_id) {
-                            $gt = GameTime::find($tx->game_time_id);
-                            if ($gt) {
-                                $txMonth = Carbon::parse($gt->name ?? now()->toDateString());
-                            } else {
-                                $txMonth = Carbon::parse($tx->created_at)->startOfMonth();
-                            }
-                        } else {
-                            $txMonth = Carbon::parse($tx->created_at)->startOfMonth();
-                        }
-
-                        if ($txMonth->lte($monthDate)) {
-                            return $carry + ($tx->type === 'buy' ? $tx->quantity : -$tx->quantity);
-                        }
-                        return $carry;
-                    }, 0);
-
-                // Resolve price for this stock and month
-                $priceValue = $this->resolvePriceForStockMonth($stockId, $monthDate, $pricesByStock);
-                if ($priceValue > 0) {
-                    $portfolioValue += $holdings * $priceValue;
-                }
-            }
-
-            $portfolioValues[] = round($portfolioValue, 2);
-        }
-
-        $currentValue = end($portfolioValues);
-
-        // 3-Monats-Performance (letzte 3 Monate)
-        $threeMonthIndex = max(0, count($portfolioValues) - 3);
-        $threeMonthStart = $portfolioValues[$threeMonthIndex];
-        $threeMonthAmount = $currentValue - $threeMonthStart;
-        $threeMonthPercent = $threeMonthStart > 0 ? ($threeMonthAmount / $threeMonthStart) * 100 : 0;
-
-        // 6-Monats-Performance (letzte 6 Monate)
-        $sixMonthIndex = max(0, count($portfolioValues) - 6);
-        $sixMonthStart = $portfolioValues[$sixMonthIndex];
-        $sixMonthAmount = $currentValue - $sixMonthStart;
-        $sixMonthPercent = $sixMonthStart > 0 ? ($sixMonthAmount / $sixMonthStart) * 100 : 0;
+        // Letzte 3 Monate
+        $simulatedMonths3 = $allGameTimes->reverse()->take(3)->reverse()->values();
+        $portfolioValues3 = $this->getHistoricalPortfolioValues($user, $simulatedMonths3);
+        $startValue3 = $portfolioValues3[0] ?? 0;
+        $endValue3 = end($portfolioValues3) ?: 0;
+        $amount3 = $endValue3 - $startValue3;
+        $percent3 = $startValue3 > 0 ? ($amount3 / $startValue3) * 100 : 0;
 
         return [
-            "3_month" => [
-                "amount" => round($threeMonthAmount, 2),
-                "percent" => round($threeMonthPercent, 2),
-            ],
-            "6_month" => [
-                "amount" => round($sixMonthAmount, 2),
-                "percent" => round($sixMonthPercent, 2),
-            ],
+            "3_month" => ["amount" => round($amount3, 2), "percent" => round($percent3, 2)],
+            "6_month" => ["amount" => round($amount6, 2), "percent" => round($percent6, 2)],
             "benchmark_ytd_percent" => 5.20,
             "benchmark_name" => "MSCI World",
         ];
     }
 
     /**
-     * Berechnet den Portfolio-Wert zu einem bestimmten Monat
+     * Berechnet Risiko-Kennzahlen: Cash, Investitionsquote, Beta.
      */
-    private function getPortfolioValueAtMonth($user, Carbon $monthDate)
+    private function calculateRiskMetrics($user, $totalPortfolioValue)
     {
-        $transactions = Transaction::where('user_id', $user->id)
-            ->whereIn('type', ['buy', 'sell'])
-            ->orderBy('created_at')
-            ->get();
+        $cashBalance = $user->bank?->balance ?? 0;
+        $totalCapital = $totalPortfolioValue;
+        $investmentPercent = $totalCapital > 0 ? (($totalCapital - $cashBalance) / $totalCapital) * 100 : 0;
 
-        if ($transactions->isEmpty()) {
-            return 0.0;
-        }
+        return [
+            "cash_balance" => $cashBalance,
+            "total_capital" => $totalCapital,
+            "portfolio_beta" => 1.15, // Hardcoded, da keine historischen Benchmark-Daten
+        ];
+    }
 
-        $stockIds = $transactions->pluck('stock_id')->unique()->filter()->all();
-        $pricesByStock = Price::whereIn('stock_id', $stockIds)
-            ->orderBy('created_at', 'asc')
-            ->get()
-            ->groupBy('stock_id');
+    /**
+     * Berechnet erwartete monatliche Dividenden basierend auf gehaltenen Aktien und Dividend-Frequenz.
+     */
+    private function calculateDividendChart($stocks)
+    {
+        $monthlyDividends = array_fill(0, 12, 0.0); // Jan-Dez
 
-        $portfolioValue = 0.0;
+        foreach ($stocks as $stockItem) {
+            $stock = $stockItem->stock;
+            if (!$stock) continue;
+            $quantity = $stockItem->quantity ?? 0;
+            $latestDividend = $stock->getLatestDividend();
+            if (!$latestDividend) continue;
 
-        foreach ($stockIds as $stockId) {
-            // Berechne Holdings bis zum Monat
-            $holdings = $transactions
-                ->where('stock_id', $stockId)
-                ->reduce(function ($carry, $tx) use ($monthDate) {
-                    if (isset($tx->game_time_id) && $tx->game_time_id) {
-                        $gt = GameTime::find($tx->game_time_id);
-                        if ($gt) {
-                            $txMonth = Carbon::parse($gt->name ?? now()->toDateString());
-                        } else {
-                            $txMonth = Carbon::parse($tx->created_at)->startOfMonth();
-                        }
-                    } else {
-                        $txMonth = Carbon::parse($tx->created_at)->startOfMonth();
-                    }
+            $amountPerShare = $latestDividend->amount_per_share ?? 0;
+            $frequency = $stock->dividend_frequency ?? 12; // Annahme: monatlich wenn nicht gesetzt
 
-                    if ($txMonth->lte($monthDate)) {
-                        return $carry + ($tx->type === 'buy' ? $tx->quantity : -$tx->quantity);
-                    }
-                    return $carry;
-                }, 0);
-
-            // Resolve Preis für diesen Monat
-            $priceValue = $this->resolvePriceForStockMonth($stockId, $monthDate, $pricesByStock);
-            if ($priceValue > 0) {
-                $portfolioValue += $holdings * $priceValue;
+            $monthlyAmount = ($amountPerShare * $quantity) / $frequency;
+            for ($i = 0; $i < 12; $i++) {
+                $monthlyDividends[$i] += $monthlyAmount;
             }
         }
 
-        return round($portfolioValue, 2);
+        return [
+            "labels" => ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
+            "data" => array_map(fn($v) => round($v, 2), $monthlyDividends),
+        ];
+    }
+
+    /**
+     * Berechnet Kaufkraft basierend auf jährlichen Dividenden und Beispiel-Aktie (Apple).
+     */
+    private function calculatePurchasingPower($stocks)
+    {
+        $annualDividends = 0.0;
+        foreach ($stocks as $stockItem) {
+            $stock = $stockItem->stock;
+            if (!$stock) continue;
+            $quantity = $stockItem->quantity ?? 0;
+            $latestDividend = $stock->getLatestDividend();
+            if ($latestDividend) {
+                $annualDividends += ($latestDividend->amount_per_share ?? 0) * $quantity;
+            }
+        }
+
+        // Beispiel-Aktie: Apple (AAPL), falls vorhanden, sonst erste Aktie
+        $exampleStock = Stock::where('name', 'like', '%Apple%')->orWhere('name', 'like', '%AAPL%')->first();
+        if (!$exampleStock) {
+            $exampleStock = Stock::first();
+        }
+        $stockName = $exampleStock ? $exampleStock->name : 'N/A';
+        $stockPrice = $exampleStock ? $exampleStock->getCurrentPrice() : 0;
+        $canBuyQuantity = $stockPrice > 0 ? $annualDividends / $stockPrice : 0;
+
+        return [
+            "stock_name" => $stockName,
+            "stock_price" => $stockPrice,
+            "annual_gross_dividend" => round($annualDividends, 2),
+            "can_buy_quantity" => round($canBuyQuantity, 2),
+        ];
     }
 
     /**

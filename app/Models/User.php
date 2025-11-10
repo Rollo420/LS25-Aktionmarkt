@@ -67,15 +67,18 @@ class User extends Authenticatable
         return $this->hasMany(Transaction::class);
     }
 
-    /*protected static function booted()
+    public function getBankAccountBalance(): float
     {
-        static::created(function ($user) {
-            // Automatisch einen Bankeintrag erstellen
-            Bank::create([
-                'user_id' => $user->id,
-                'iban' => Bank::generateIban(), // Verwende die neue IBAN-Generierung
-                'balance' => 4.0, // Standardwert für den Kontostand
-            ]);
-        });
-    }*/
+        $bank = $this->bank;
+        return $bank ? $bank->balance : 0.0;
+    }
+
+    public function setBankAccountBalance(float $amount): void
+    {
+        $bank = $this->bank;
+        if ($bank) {
+            $bank->balance = $amount;
+            $bank->save();
+        }
+    }
 }

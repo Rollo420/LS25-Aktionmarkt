@@ -6,12 +6,10 @@
     </x-slot>
 
     <div class="py-12">
-
-  
         <div class="max-w-7xl mx-auto space-y-6">
         @foreach (['success', 'error', 'warning', 'info'] as $msg)
         @if(session($msg))
-            <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg" class="alert alert-{{ $msg }}">
+            <div class="mb-6 p-4 rounded-lg {{ $msg === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : ($msg === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : ($msg === 'warning' ? 'bg-yellow-50 text-yellow-800 border border-yellow-200' : 'bg-blue-50 text-blue-800 border border-blue-200')) }} dark:bg-gray-800 dark:text-gray-100">
                 {{ session($msg) }}
             </div>
         @endif
