@@ -179,4 +179,25 @@ class StockService
         return number_format((float) ($currentStockValue / $totalPortfolioValue) * 100, 2, '.', '');
     }
 
+    /**
+     * Alle Aktien eines Users mit aktuellen Holdings
+     */
+    public static function getUserStocksWithHoldings($user)
+    {
+        return $user->transactions
+            ->where('type', 'buy')
+            ->groupBy('stock_id')
+            ->map(function($group) {
+                $stock = $group[0]->stock;
+                $quantity = $stock->getCurrentQuantity();
+                return [
+                    'stock' => $stock,
+                    'quantity' => $quantity
+                ];
+            })
+            ->filter(fn($item) => $item['quantity'] > 0)
+            ->values()
+            ->toArray();
+    }
+
 }

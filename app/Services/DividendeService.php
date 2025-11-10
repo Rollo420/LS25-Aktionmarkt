@@ -56,4 +56,85 @@ class DividendeService
 
         return $dividende;
     }
+
+    /**
+     * Berechnet und führt Dividendenausschüttung für alle User durch
+     * Gibt ein Array mit den Ausschüttungsdetails zurück
+     */
+    public function payoutDividends($currentGameTime = null): array
+    {
+        $results = [
+            'total_users_paid' => 0,
+            'total_amount_paid' => 0.0,
+            'dividends_paid' => []
+        ];
+
+        // Hole alle User mit Bankkonten
+        $users = \App\Models\User::with('bank')->get();
+
+        foreach ($users as $user) {
+            $userDividends = $this->calculateUserDividends($user, $currentGameTime);
+
+            if ($userDividends['total_amount'] > 0) {
+                // Guthaben auf Bankkonto gutschreiben
+                $user->bank->balance += $userDividends['total_amount'];
+                $user->bank->save();
+
+                $results['total_users_paid']++;
+                $results['total_amount_paid'] += $userDividends['total_amount'];
+                $results['dividends_paid'][] = [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'total_amount' => $userDividends['total_amount'],
+                    'stock_dividends' => $userDividends['stock_dividends']
+                ];
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Berechnet Dividenden für einen einzelnen User
+     */
+    public function calculateUserDividends(\App\Models\User $user, $currentGameTime = null): array
+    {
+        $result = [
+            'total_amount' => 0.0,
+            'stock_dividends' => []
+        ];
+
+        // Hole alle Aktien des Users mit aktuellen Holdings
+        $userStocks = \App\Services\StockService::getUserStocksWithHoldings($user);
+
+        foreach ($userStocks as $stockData) {
+            $stock = $stockData['stock'];
+            $quantity = $stockData['quantity'] ?? 0;
+
+            if ($quantity > 0 && $currentGameTime) {
+                // Hole alle Dividenden für diesen Stock, die zum aktuellen GameTime passen
+                $dividends = $stock->dividends()->whereHas('gameTime', function ($query) use ($currentGameTime) {
+                    $query->where('name', $currentGameTime->name);
+                })->get();
+
+                foreach ($dividends as $dividend) {
+                    // Berechne Dividendenausschüttung
+                    $dividendAmount = $dividend->amount_per_share * $quantity;
+
+                    $result['total_amount'] += $dividendAmount;
+                    $result['stock_dividends'][] = [
+                        'stock_id' => $stock->id,
+                        'stock_name' => $stock->name,
+                        'quantity' => $quantity,
+                        'dividend_per_share' => $dividend->amount_per_share,
+                        'total_dividend' => $dividendAmount
+                    ];
+                }
+            }
+        }
+
+        return $result;
+    }
 }
+
+

@@ -72,21 +72,9 @@ class DashboardController extends Controller
         $depotInfo['nextDividends'] = $depotInfo['nextDividends']->take(5)->toArray();
 
 
-        // --- HINZUFÜGEN DER NEUEN DUMMY-DATEN ---
+        // --- Performance-Metriken berechnen ---
 
-        // Performance-Metriken (3-Monats, 6-Monats & Benchmark)
-        $depotInfo["monthly_performance"] = [
-            "3_month" => [
-                "amount" => 150.50, // Betrag der 3-Monats-Performance
-                "percent" => 1.24,  // Prozent der 3-Monats-Performance
-            ],
-            "6_month" => [
-                "amount" => 450.00,
-                "percent" => 3.71,
-            ],
-            "benchmark_ytd_percent" => 5.20, // Benchmark-Performance (für 1.3)
-            "benchmark_name" => "MSCI World", // Benchmark-Name (für 1.3)
-        ];
+        $depotInfo["monthly_performance"] = $this->calculatePerformanceMetrics($user);
 
         // Risiko-Metriken (Cash-Anteil, Beta-Wert)
         $depotInfo["risk_metrics"] = [
@@ -266,6 +254,164 @@ class DashboardController extends Controller
         }
 
         return $values;
+    }
+
+    /**
+     * Berechnet Performance-Metriken für 3 und 6 Monate
+     */
+    private function calculatePerformanceMetrics($user)
+    {
+        // Hole alle GameTimes für vollständige Historie
+        $gameTimes = GameTime::orderBy('created_at', 'asc')->get();
+
+        if ($gameTimes->isEmpty()) {
+            return [
+                "3_month" => ["amount" => 0.00, "percent" => 0.00],
+                "6_month" => ["amount" => 0.00, "percent" => 0.00],
+                "benchmark_ytd_percent" => 5.20,
+                "benchmark_name" => "MSCI World",
+            ];
+        }
+
+        // Pre-load all necessary data once
+        $transactions = Transaction::where('user_id', $user->id)
+            ->whereIn('type', ['buy', 'sell'])
+            ->orderBy('created_at')
+            ->get();
+
+        if ($transactions->isEmpty()) {
+            return [
+                "3_month" => ["amount" => 0.00, "percent" => 0.00],
+                "6_month" => ["amount" => 0.00, "percent" => 0.00],
+                "benchmark_ytd_percent" => 5.20,
+                "benchmark_name" => "MSCI World",
+            ];
+        }
+
+        $stockIds = $transactions->pluck('stock_id')->unique()->filter()->all();
+        $pricesByStock = Price::whereIn('stock_id', $stockIds)
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->groupBy('stock_id');
+
+        // Compute portfolio values for all GameTimes in one efficient pass
+        $portfolioValues = [];
+        foreach ($gameTimes as $gt) {
+            $monthDate = Carbon::parse($gt->name)->startOfMonth();
+            $portfolioValue = 0.0;
+
+            foreach ($stockIds as $stockId) {
+                // Compute holdings up to and including this month
+                $holdings = $transactions
+                    ->where('stock_id', $stockId)
+                    ->reduce(function ($carry, $tx) use ($monthDate) {
+                        if (isset($tx->game_time_id) && $tx->game_time_id) {
+                            $gt = GameTime::find($tx->game_time_id);
+                            if ($gt) {
+                                $txMonth = Carbon::parse($gt->name ?? now()->toDateString());
+                            } else {
+                                $txMonth = Carbon::parse($tx->created_at)->startOfMonth();
+                            }
+                        } else {
+                            $txMonth = Carbon::parse($tx->created_at)->startOfMonth();
+                        }
+
+                        if ($txMonth->lte($monthDate)) {
+                            return $carry + ($tx->type === 'buy' ? $tx->quantity : -$tx->quantity);
+                        }
+                        return $carry;
+                    }, 0);
+
+                // Resolve price for this stock and month
+                $priceValue = $this->resolvePriceForStockMonth($stockId, $monthDate, $pricesByStock);
+                if ($priceValue > 0) {
+                    $portfolioValue += $holdings * $priceValue;
+                }
+            }
+
+            $portfolioValues[] = round($portfolioValue, 2);
+        }
+
+        $currentValue = end($portfolioValues);
+
+        // 3-Monats-Performance (letzte 3 Monate)
+        $threeMonthIndex = max(0, count($portfolioValues) - 3);
+        $threeMonthStart = $portfolioValues[$threeMonthIndex];
+        $threeMonthAmount = $currentValue - $threeMonthStart;
+        $threeMonthPercent = $threeMonthStart > 0 ? ($threeMonthAmount / $threeMonthStart) * 100 : 0;
+
+        // 6-Monats-Performance (letzte 6 Monate)
+        $sixMonthIndex = max(0, count($portfolioValues) - 6);
+        $sixMonthStart = $portfolioValues[$sixMonthIndex];
+        $sixMonthAmount = $currentValue - $sixMonthStart;
+        $sixMonthPercent = $sixMonthStart > 0 ? ($sixMonthAmount / $sixMonthStart) * 100 : 0;
+
+        return [
+            "3_month" => [
+                "amount" => round($threeMonthAmount, 2),
+                "percent" => round($threeMonthPercent, 2),
+            ],
+            "6_month" => [
+                "amount" => round($sixMonthAmount, 2),
+                "percent" => round($sixMonthPercent, 2),
+            ],
+            "benchmark_ytd_percent" => 5.20,
+            "benchmark_name" => "MSCI World",
+        ];
+    }
+
+    /**
+     * Berechnet den Portfolio-Wert zu einem bestimmten Monat
+     */
+    private function getPortfolioValueAtMonth($user, Carbon $monthDate)
+    {
+        $transactions = Transaction::where('user_id', $user->id)
+            ->whereIn('type', ['buy', 'sell'])
+            ->orderBy('created_at')
+            ->get();
+
+        if ($transactions->isEmpty()) {
+            return 0.0;
+        }
+
+        $stockIds = $transactions->pluck('stock_id')->unique()->filter()->all();
+        $pricesByStock = Price::whereIn('stock_id', $stockIds)
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->groupBy('stock_id');
+
+        $portfolioValue = 0.0;
+
+        foreach ($stockIds as $stockId) {
+            // Berechne Holdings bis zum Monat
+            $holdings = $transactions
+                ->where('stock_id', $stockId)
+                ->reduce(function ($carry, $tx) use ($monthDate) {
+                    if (isset($tx->game_time_id) && $tx->game_time_id) {
+                        $gt = GameTime::find($tx->game_time_id);
+                        if ($gt) {
+                            $txMonth = Carbon::parse($gt->name ?? now()->toDateString());
+                        } else {
+                            $txMonth = Carbon::parse($tx->created_at)->startOfMonth();
+                        }
+                    } else {
+                        $txMonth = Carbon::parse($tx->created_at)->startOfMonth();
+                    }
+
+                    if ($txMonth->lte($monthDate)) {
+                        return $carry + ($tx->type === 'buy' ? $tx->quantity : -$tx->quantity);
+                    }
+                    return $carry;
+                }, 0);
+
+            // Resolve Preis für diesen Monat
+            $priceValue = $this->resolvePriceForStockMonth($stockId, $monthDate, $pricesByStock);
+            if ($priceValue > 0) {
+                $portfolioValue += $holdings * $priceValue;
+            }
+        }
+
+        return round($portfolioValue, 2);
     }
 
     /**
