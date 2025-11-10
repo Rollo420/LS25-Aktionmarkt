@@ -22,16 +22,15 @@ class DashboardController extends Controller
 
         $depotInfo['totalPortfolioValue'] = $stockService->getTotalPortfolioValue();
 
-        // Top/Flop Aktien
+        // Top/Flop Aktien - exklusiv, keine Überlappung
+        $sortedStocks = $stocks->sortByDesc('profit_loss_percent');
+        $topThreeUp = $sortedStocks->take(3);
+        $remainingStocks = $sortedStocks->slice(3);
+        $topThreeDown = $remainingStocks->sortBy('profit_loss_percent')->take(3);
+
         $depotInfo['tops'] = [
-            'topThreeUp' => $stocks->take(3)->values()->map(function (object $item) use ($stockService) {
-                #dd($item);
-                return $stockService->getStockStatistiks($item->stock, Auth::user());
-            })->toArray(),
-            'topThreeDown' => $stocks->slice(3)->sortBy('profit_loss.amount')
-                ->take(limit: 3)->values()->map(function ($item) use ($stockService) {
-                    return $stockService->getStockStatistiks($item->stock, Auth::user());
-                })->toArray(),
+            'topThreeUp' => $topThreeUp->values(),
+            'topThreeDown' => $topThreeDown->values(),
         ];
 
         // Letzte 5 Transaktionen
@@ -72,44 +71,17 @@ class DashboardController extends Controller
         $depotInfo['nextDividends'] = $depotInfo['nextDividends']->take(5)->toArray();
 
 
-        // --- HINZUFÜGEN DER NEUEN DUMMY-DATEN ---
-
         // Performance-Metriken (3-Monats, 6-Monats & Benchmark)
-        $depotInfo["monthly_performance"] = [
-            "3_month" => [
-                "amount" => 150.50, // Betrag der 3-Monats-Performance
-                "percent" => 1.24,  // Prozent der 3-Monats-Performance
-            ],
-            "6_month" => [
-                "amount" => 450.00,
-                "percent" => 3.71,
-            ],
-            "benchmark_ytd_percent" => 5.20, // Benchmark-Performance (für 1.3)
-            "benchmark_name" => "MSCI World", // Benchmark-Name (für 1.3)
-        ];
+        $depotInfo["monthly_performance"] = $this->calculatePortfolioPerformance($stocks, $user);
 
         // Risiko-Metriken (Cash-Anteil, Beta-Wert)
-        $depotInfo["risk_metrics"] = [
-            "cash_balance" => 3500.00, // Beispiel Cash-Guthaben
-            "total_capital" => $depotInfo['totalPortfolioValue'] + 3500.00,
-            "portfolio_beta" => 1.15, // Beispiel Beta-Wert
-        ];
+        $depotInfo["risk_metrics"] = $this->calculateRiskMetrics($user, $depotInfo['totalPortfolioValue']);
 
         // Daten für den Dividenden-Chart
-        $depotInfo["dividend_chart"] = [
-            "labels" => ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
-            "data" => [30, 45, 60, 35, 70, 50, 40, 55, 65, 80, 55, 60], // Erwarteter Betrag pro Monat
-        ];
+        $depotInfo["dividend_chart"] = $this->calculateDividendChart($stocks);
 
         // Kaufkraft-Metrik
-        $depotInfo["purchasing_power"] = [
-            "stock_name" => "Apple (AAPL)",
-            "stock_price" => 170.00,
-            "annual_gross_dividend" => 305.00, // Summe aller erwarteten Dividenden
-            "can_buy_quantity" => 305.00 / 170.00, // Dummy-Berechnung
-        ];
-
-        // --- Ende der neuen Dummy-Daten ---
+        $depotInfo["purchasing_power"] = $this->calculatePurchasingPower($stocks);
 
 
 
@@ -266,6 +238,125 @@ class DashboardController extends Controller
         }
 
         return $values;
+    }
+
+    /**
+     * Berechnet die Portfolio-Performance für 3 und 6 Monate basierend auf GameTime.
+     */
+    private function calculatePortfolioPerformance($stocks, $user)
+    {
+        $gtService = new GameTimeService();
+        $latestGameTime = GameTime::orderBy('created_at', 'desc')->first();
+        if (!$latestGameTime) {
+            return [
+                "3_month" => ["amount" => 0, "percent" => 0],
+                "6_month" => ["amount" => 0, "percent" => 0],
+                "benchmark_ytd_percent" => 5.20,
+                "benchmark_name" => "MSCI World",
+            ];
+        }
+
+        $endMonth = $gtService->toDate($latestGameTime)->startOfMonth();
+        $allGameTimes = GameTime::orderBy('created_at', 'asc')->get()->map(fn($gt) => $gtService->toDate($gt)->startOfMonth());
+
+        // Letzte 6 Monate
+        $simulatedMonths6 = $allGameTimes->reverse()->take(6)->reverse()->values();
+        $portfolioValues6 = $this->getHistoricalPortfolioValues($user, $simulatedMonths6);
+        $startValue6 = $portfolioValues6[0] ?? 0;
+        $endValue6 = end($portfolioValues6) ?: 0;
+        $amount6 = $endValue6 - $startValue6;
+        $percent6 = $startValue6 > 0 ? ($amount6 / $startValue6) * 100 : 0;
+
+        // Letzte 3 Monate
+        $simulatedMonths3 = $allGameTimes->reverse()->take(3)->reverse()->values();
+        $portfolioValues3 = $this->getHistoricalPortfolioValues($user, $simulatedMonths3);
+        $startValue3 = $portfolioValues3[0] ?? 0;
+        $endValue3 = end($portfolioValues3) ?: 0;
+        $amount3 = $endValue3 - $startValue3;
+        $percent3 = $startValue3 > 0 ? ($amount3 / $startValue3) * 100 : 0;
+
+        return [
+            "3_month" => ["amount" => round($amount3, 2), "percent" => round($percent3, 2)],
+            "6_month" => ["amount" => round($amount6, 2), "percent" => round($percent6, 2)],
+            "benchmark_ytd_percent" => 5.20,
+            "benchmark_name" => "MSCI World",
+        ];
+    }
+
+    /**
+     * Berechnet Risiko-Kennzahlen: Cash, Investitionsquote, Beta.
+     */
+    private function calculateRiskMetrics($user, $totalPortfolioValue)
+    {
+        $cashBalance = $user->bank?->balance ?? 0;
+        $totalCapital = $totalPortfolioValue;
+        $investmentPercent = $totalCapital > 0 ? (($totalCapital - $cashBalance) / $totalCapital) * 100 : 0;
+
+        return [
+            "cash_balance" => $cashBalance,
+            "total_capital" => $totalCapital,
+            "portfolio_beta" => 1.15, // Hardcoded, da keine historischen Benchmark-Daten
+        ];
+    }
+
+    /**
+     * Berechnet erwartete monatliche Dividenden basierend auf gehaltenen Aktien und Dividend-Frequenz.
+     */
+    private function calculateDividendChart($stocks)
+    {
+        $monthlyDividends = array_fill(0, 12, 0.0); // Jan-Dez
+
+        foreach ($stocks as $stockItem) {
+            $stock = $stockItem->stock;
+            $quantity = $stockItem->quantity ?? 0;
+            $latestDividend = $stock->getLatestDividend();
+            if (!$latestDividend) continue;
+
+            $amountPerShare = $latestDividend->amount_per_share ?? 0;
+            $frequency = $stock->dividend_frequency ?? 12; // Annahme: monatlich wenn nicht gesetzt
+
+            $monthlyAmount = ($amountPerShare * $quantity) / $frequency;
+            for ($i = 0; $i < 12; $i++) {
+                $monthlyDividends[$i] += $monthlyAmount;
+            }
+        }
+
+        return [
+            "labels" => ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
+            "data" => array_map(fn($v) => round($v, 2), $monthlyDividends),
+        ];
+    }
+
+    /**
+     * Berechnet Kaufkraft basierend auf jährlichen Dividenden und Beispiel-Aktie (Apple).
+     */
+    private function calculatePurchasingPower($stocks)
+    {
+        $annualDividends = 0.0;
+        foreach ($stocks as $stockItem) {
+            $stock = $stockItem->stock;
+            $quantity = $stockItem->quantity ?? 0;
+            $latestDividend = $stock->getLatestDividend();
+            if ($latestDividend) {
+                $annualDividends += ($latestDividend->amount_per_share ?? 0) * $quantity;
+            }
+        }
+
+        // Beispiel-Aktie: Apple (AAPL), falls vorhanden, sonst erste Aktie
+        $exampleStock = Stock::where('name', 'like', '%Apple%')->orWhere('name', 'like', '%AAPL%')->first();
+        if (!$exampleStock) {
+            $exampleStock = Stock::first();
+        }
+        $stockName = $exampleStock ? $exampleStock->name : 'N/A';
+        $stockPrice = $exampleStock ? $exampleStock->getCurrentPrice() : 0;
+        $canBuyQuantity = $stockPrice > 0 ? $annualDividends / $stockPrice : 0;
+
+        return [
+            "stock_name" => $stockName,
+            "stock_price" => $stockPrice,
+            "annual_gross_dividend" => round($annualDividends, 2),
+            "can_buy_quantity" => round($canBuyQuantity, 2),
+        ];
     }
 
     /**

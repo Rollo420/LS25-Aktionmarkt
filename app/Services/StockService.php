@@ -27,19 +27,31 @@ class StockService
             ->map(fn($t) => $t->quantity * ($t->stock->getCurrentPrice() ?? 0))
             ->sum();
 
-        return $totalStocksValue + $bankBalance;
+        // Subtrahiere verkaufte Aktien
+        $soldStocksValue = $user->transactions
+            ->where('type', 'sell')
+            ->map(fn($t) => $t->quantity * ($t->stock->getCurrentPrice() ?? 0))
+            ->sum();
+
+        return ($totalStocksValue - $soldStocksValue) + $bankBalance;
     }
 
     /**
-     * Depotwert basierend auf gespeicherten Kaufpreisen
+     * Depotwert basierend auf gespeicherten Kaufpreisen (nur aktuelle Holdings)
      */
     public function getTotalDepotValue(): float
     {
         $user = Auth::user();
 
-        return $user->transactions
+        $buyValue = $user->transactions
             ->where('type', 'buy')
             ->reduce(fn($carry, $t) => $carry + ($t->quantity * ($t->resolvedPriceAtBuy() ?? 0)), 0);
+
+        $sellValue = $user->transactions
+            ->where('type', 'sell')
+            ->reduce(fn($carry, $t) => $carry + ($t->quantity * ($t->resolvedPriceAtBuy() ?? 0)), 0);
+
+        return $buyValue - $sellValue;
     }
 
     /**

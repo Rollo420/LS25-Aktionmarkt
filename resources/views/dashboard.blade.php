@@ -210,9 +210,10 @@
                         <span class="text-green-500 mr-2">🚀</span> Top 3 Gewinner (Gesamt P/L)
                     </h3>
                     <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-                        @forelse (collect($depotInfo['tops']['topThreeUp'] ?? [])->sortByDesc('profit_loss.percent') as $winner)
+                        @forelse ($depotInfo['tops']['topThreeUp'] ?? [] as $winner)
                             @php
-                                $amount = $winner->profit_loss['amount'] ?? 0;
+                                $amount = $winner->profit_loss ?? 0;
+                                $percent = $winner->profit_loss_percent ?? 0;
                                 $sign = $amount >= 0 ? '+' : '';
                                 $color = $amount >= 0 ? 'text-green-500' : 'text-red-500';
                             @endphp
@@ -221,7 +222,7 @@
                                     <div class="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-indigo-500">
                                         {{ $winner->stock->name ?? 'N/A' }}</div>
                                     <div class="font-bold {{ $color }} text-sm">
-                                        {{ $sign }}{{ number_format($winner->profit_loss['percent'] ?? 0, 2, ',', '.') }} %
+                                        {{ $sign }}{{ number_format($percent, 2, ',', '.') }} %
                                     </div>
                                 </div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex justify-between">
@@ -243,9 +244,10 @@
                         <span class="text-red-500 mr-2">📉</span> Top 3 Verlierer (Gesamt P/L)
                     </h3>
                     <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-                        @forelse (collect($depotInfo['tops']['topThreeDown'] ?? [])->sortBy('profit_loss.percent') as $loser)
+                        @forelse ($depotInfo['tops']['topThreeDown'] ?? [] as $loser)
                             @php
-                                $amount = $loser->profit_loss['amount'] ?? 0;
+                                $amount = $loser->profit_loss ?? 0;
+                                $percent = $loser->profit_loss_percent ?? 0;
                                 $sign = $amount >= 0 ? '+' : '';
                                 $color = $amount < 0 ? 'text-red-500' : 'text-gray-500';
                             @endphp
@@ -254,7 +256,7 @@
                                     <div class="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-indigo-500">
                                         {{ $loser->stock->name ?? 'N/A' }}</div>
                                     <div class="font-bold {{ $color }} text-sm">
-                                        {{ $sign }}{{ number_format($loser->profit_loss['percent'] ?? 0, 2, ',', '.') }} %
+                                        {{ $sign }}{{ number_format($percent, 2, ',', '.') }} %
                                     </div>
                                 </div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex justify-between">
