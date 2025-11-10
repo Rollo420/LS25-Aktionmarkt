@@ -3,8 +3,9 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
-use Carbon\Carbon;  
+use Carbon\Carbon;
 
 use App\Services\DividendeService;
 
@@ -151,10 +152,12 @@ class StockService
     {
         $user = $user ?? Auth::user();
 
-        return $this->getUserStocks($user)
-            ->filter(fn($stock) => $stock->getCurrentQuantity() > 0) // Nur Aktien mit positiver Menge einbeziehen
-            ->map(fn($stock) => $this->getStockStatistiks($stock, $user, $currentMonth))
-            ->values();
+        return Cache::remember("user_stocks_stats_{$user->id}", 300, function () use ($user, $currentMonth) {
+            return $this->getUserStocks($user)
+                ->filter(fn($stock) => $stock->getCurrentQuantity() > 0) // Nur Aktien mit positiver Menge einbeziehen
+                ->map(fn($stock) => $this->getStockStatistiks($stock, $user, $currentMonth))
+                ->values();
+        });
     }
 
     /**

@@ -38,9 +38,9 @@
                 <td class="px-4 py-2">{{ $stock->stock->getLastBuyTransactionDateForStock()}}</td>
                 <td class="px-4 py-2 font-semibold">
                     @if($stock->profit_loss >= 0)
-                    <span class="text-green-400">+ {{ number_format($stock->profit_loss, 2, ',', '.') }} €</span>
+                    <span class="text-green-400 !important">+ {{ number_format($stock->profit_loss, 2, ',', '.') }} €</span>
                     @else
-                    <span class="text-red-400">- {{ number_format(-$stock->profit_loss, 2, ',', '.') }} €</span>
+                    <span class="text-red-400 !important">- {{ number_format(-$stock->profit_loss, 2, ',', '.') }} €</span>
                     @endif
                 </td>
 

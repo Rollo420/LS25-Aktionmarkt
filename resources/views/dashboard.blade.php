@@ -20,10 +20,10 @@
                 </div>
 
                 @php
-                    $perf3M = $depotInfo['monthly_performance']['3_month']['percent'] ?? 0.0;
-                    $isPositive3M = $perf3M >= 0;
-                    $color3M = $isPositive3M ? 'text-green-500 ' : 'text-red-500';
-                    $sign3M = $isPositive3M ? '+' : '';
+$perf3M = $depotInfo['monthly_performance']['3_month']['percent'] ?? 0.0;
+$isPositive3M = $perf3M >= 0;
+$color3M = $isPositive3M ? 'text-green-500 !important ' : 'text-red-500 !important';
+$sign3M = $isPositive3M ? '+' : '';
                 @endphp
                 <div
                     class="bg-white dark:bg-gray-800 shadow rounded-xl p-6 flex flex-col justify-center items-center transform hover:scale-[1.02] transition duration-150">
@@ -35,10 +35,10 @@
                 </div>
 
                 @php
-                    $perf6M = $depotInfo['monthly_performance']['6_month']['percent'] ?? 0.0;
-                    $isPositive6M = $perf6M >= 0;
-                    $color6M = $isPositive6M ? 'text-green-500' : 'text-red-500';
-                    $sign6M = $isPositive6M ? '+' : '';
+$perf6M = $depotInfo['monthly_performance']['6_month']['percent'] ?? 0.0;
+$isPositive6M = $perf6M >= 0;
+$color6M = $isPositive6M ? 'text-green-500 !important' : 'text-red-500 !important';
+$sign6M = $isPositive6M ? '+' : '';
                 @endphp
                 <div
                     class="bg-white dark:bg-gray-800 shadow rounded-xl p-6 flex flex-col justify-center items-center transform hover:scale-[1.02] transition duration-150">
@@ -82,13 +82,13 @@
                         <span class="text-indigo-500 mr-2">🥇</span> Performance vs. Benchmark
                     </h3>
                     @php
-                        $portfPerf = $depotInfo['monthly_performance']['6_month']['percent'] ?? 0.0; // Nehmen wir 6 Monate als Beispiel
-                        $benchPerf = $depotInfo['monthly_performance']['benchmark_ytd_percent'] ?? 0.0;
-                        $benchName = $depotInfo['monthly_performance']['benchmark_name'] ?? 'Index';
+$portfPerf = $depotInfo['monthly_performance']['6_month']['percent'] ?? 0.0; // Nehmen wir 6 Monate als Beispiel
+$benchPerf = $depotInfo['monthly_performance']['benchmark_ytd_percent'] ?? 0.0;
+$benchName = $depotInfo['monthly_performance']['benchmark_name'] ?? 'Index';
 
-                        $outperformance = $portfPerf - $benchPerf;
-                        $outperfColor = $outperformance >= 0 ? 'text-green-500' : 'text-red-500';
-                        $outperfSign = $outperformance >= 0 ? '+' : '';
+$outperformance = $portfPerf - $benchPerf;
+$outperfColor = $outperformance >= 0 ? 'text-green-500 !important' : 'text-red-500 !important';
+$outperfSign = $outperformance >= 0 ? '+' : '';
                     @endphp
                     <div class="space-y-3">
                         <div class="flex justify-between items-center text-sm">
@@ -119,10 +119,10 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
 
                         @php
-                            $cash = $depotInfo['risk_metrics']['cash_balance'] ?? 0;
-                            $capital = $depotInfo['risk_metrics']['total_capital'] ?? $depotInfo['totalPortfolioValue'] ?? 0;
-                            $cashPercent = $capital > 0 ? ($cash / $capital) * 100 : 0;
-                            $investmentPercent = 100 - $cashPercent;
+$cash = $depotInfo['risk_metrics']['cash_balance'] ?? 0;
+$capital = $depotInfo['risk_metrics']['total_capital'] ?? $depotInfo['totalPortfolioValue'] ?? 0;
+$cashPercent = $capital > 0 ? ($cash / $capital) * 100 : 0;
+$investmentPercent = 100 - $cashPercent;
                         @endphp
                         <div class="flex flex-col border-l-4 border-yellow-500 pl-4">
                             <span class="text-gray-500 dark:text-gray-400 font-medium">Investitionsquote / Cash</span>
@@ -135,15 +135,15 @@
                         </div>
 
                         @php
-                            $beta = $depotInfo['risk_metrics']['portfolio_beta'] ?? 1.0;
-                            $betaColor = $beta >= 1.2 ? 'text-red-500' : ($beta >= 1.0 ? 'text-yellow-500' : 'text-green-500');
-                            $betaText = $beta > 1 ? 'Volatiler' : ($beta < 1 ? 'Weniger Volatil' : 'Marktkonform');
+$beta = $depotInfo['risk_metrics']['portfolio_beta'] ?? 1.0;
+$betaColor = $beta >= 1.2 ? 'text-red-500 !important' : ($beta >= 1.0 ? 'text-yellow-500 !important' : 'text-green-500 !important');
+$betaText = $beta > 1 ? 'Volatiler' : ($beta < 1 ? 'Weniger Volatil' : 'Marktkonform');
                         @endphp
-                        <div class="flex flex-col border-l-4 border-red-500 pl-4">
-                            <span class="text-gray-500 dark:text-gray-400 font-medium">Portfolio Beta-Wert</span>
+                        <div class="flex flex-col border-l-4 border-red-500 pl-4 !important">
+                            <span class="text-gray-500 dark:text-gray-400 font-medium !important">Portfolio Beta-Wert</span>
                             <span
-                                class="font-bold text-2xl {{ $betaColor }} dark:text-red-400">{{ number_format($beta, 2, ',', '.') }}</span>
-                            <span class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $betaText }} (vs.
+                                class="font-bold text-2xl {{ $betaColor }} dark:text-red-400 ">{{ number_format($beta, 2, ',', '.') }}</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400 mt-1 ">{{ $betaText }} (vs.
                                 {{ $depotInfo['monthly_performance']['benchmark_name'] ?? 'Index' }})</span>
                         </div>
                     </div>
@@ -159,16 +159,16 @@
                         Dividenden-Ertragsplan</h3>
                     <div class="w-full">
                         @php
-                            $chartDataDividends = [
-                                'labels' => $depotInfo['dividend_chart']['labels'] ?? [],
-                                'datasets' => [
-                                    [
-                                        'label' => 'Erwartete Dividende (€)',
-                                        'data' => $depotInfo['dividend_chart']['data'] ?? [],
-                                        'backgroundColor' => '#f59e0b', // Yellow-500
-                                    ],
-                                ],
-                            ];
+$chartDataDividends = [
+    'labels' => $depotInfo['dividend_chart']['labels'] ?? [],
+    'datasets' => [
+        [
+            'label' => 'Erwartete Dividende (€)',
+            'data' => $depotInfo['dividend_chart']['data'] ?? [],
+            'backgroundColor' => '#f59e0b', // Yellow-500
+        ],
+    ],
+];
                         @endphp
                         <x-chart-show type="bar" :data="$chartDataDividends" :options="['aspectRatio' => 3]"
                             class="h-80" />
@@ -180,15 +180,15 @@
                         <span class="text-green-500 mr-2">🛒</span> Dividenden-Kaufkraft
                     </h3>
                     @php
-                        $annualDiv = $depotInfo['purchasing_power']['annual_gross_dividend'] ?? 0;
-                        $buyStock = $depotInfo['purchasing_power']['stock_name'] ?? 'N/A';
-                        $buyQty = $depotInfo['purchasing_power']['can_buy_quantity'] ?? 0;
+$annualDiv = $depotInfo['purchasing_power']['annual_gross_dividend'] ?? 0;
+$buyStock = $depotInfo['purchasing_power']['stock_name'] ?? 'N/A';
+$buyQty = $depotInfo['purchasing_power']['can_buy_quantity'] ?? 0;
                     @endphp
                     <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                         <p class="text-sm text-gray-600 dark:text-gray-300">
                             Ihre erwarteten Bruttodividenden pro Jahr belaufen sich auf
                             <span
-                                class="font-extrabold text-yellow-600 dark:text-yellow-400">{{ number_format($annualDiv, 2, ',', '.') }}
+                                class="font-extrabold text-yellow-600 dark:text-yellow-400 !important">{{ number_format($annualDiv, 2, ',', '.') }}
                                 €</span>.
                         </p>
                         <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">
@@ -207,15 +207,15 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-6 lg:col-span-1">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                        <span class="text-green-500 mr-2">🚀</span> Top 3 Gewinner (Gesamt P/L)
+                        <span class="text-green-500 mr-2 !important">🚀</span> Top 3 Gewinner (Gesamt P/L)
                     </h3>
                     <ul class="divide-y divide-gray-200 dark:divide-gray-700">
                         @forelse ($depotInfo['tops']['topThreeUp'] ?? [] as $winner)
                             @php
-                                $amount = $winner->profit_loss ?? 0;
-                                $percent = $winner->profit_loss_percent ?? 0;
-                                $sign = $amount >= 0 ? '+' : '';
-                                $color = $amount >= 0 ? 'text-green-500' : 'text-red-500';
+    $amount = $winner->profit_loss ?? 0;
+    $percent = $winner->profit_loss_percent ?? 0;
+    $sign = $amount >= 0 ? '+' : '';
+    $color = $amount >= 0 ? 'text-green-500 !important' : 'text-red-500 !important';
                             @endphp
                             <li class="py-3 group">
                                 <div class="flex justify-between items-center">
@@ -245,28 +245,28 @@
                     </h3>
                     <ul class="divide-y divide-gray-200 dark:divide-gray-700">
                         @forelse ($depotInfo['tops']['topThreeDown'] ?? [] as $loser)
-                            @php
-                                $amount = $loser->profit_loss ?? 0;
-                                $percent = $loser->profit_loss_percent ?? 0;
-                                $sign = $amount >= 0 ? '+' : '';
-                                $color = $amount < 0 ? 'text-red-500' : 'text-gray-500';
-                            @endphp
-                            <li class="py-3 group">
-                                <div class="flex justify-between items-center">
-                                    <div class="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-indigo-500">
-                                        {{ $loser->stock->name ?? 'N/A' }}</div>
-                                    <div class="font-bold {{ $color }} text-sm">
-                                        {{ $sign }}{{ number_format($percent, 2, ',', '.') }} %
-                                    </div>
-                                </div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex justify-between">
-                                    <span>P/L: <span
-                                            class="{{ $color }}">{{ $sign }}{{ number_format($amount, 2, ',', '.') }}
-                                            €</span></span>
-                                    <span>Kauf: {{ number_format($loser->avg_buy_price ?? 0, 2, ',', '.') }} €</span>
-                                    <span>Menge: {{ $loser->quantity ?? 0 }}</span>
-                                </div>
-                            </li>
+                                                    @php
+    $amount = $loser->profit_loss ?? 0;
+    $percent = $loser->profit_loss_percent ?? 0;
+    $sign = $amount >= 0 ? '+' : '';
+    $color = $amount < 0 ? 'text-red-500' : 'text-gray-500';
+                                                    @endphp
+                                                    <li class="py-3 group">
+                                                        <div class="flex justify-between items-center">
+                                                            <div class="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-indigo-500">
+                                                                {{ $loser->stock->name ?? 'N/A' }}</div>
+                                                            <div class="font-bold {{ $color }} text-sm !!important">
+                                                                {{ $sign }}{{ number_format($percent, 2, ',', '.') }} %
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex justify-between">
+                                                            <span>P/L: <span
+                                                                    class="{{ $color }} !important">{{ $sign }}{{ number_format($amount, 2, ',', '.') }}
+                                                                    €</span></span>
+                                                            <span>Kauf: {{ number_format($loser->avg_buy_price ?? 0, 2, ',', '.') }} €</span>
+                                                            <span>Menge: {{ $loser->quantity ?? 0 }}</span>
+                                                        </div>
+                                                    </li>
                         @empty
                             <li class="py-3 text-gray-400">Keine Top-Verlierer verfügbar.</li>
                         @endforelse
@@ -275,34 +275,34 @@
 
                 <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-6 lg:col-span-1">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                        <span class="text-yellow-500 mr-2">📅</span> Nächste Dividenden
+                        <span class="text-yellow-500 mr-2 !important">📅</span> Nächste Dividenden
                     </h3>
                     <ul class="divide-y divide-gray-200 dark:divide-gray-700">
                         @forelse(collect($depotInfo['nextDividends'] ?? [])->sortBy('next_dividend') as $dividend)
-                            @php
-                                $nextDividend = $dividend['next_dividend'] ?? now();
-                                $isFuture = \Carbon\Carbon::parse($nextDividend)->isFuture();
-                                $dateFormatted = \Carbon\Carbon::parse($nextDividend)->format('d.m.Y');
-                                $statusIcon = $isFuture ? '🟢' : '⚪';
-                                $statusColor = $isFuture ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500';
-                            @endphp
-                            <li class="py-3 flex justify-between items-center group">
-                                <div class="flex-grow">
-                                    <span
-                                        class="font-semibold text-gray-800 dark:text-gray-100 group-hover:text-indigo-500">{{ ucfirst($dividend['name'] ?? 'N/A') }}</span>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                        <span
-                                            class="font-bold text-yellow-500">{{ number_format($dividend['dividend'] ?? 0, 2, ',', '.') }}
-                                            €</span>
-                                        | Rendite: {{ number_format($dividend['percent'] ?? 0, 2, ',', '.') }} %
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-end">
-                                    <span class="text-xs font-medium {{ $statusColor }} flex items-center">
-                                        {{ $statusIcon }} {{ $dateFormatted }}
-                                    </span>
-                                </div>
-                            </li>
+                                                    @php
+                            $nextDividend = $dividend['next_dividend'] ?? now();
+                            $isFuture = \Carbon\Carbon::parse($nextDividend)->isFuture();
+                            $dateFormatted = \Carbon\Carbon::parse($nextDividend)->format('d.m.Y');
+                            $statusIcon = $isFuture ? '🟢' : '⚪';
+                            $statusColor = $isFuture ? 'text-green-600 dark:text-green-400 !important' : 'text-gray-400 dark:text-gray-500 !important';
+                                                    @endphp
+                                                    <li class="py-3 flex justify-between items-center group">
+                                                        <div class="flex-grow">
+                                                            <span
+                                                                class="font-semibold text-gray-800 dark:text-gray-100 group-hover:text-indigo-500">{{ ucfirst($dividend['name'] ?? 'N/A') }}</span>
+                                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                                <span
+                                                                    class="font-bold text-yellow-500 !important">{{ number_format($dividend['dividend'] ?? 0, 2, ',', '.') }}
+                                                                    €</span>
+                                                                | Rendite: {{ number_format($dividend['percent'] ?? 0, 2, ',', '.') }} %
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex flex-col items-end">
+                                                            <span class="text-xs font-medium {{ $statusColor }} flex items-center">
+                                                                {{ $statusIcon }} {{ $dateFormatted }}
+                                                            </span>
+                                                        </div>
+                                                    </li>
                         @empty
                             <li class="py-3 text-gray-500 dark:text-gray-400 text-sm">Keine Dividendeninformationen
                                 verfügbar.</li>
@@ -319,13 +319,13 @@
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-base">
 
                         @php
-                            $allPositions = collect($depotInfo['tops']['topThreeUp'] ?? [])->merge(collect($depotInfo['tops']['topThreeDown'] ?? []));
-                            $allDividends = collect($depotInfo['nextDividends'] ?? []);
+$allPositions = collect($depotInfo['tops']['topThreeUp'] ?? [])->merge(collect($depotInfo['tops']['topThreeDown'] ?? []));
+$allDividends = collect($depotInfo['nextDividends'] ?? []);
 
-                            $totalUniqueStocks = $allPositions->unique(fn($item) => $item->stock->id ?? null)->count();
-                            $totalQuantity = $allPositions->sum('quantity');
-                            $totalCurrentValue = $depotInfo['totalPortfolioValue'] ?? 0;
-                            $totalDividendAmount = $allDividends->sum('dividend');
+$totalUniqueStocks = $allPositions->unique(fn($item) => $item->stock->id ?? null)->count();
+$totalQuantity = $allPositions->sum('quantity');
+$totalCurrentValue = $depotInfo['totalPortfolioValue'] ?? 0;
+$totalDividendAmount = $allDividends->sum('dividend');
                         @endphp
 
                         <div class="flex flex-col border-l-4 border-indigo-500 pl-4">
@@ -343,7 +343,7 @@
                         <div class="flex flex-col border-l-4 border-yellow-500 pl-4">
                             <span class="text-gray-500 dark:text-gray-400 font-medium">Gesamt-Dividenden (p.P.)</span>
                             <span
-                                class="font-bold text-2xl text-yellow-600 dark:text-yellow-400">{{ number_format($totalDividendAmount, 2, ',', '.') }}
+                                class="font-bold text-2xl text-yellow-600 dark:text-yellow-400 !important">{{ number_format($totalDividendAmount, 2, ',', '.') }}
                                 €</span>
                         </div>
 
@@ -377,7 +377,7 @@
                     </h3>
 
                     @php
-                        $lastTransactions = collect($depotInfo['lastTransactions'] ?? [])->take(5);
+$lastTransactions = collect($depotInfo['lastTransactions'] ?? [])->take(5);
                     @endphp
 
                     @if($lastTransactions->count() > 0)
