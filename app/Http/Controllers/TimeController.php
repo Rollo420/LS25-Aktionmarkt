@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\Stock\Price;
 use App\Models\Stock\Stock;
+
 use App\Services\GameTimeService;
+use \App\Services\DividendeService;
+
 
 class TimeController extends Controller
 {
@@ -105,6 +108,13 @@ class TimeController extends Controller
 
                 // GameTime erzeugen
                 $gameTime = $gtService->getOrCreate(Carbon::create($nextYear, $nextMonth, 1));
+                
+                #if($gameTime->name == $stock->getNextDividendDate()){
+                    //Dividende auszahlen
+                    $divService = new DividendeService();
+                    $divService->shareDividendeToUsers($stock);
+                    
+                #}
 
                 // Preis erzeugen
                 $newPrice = $this->generatePrice($lastPrice, $i);

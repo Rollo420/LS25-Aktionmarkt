@@ -61,7 +61,7 @@ class AdminAccountSeeder extends Seeder
         if (!User::where('email', 'maro@bt21.com')->exists()) {
             $maro = User::factory()->create([
                 'name' => 'TryS_Makaroni',
-                'email' => 'maro@bt21.com',
+                'email' => 'bt21@trys.net',
                 'password' => bcrypt('password'), // Passwort verschlüsseln
             ]);
             $maro->bank()->create([

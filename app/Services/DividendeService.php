@@ -18,8 +18,12 @@ class DividendeService
         return $this->getDividendStatisticsForStock($stock);
     }
 
-    public function getDividendStatisticsForStock(Stock $stock): Dividende
+    public function getDividendStatisticsForStock(Stock $stock, $user = null): Dividende
     {
+        if (!$stock) {
+            return new Dividende();
+        }
+
         $dividend = $stock->getLatestDividend();
 
         if (!$dividend) {
@@ -49,11 +53,35 @@ class DividendeService
         $dividende->next_amount = $stock->getLatestDividend()->amount_per_share ?? 0;
         $dividende->last_date = Carbon::parse($dividend->gameTime->name)->format('d.m.Y');
         $dividende->last_amount = $dividend->amount_per_share;
-        $dividende->frequency_per_year = $stock->dividend_frequency;
+        $dividende->frequency_per_year = $stock->dividend_frequency ?? 0;
         $dividende->total_received = $total_dividends;
-        $dividende->expected_next_12m = $dividende->last_amount * $stock->dividend_frequency * $stock->getCurrentQuantity();
+        $dividende->expected_next_12m = $dividende->last_amount * ($stock->dividend_frequency ?? 0) * $stock->getCurrentQuantity($user);
         $dividende->yield_percent = $dividende->dividendPercent;
 
         return $dividende;
+    }
+
+    public function shareDividendeToUsers(Stock $stock)
+    {
+        $userAccounts = $stock->getUserAccount();
+
+        // Beispiel: Für jeden User die Quantity verwenden ohne weitere Queries
+        $userAccounts->each(function ($account) {
+            $user = $account['user'];
+            $quantity = $account['quantity'];
+            // Hier kannst du die Dividende verteilen basierend auf $quantity
+            // z.B. $dividendAmount = $quantity * $stock->getCurrentDividend();
+            // Dann speichern oder weiterverarbeiten
+        });
+
+        // Wenn du eine spezifische User-ID hast, kannst du so die Quantity bekommen:
+        // $userID = 1; // Beispiel
+        // $account = $userAccounts->firstWhere('user.id', $userID);
+        // $quantity = $account['quantity'] ?? 0;
+        // dd($quantity); // Keine zweite Query nötig
+    }
+    public function calculateNextDividendDate()
+    {
+
     }
 }

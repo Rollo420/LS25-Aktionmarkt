@@ -40,18 +40,21 @@ class DashboardController extends Controller
             'topThreeDown' => $topThreeDown->values(),
         ];
 
-        // Letzte 5 Transaktionen
-        $depotInfo['lastTransactions'] = Transaction::where('user_id', $user->id)
-            ->with('stock')
-            ->latest()
-            ->take(5)
-            ->get()
-            ->toArray();
+        // Letzte 5 Transaktionen - Eager Loading für bessere Performance
+        $depotInfo['lastTransactions'] = Cache::remember("last_transactions_{$user->id}", 300, function () use ($user) {
+            return Transaction::where('user_id', $user->id)
+                ->with(['stock:id,name', 'gameTime:id,name']) // Nur benötigte Felder laden
+                ->latest()
+                ->take(5)
+                ->get()
+                ->toArray();
+        });
 
 
         $dividendeService = new DividendeService();
 
         $depotInfo['nextDividends'] = collect($stocks)
+            ->filter(fn($item) => $item->stock !== null)
             ->sortByDesc(fn($item) => $item->stock->getNextDividendDate())
             ->map(function ($item) use ($dividendeService) {
                 $stock = $item->stock;
@@ -325,6 +328,7 @@ class DashboardController extends Controller
 
         foreach ($stocks as $stockItem) {
             $stock = $stockItem->stock;
+            if (!$stock) continue;
             $quantity = $stockItem->quantity ?? 0;
             $latestDividend = $stock->getLatestDividend();
             if (!$latestDividend) continue;
@@ -352,6 +356,7 @@ class DashboardController extends Controller
         $annualDividends = 0.0;
         foreach ($stocks as $stockItem) {
             $stock = $stockItem->stock;
+            if (!$stock) continue;
             $quantity = $stockItem->quantity ?? 0;
             $latestDividend = $stock->getLatestDividend();
             if ($latestDividend) {
