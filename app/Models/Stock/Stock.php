@@ -2,10 +2,11 @@
 
 namespace App\Models\Stock;
 
-use App\Models\Dividend;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use \Carbon\Carbon;
 
+use App\Models\Dividend;
 use App\Models\Stock\Price;
 use App\Models\Stock\Transaction;
 
@@ -70,17 +71,17 @@ class Stock extends Model
         return (float) ($this->getLatestDividend()->amount_per_share ?? 0);
     }
 
-    public function getNextDividendDate(): ?string
+    public function calculateNextDividendDate(): ?Carbon
     {
         $latestDividend = $this->getLatestDividend();
         if (!$latestDividend) {
             return null;
         }
 
-        $latestDate = \Carbon\Carbon::parse($latestDividend->gameTime->name);
+        $latestDate = Carbon::parse($latestDividend->gameTime->name);
         $monthsBetween = $this->dividend_frequency > 0 ? 12 / $this->dividend_frequency : 12;
 
-        return $latestDate->addMonths($monthsBetween)->format('Y-m-d');
+        return $latestDate->addMonths($monthsBetween);
     }
 
     public function getLastBuyTransactionDateForStock()
@@ -123,5 +124,7 @@ class Stock extends Model
             return $transaction->user;
         })->unique();
     }
+    
+    
 }
 

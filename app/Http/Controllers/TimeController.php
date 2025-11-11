@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GameTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\Stock\Price;
@@ -64,13 +65,6 @@ class TimeController extends Controller
     {
         $selectedMonth = $request->input('choose');
         $this->skipTime($selectedMonth);
-
-        // Get the current game time after skipping
-        $currentGameTime = \App\Models\GameTime::latest()->first();
-
-        // Dispatch dividend payout job asynchronously with current game time
-        ProcessDividendPayout::dispatch($currentGameTime);
-
         session(['selectedMonth' => $selectedMonth]);
         return redirect()->route('time.index');
     }
@@ -87,9 +81,7 @@ class TimeController extends Controller
         foreach ($stocks as $stock) {
 
             // nur die letzte GameTime
-            $lastGameTime = $stock->prices()
-                ->orderByDesc('game_time_id')
-                ->first()?->gameTime;
+            $lastGameTime = GameTime::getCurrentGameTime();
 
             $lastDate = $lastGameTime
                 ? Carbon::parse($lastGameTime->name)
@@ -135,53 +127,6 @@ class TimeController extends Controller
                 $lastPrice = $newPrice;
                 $lastMonth = $nextMonth;
                 $lastYear = $nextYear;
-
-                // Generate dividend records if current game time > next dividend date
-                $this->generateDividendIfNeeded($stock, $gameTime);
-            }
-        }
-    }
-
-    /**
-     * Generate dividend records for a stock if the current game time exceeds the next dividend date
-     */
-    private function generateDividendIfNeeded(Stock $stock, $currentGameTime)
-    {
-        $currentDate = Carbon::parse($currentGameTime->name);
-        $latestDividend = $stock->getLatestDividend();
-
-        if (!$latestDividend) {
-            return; // No dividends to generate
-        }
-
-        $latestDividendDate = Carbon::parse($latestDividend->gameTime->name);
-        $monthsBetween = $stock->dividend_frequency > 0 ? 12 / $stock->dividend_frequency : 12;
-        $nextDividendDate = $latestDividendDate->copy();
-
-        // Generate dividends until we reach or surpass the current date
-        while ($nextDividendDate->lte($currentDate)) {
-            $nextDividendDate->addMonths($monthsBetween);
-
-            // Only create if we haven't already created one for this date
-            $existingDividend = \App\Models\Dividend::where('stock_id', $stock->id)
-                ->whereHas('gameTime', function ($query) use ($nextDividendDate) {
-                    $query->where('name', $nextDividendDate->format('Y-m-d'));
-                })
-                ->first();
-
-            if (!$existingDividend) {
-                $gtService = new GameTimeService();
-                $gt = $gtService->getOrCreate(Carbon::create(
-                    (int)$nextDividendDate->format('Y'),
-                    (int)$nextDividendDate->format('m'),
-                    1
-                ));
-
-                \App\Models\Dividend::create([
-                    'stock_id' => $stock->id,
-                    'game_time_id' => $gt->id,
-                    'amount_per_share' => $latestDividend->amount_per_share,
-                ]);
             }
         }
     }

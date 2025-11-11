@@ -14,29 +14,33 @@ class DividendSeeder extends Seeder
     {
         $stocks = \App\Models\Stock\Stock::all();
         $gtService = new \App\Services\GameTimeService();
+        $gt = new \App\Models\GameTime();
+
+        $currentGameTime = $gt->getCurrentGameTime();
+        $currentDate = \Carbon\Carbon::parse($currentGameTime->name);
 
         foreach ($stocks as $stock) {
-            $year = 2000;
-            $month = 1;
-            for ($i = 0; $i < 132; $i++) { // 11 Jahre * 12 Monate = 132 Monate
-                $timestamp = mktime(0, 0, 0, $month, 1, $year);
-                $currentDate = date('Y-m-d', $timestamp);
+            // Erstelle ersten Dividend mit dem aktuellen GameTime
+            \App\Models\Dividend::create([
+                'stock_id' => $stock->id,
+                'game_time_id' => $currentGameTime->id,
+                'amount_per_share' => fake()->randomFloat(2, 0.1, 2.0),
+            ]);
 
-                // Create dividend occasionally, e.g., every 12 months or randomly
-                if ($i % 12 == 0 && fake()->boolean(30)) { // 30% chance every year
-                    $dividend = new \App\Models\Dividend();
-                    $dividend->stock_id = $stock->id;
-                    $gameTime = $gtService->getOrCreate(\Carbon\Carbon::parse($currentDate));
-                    $dividend->game_time_id = $gameTime->id;
-                    $dividend->amount_per_share = fake()->randomFloat(2, 0.1, 2.0);
-                    $dividend->save();
-                }
-
-                // Advance to next month
-                $month++;
-                if ($month > 12) {
-                    $month = 1;
-                    $year++;
+            // Erstelle weitere Dividenden mit calculateNextDividendDate
+            $currentStock = $stock->fresh(); // Refresh um neuen Dividend zu laden
+            for ($i = 0; $i < 4; $i++) { // Erstelle bis zu 4 weitere Dividenden
+                $nextDate = $currentStock->calculateNextDividendDate();
+                if ($nextDate) {
+                    $gameTime = $gtService->getOrCreate($nextDate);
+                    \App\Models\Dividend::create([
+                        'stock_id' => $stock->id,
+                        'game_time_id' => $gameTime->id,
+                        'amount_per_share' => fake()->randomFloat(2, 0.1, 2.0),
+                    ]);
+                    $currentStock = $stock->fresh(); // Refresh wieder
+                } else {
+                    break;
                 }
             }
         }

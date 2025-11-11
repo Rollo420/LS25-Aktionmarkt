@@ -55,7 +55,7 @@ class DashboardController extends Controller
 
         $depotInfo['nextDividends'] = collect($stocks)
             ->filter(fn($item) => $item->stock !== null)
-            ->sortByDesc(fn($item) => $item->stock->getNextDividendDate())
+            ->sortByDesc(fn($item) => $item->stock->calculateNextDividendDate())
             ->map(function ($item) use ($dividendeService) {
                 $stock = $item->stock;
                 $divData = $dividendeService->getDividendStatisticsForStock($stock);

@@ -35,7 +35,6 @@ class DatabaseSeeder extends Seeder
             ProductTypeSeeder::class,
             StockSeeder::class,
             PriceSeeder::class,
-            DividendSeeder::class,
         ]);
 
         $this->call(class: RoleSeeder::class);

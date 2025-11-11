@@ -28,9 +28,9 @@ class GameTime extends Model
         return $this->hasMany(Transaction::class);
     }
 
-    public function getCurrentGameTime(): ?GameTime
+    public static function getCurrentGameTime(): ?GameTime
     {
-        return $this->latest()->first();
+        return self::latest()->first();
     }
 
 }

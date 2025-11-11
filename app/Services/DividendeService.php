@@ -3,8 +3,13 @@
 namespace App\Services;
 
 use App\Http\Responses\Dividende;
-use App\Models\Stock\Stock;
 use Carbon\Carbon;
+
+use App\Services\GameTimeService;
+
+use App\Models\GameTime;
+use App\Models\Stock\Stock;
+use App\Models\Dividend;
 
 class DividendeService
 {
@@ -49,7 +54,7 @@ class DividendeService
 
         $dividende->dividendPerShare = round($amount, 2);
         $dividende->dividendPercent = round($percent, 2); // Prozentwert
-        $dividende->next_date = $stock->getNextDividendDate() ? Carbon::parse($stock->getNextDividendDate())->format('d.m.Y') : null;
+        $dividende->next_date = $stock->calculateNextDividendDate() ? $stock->calculateNextDividendDate()->format('d.m.Y') : null;
         $dividende->next_amount = $stock->getLatestDividend()->amount_per_share ?? 0;
         $dividende->last_date = Carbon::parse($dividend->gameTime->name)->format('d.m.Y');
         $dividende->last_amount = $dividend->amount_per_share;
@@ -63,6 +68,7 @@ class DividendeService
 
     public function shareDividendeToUsers(Stock $stock)
     {
+        $gt = new GameTimeService();
 
         $userAccounts = $stock->getUserAccount();
         $userAccounts->map(function ($user) use ($stock) {
@@ -73,14 +79,16 @@ class DividendeService
             if ($total_dividend > 0) {
                 $user->addBankAccountBalance($total_dividend);
             }
-
         });
+
+        $nextDivDate = $gt->getOrCreate($stock->calculateNextDividendDate());
+
+        Dividend::create([
+            'stock_id' => $stock->id,
+            'game_time_id' => $nextDivDate->id,
+            'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0), // Realistischere Beträge,
+        ]);
+
         
-
-
-    }
-    public function calculateNextDividendDate()
-    {
-
     }
 }

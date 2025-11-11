@@ -160,7 +160,7 @@ class StockService
                 ->filter();
 
             return Stock::whereIn('id', $stockIds)
-                ->select('id', 'name', 'firma', 'sektor', 'land') // Nur benötigte Felder
+                #->select('id', 'name', 'firma', 'sektor', 'land') // Nur benötigte Felder
                 ->with(['prices' => function ($query) {
                     $query->select('id', 'stock_id', 'name', 'game_time_id')
                           ->orderBy('game_time_id', 'desc')

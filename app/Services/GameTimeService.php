@@ -14,10 +14,14 @@ class GameTimeService
      * @param Carbon $date
      * @return GameTime
      */
-    public function getOrCreate(Carbon $date): GameTime
+    public function getOrCreate($date): GameTime
     {
+        if($date instanceof Carbon){
+            $date->toDateString();
+        }
+
         return GameTime::firstOrCreate([
-            'name' => $date->toDateString(),
+            'name' => $date,
         ]);
     }
 
