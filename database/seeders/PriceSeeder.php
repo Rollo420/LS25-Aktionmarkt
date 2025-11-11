@@ -64,9 +64,9 @@ class PriceSeeder extends Seeder
         $latestGameTime = \App\Models\GameTime::latest()->first();
 
         if (!$latestGameTime) {
-            // If no GameTime exists, create one for current date
+            // If no GameTime exists, create one for the last GameTime in the range (2010-12-01)
             $gtService = new \App\Services\GameTimeService();
-            $latestGameTime = $gtService->getOrCreate(\Carbon\Carbon::now());
+            $latestGameTime = $gtService->getOrCreate('2010-12-01');
         }
 
         foreach ($stocks as $stock) {

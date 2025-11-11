@@ -81,37 +81,29 @@ class TimeController extends Controller
 
             // nur die letzte GameTime
             $currentGameTime = GameTime::getCurrentGameTime();
-            $lastDate = Carbon::parse($currentGameTime->name);
-
-            $lastMonth = (int) $lastDate->format('m');
-            $lastYear = (int) $lastDate->format('Y');
+            $lastDateString = $currentGameTime->name;
 
             // Hole den letzten Preis für diese Aktie
             $lastPriceRecord = $stock->prices()->orderByDesc('game_time_id')->first();
             $lastPrice = $lastPriceRecord ? $lastPriceRecord->name : 100;
 
             // Berechne Monate bis zum nächsten gewünschten selectedMonth
+            $lastMonth = (int) date('m', strtotime($lastDateString));
             $monthsToAdvance = ($selectedMonthNum - $lastMonth + 12) % 12;
             if ($monthsToAdvance === 0) {
                 $monthsToAdvance = 12; // wenn gleiche Monatsnummer, spring gleich ein ganzes Jahr
             }
 
             for ($i = 1; $i <= $monthsToAdvance; $i++) {
-                $nextMonth = $lastMonth + 1;
-                $nextYear = $lastYear;
-                if ($nextMonth > 12) {
-                    $nextMonth = 1;
-                    $nextYear++;
-                }
-
                 // GameTime erzeugen
-                $gameTime = $gtService->getOrCreate(Carbon::create($nextYear, $nextMonth, 1));
-                
+                $nextDateString = Carbon::parse($gtService->advanceMonthsStrtotime($lastDateString, 1));
+                $gameTime = $gtService->getOrCreate($nextDateString);
+
                 #if($gameTime->name == $stock->getNextDividendDate()){
                     //Dividende auszahlen
                     $divService = new DividendeService();
                     $divService->shareDividendeToUsers($stock);
-                    
+
                 #}
 
                 // Preis erzeugen - nur wenn noch kein Preis für diese GameTime existiert
@@ -133,12 +125,9 @@ class TimeController extends Controller
                 } else {
                     // Verwende den bestehenden Preis als Basis für die nächste Berechnung
                     $lastPrice = $existingPrice->name;
-                    continue;
                 }
 
-                $lastPrice = $newPrice;
-                $lastMonth = $nextMonth;
-                $lastYear = $nextYear;
+                $lastDateString = $nextDateString;
             }
         }
     }
