@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class DividendeService
 {
-    public function getDividendeForStockID(int $stockId): ? Dividende
+    public function getDividendeForStockID(int $stockId): ?Dividende
     {
         $stock = Stock::find($stockId);
         if (!$stock) {
@@ -37,7 +37,7 @@ class DividendeService
         $firstBuyDate = $stock->getFirstBuyTransactionDateForStock();
         $total_dividends = 0;
 
-        if(!is_null($firstBuyDate)){
+        if (!is_null($firstBuyDate)) {
             $total_dividends = $stock->dividends()
                 ->whereHas('gameTime', function ($query) use ($firstBuyDate) {
                     $query->where('name', '>=', $firstBuyDate);
@@ -63,22 +63,21 @@ class DividendeService
 
     public function shareDividendeToUsers(Stock $stock)
     {
+
         $userAccounts = $stock->getUserAccount();
+        $userAccounts->map(function ($user) use ($stock) {
 
-        // Beispiel: Für jeden User die Quantity verwenden ohne weitere Queries
-        $userAccounts->each(function ($account) {
-            $user = $account['user'];
-            $quantity = $account['quantity'];
-            // Hier kannst du die Dividende verteilen basierend auf $quantity
-            // z.B. $dividendAmount = $quantity * $stock->getCurrentDividend();
-            // Dann speichern oder weiterverarbeiten
+            $quantity = $stock->getCurrentQuantity($user);
+            $dividend_per_share = $stock->getCurrentDividend();
+            $total_dividend = $quantity * $dividend_per_share;
+            if ($total_dividend > 0) {
+                $user->addBankAccountBalance($total_dividend);
+            }
+
         });
+        
 
-        // Wenn du eine spezifische User-ID hast, kannst du so die Quantity bekommen:
-        // $userID = 1; // Beispiel
-        // $account = $userAccounts->firstWhere('user.id', $userID);
-        // $quantity = $account['quantity'] ?? 0;
-        // dd($quantity); // Keine zweite Query nötig
+
     }
     public function calculateNextDividendDate()
     {

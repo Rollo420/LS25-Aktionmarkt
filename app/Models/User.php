@@ -73,12 +73,17 @@ class User extends Authenticatable
         return $bank ? $bank->balance : 0.0;
     }
 
-    public function setBankAccountBalance(float $amount): void
+    public function addBankAccountBalance(float $amount): void
     {
         $bank = $this->bank;
         if ($bank) {
-            $bank->balance = $amount;
+            $bank->balance += $amount;
             $bank->save();
         }
+    }
+
+    public function getStockQuantity()
+    {
+        $this->transactions();
     }
 }
