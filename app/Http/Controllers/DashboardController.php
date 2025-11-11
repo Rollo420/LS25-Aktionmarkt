@@ -92,9 +92,7 @@ class DashboardController extends Controller
         });
 
         // Daten für den Dividenden-Chart
-        $depotInfo["dividend_chart"] = Cache::remember("dividend_chart_{$user->id}", 300, function () use ($stocks) {
-            return $this->calculateDividendChart($stocks);
-        });
+        $depotInfo["dividend_chart"] = 0;
 
         // Kaufkraft-Metrik
         $depotInfo["purchasing_power"] = Cache::remember("purchasing_power_{$user->id}", 300, function () use ($stocks) {
@@ -316,35 +314,6 @@ class DashboardController extends Controller
             "cash_balance" => $cashBalance,
             "total_capital" => $totalCapital,
             "portfolio_beta" => 1.15, // Hardcoded, da keine historischen Benchmark-Daten
-        ];
-    }
-
-    /**
-     * Berechnet erwartete monatliche Dividenden basierend auf gehaltenen Aktien und Dividend-Frequenz.
-     */
-    private function calculateDividendChart($stocks)
-    {
-        $monthlyDividends = array_fill(0, 12, 0.0); // Jan-Dez
-
-        foreach ($stocks as $stockItem) {
-            $stock = $stockItem->stock;
-            if (!$stock) continue;
-            $quantity = $stockItem->quantity ?? 0;
-            $latestDividend = $stock->getLatestDividend();
-            if (!$latestDividend) continue;
-
-            $amountPerShare = $latestDividend->amount_per_share ?? 0;
-            $frequency = $stock->dividend_frequency ?? 12; // Annahme: monatlich wenn nicht gesetzt
-
-            $monthlyAmount = ($amountPerShare * $quantity) / $frequency;
-            for ($i = 0; $i < 12; $i++) {
-                $monthlyDividends[$i] += $monthlyAmount;
-            }
-        }
-
-        return [
-            "labels" => ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
-            "data" => array_map(fn($v) => round($v, 2), $monthlyDividends),
         ];
     }
 

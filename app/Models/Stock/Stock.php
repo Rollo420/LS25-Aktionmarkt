@@ -66,7 +66,7 @@ class Stock extends Model
         return $this->dividends()->orderBy('game_time_id')->get()->first();
     }
 
-    public function getCurrentDividend(): float
+    public function getCurrentDividendAmount(): float
     {
         return (float) ($this->getLatestDividend()->amount_per_share ?? 0);
     }

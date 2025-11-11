@@ -51,8 +51,7 @@ class TimeController extends Controller
         $selectedMonth = session('selectedMonth', 'None');
 
         // Aktuelle GameTime holen
-        $currentGameTime = \App\Models\GameTime::latest()->first();
-        $currentGameTimeFormatted = $currentGameTime ? \Carbon\Carbon::parse($currentGameTime->name)->format('F Y') : 'Keine Zeit gesetzt';
+        $currentGameTimeFormatted = Carbon::parse(GameTime::getCurrentGameTime()->name)->format('F Y');
 
         return view('time.index', [
             'monthArray' => $this->monthArray,
@@ -81,15 +80,15 @@ class TimeController extends Controller
         foreach ($stocks as $stock) {
 
             // nur die letzte GameTime
-            $lastGameTime = GameTime::getCurrentGameTime();
-
-            $lastDate = $lastGameTime
-                ? Carbon::parse($lastGameTime->name)
-                : Carbon::now();
+            $currentGameTime = GameTime::getCurrentGameTime();
+            $lastDate = Carbon::parse($currentGameTime->name);
 
             $lastMonth = (int) $lastDate->format('m');
             $lastYear = (int) $lastDate->format('Y');
-            $lastPrice = $stock->prices()->orderByDesc('game_time_id')->first()?->name ?? 100;
+
+            // Hole den letzten Preis für diese Aktie
+            $lastPriceRecord = $stock->prices()->orderByDesc('game_time_id')->first();
+            $lastPrice = $lastPriceRecord ? $lastPriceRecord->name : 100;
 
             // Berechne Monate bis zum nächsten gewünschten selectedMonth
             $monthsToAdvance = ($selectedMonthNum - $lastMonth + 12) % 12;
@@ -115,14 +114,27 @@ class TimeController extends Controller
                     
                 #}
 
-                // Preis erzeugen
-                $newPrice = $this->generatePrice($lastPrice, $i);
+                // Preis erzeugen - nur wenn noch kein Preis für diese GameTime existiert
+                $existingPrice = Price::where('stock_id', $stock->id)
+                    ->where('game_time_id', $gameTime->id)
+                    ->first();
 
-                $price = new Price();
-                $price->stock_id = $stock->id;
-                $price->name = $newPrice;
-                $price->game_time_id = $gameTime->id;
-                $price->save();
+                if (!$existingPrice) {
+                    $newPrice = $this->generatePrice($lastPrice, $i);
+
+                    $price = new Price();
+                    $price->stock_id = $stock->id;
+                    $price->name = $newPrice;
+                    $price->game_time_id = $gameTime->id;
+                    $price->save();
+
+                    // Update lastPrice für nächste Iteration
+                    $lastPrice = $newPrice;
+                } else {
+                    // Verwende den bestehenden Preis als Basis für die nächste Berechnung
+                    $lastPrice = $existingPrice->name;
+                    continue;
+                }
 
                 $lastPrice = $newPrice;
                 $lastMonth = $nextMonth;

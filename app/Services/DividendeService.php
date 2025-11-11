@@ -74,7 +74,7 @@ class DividendeService
         $userAccounts->map(function ($user) use ($stock) {
 
             $quantity = $stock->getCurrentQuantity($user);
-            $dividend_per_share = $stock->getCurrentDividend();
+            $dividend_per_share = $stock->getCurrentDividendAmount();
             $total_dividend = $quantity * $dividend_per_share;
             if ($total_dividend > 0) {
                 $user->addBankAccountBalance($total_dividend);

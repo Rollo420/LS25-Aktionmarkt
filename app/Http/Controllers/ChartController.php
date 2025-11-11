@@ -97,9 +97,19 @@ class ChartController extends Controller
         $color = $this->randomRGBA(0.2);
 
 
-        $prices = Price::where('stock_id', $id)->orderBy('game_time_id', 'desc')->take($limit)->get();
+        // Get the last $limit distinct game_time_ids for this stock
+        $gameTimeIds = Price::where('stock_id', $id)->distinct('game_time_id')->orderBy('game_time_id', 'desc')->pluck('game_time_id')->take($limit);
 
-        $sortedPrices = $prices->sortBy(function ($price) {
+        // Get all prices for these gameTimes
+        $prices = Price::where('stock_id', $id)->whereIn('game_time_id', $gameTimeIds)->with('gameTime')->get();
+
+        // Group by game_time_id and take the latest price per group (by id desc)
+        $latestPrices = $prices->groupBy('game_time_id')->map(function($group) {
+            return $group->sortByDesc('id')->first();
+        });
+
+        // Sort by gameTime name ascending (oldest first) so latest is at the end
+        $sortedPrices = $latestPrices->sortBy(function ($price) {
             return isset($price->gameTime->name) ? strtotime($price->gameTime->name) : 0;
         })->values();
 
