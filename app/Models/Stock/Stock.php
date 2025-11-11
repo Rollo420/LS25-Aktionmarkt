@@ -73,7 +73,14 @@ class Stock extends Model
     public function getNextDividendDate(): ?string
     {
         $latestDividend = $this->getLatestDividend();
-        return $latestDividend?->gameTime?->name;
+        if (!$latestDividend) {
+            return null;
+        }
+
+        $latestDate = \Carbon\Carbon::parse($latestDividend->gameTime->name);
+        $monthsBetween = $this->dividend_frequency > 0 ? 12 / $this->dividend_frequency : 12;
+
+        return $latestDate->addMonths($monthsBetween)->format('Y-m-d');
     }
 
     public function getLastBuyTransactionDateForStock()
