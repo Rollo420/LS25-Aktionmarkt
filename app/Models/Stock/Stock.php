@@ -74,6 +74,7 @@ class Stock extends Model
     public function calculateNextDividendDate(): ?Carbon
     {
         $latestDividend = $this->getLatestDividend();
+        #dd($latestDividend);
         if (!$latestDividend) {
             return null;
         }

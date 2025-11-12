@@ -30,11 +30,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        GameTime::factory()->create([
+            'name' => '2000-01-01'
+        ]);
+
         $this->call([
-            GameTimeSeeder::class,
+            #GameTimeSeeder::class,
             ProductTypeSeeder::class,
             StockSeeder::class,
-            PriceSeeder::class,
+            #PriceSeeder::class,
         ]);
 
         $this->call(class: RoleSeeder::class);

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 use Carbon\Carbon;
+use App\Models\GameTime;
 
 use Illuminate\Database\Seeder; 
 use \App\Models\Stock\Price;
@@ -35,7 +36,7 @@ class PriceSeeder extends Seeder
             $gtService = new \App\Services\GameTimeService();
             for ($i = 0; $i < 132; $i++) // 11 Jahre * 12 Monate = 132 Monate
             {
-                $timestamp = mktime(0, 0, 0, $month, 1, $year);
+                $timestamp = mktime(0, 0, 0, $month, 1, year: $year);
                 $currentDate = date('Y-m-d', $timestamp);
 
                 $price = new Price(); // Neues Price-Objekt für jede Iteration
@@ -61,16 +62,16 @@ class PriceSeeder extends Seeder
     private function ensureLatestPrices()
     {
         $stocks = Stock::all();
-        $latestGameTime = \App\Models\GameTime::latest()->first();
+        $latestGameTime = GameTime::getCurrentGameTime()->name;
 
         if (!$latestGameTime) {
             // If no GameTime exists, create one for the last GameTime in the range (2010-12-01)
             $gtService = new \App\Services\GameTimeService();
-            $latestGameTime = $gtService->getOrCreate('2010-12-01');
+            $latestGameTime = GameTime::getCurrentGameTime();// $gtService->getOrCreate('2010-12-01');
         }
 
         foreach ($stocks as $stock) {
-            $existingPrice = \App\Models\Stock\Price::where('stock_id', $stock->id)
+            $existingPrice = Price::where('stock_id', $stock->id)
                 ->where('game_time_id', $latestGameTime->id)
                 ->first();
 

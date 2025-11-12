@@ -17,7 +17,7 @@ class GameTimeService
     public function getOrCreate($date): GameTime
     {
         if($date instanceof Carbon){
-            $date->toDateString();
+            $date = $date->toDateString();
         }
 
         return GameTime::firstOrCreate([

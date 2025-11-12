@@ -51,7 +51,7 @@ class TimeController extends Controller
         $selectedMonth = session('selectedMonth', 'None');
 
         // Aktuelle GameTime holen
-        $currentGameTimeFormatted = Carbon::parse(GameTime::getCurrentGameTime()->name)->format('F Y');
+        $currentGameTimeFormatted = GameTime::getCurrentGameTime()->name;
 
         return view('time.index', [
             'monthArray' => $this->monthArray,

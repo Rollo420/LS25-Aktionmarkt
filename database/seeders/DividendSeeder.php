@@ -29,7 +29,7 @@ class DividendSeeder extends Seeder
 
             // Erstelle weitere Dividenden mit calculateNextDividendDate
             $currentStock = $stock->fresh(); // Refresh um neuen Dividend zu laden
-            for ($i = 0; $i < 4; $i++) { // Erstelle bis zu 4 weitere Dividenden
+            #for ($i = 0; $i < 4; $i++) { // Erstelle bis zu 4 weitere Dividenden
                 $nextDate = $currentStock->calculateNextDividendDate();
                 if ($nextDate) {
                     $gameTime = $gtService->getOrCreate($nextDate);
@@ -42,7 +42,7 @@ class DividendSeeder extends Seeder
                 } else {
                     break;
                 }
-            }
+            #}
         }
     }
 }
