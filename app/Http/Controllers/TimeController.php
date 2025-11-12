@@ -82,7 +82,7 @@ class TimeController extends Controller
             // nur die letzte GameTime
             $currentGameTime = GameTime::getCurrentGameTime();
             $lastDateString = $currentGameTime->name;
-
+            dd($lastDateString);
             // Hole den letzten Preis für diese Aktie
             $lastPriceRecord = $stock->prices()->orderByDesc('game_time_id')->first();
             $lastPrice = $lastPriceRecord ? $lastPriceRecord->name : 100;
