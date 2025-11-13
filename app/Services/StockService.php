@@ -143,23 +143,21 @@ class StockService
      */
     public function getUserStocks($user)
     {
-        return Cache::remember("user_stocks_{$user->id}", 300, function () use ($user) {
-            // Eager Loading der Stock-Daten mit nur benötigten Feldern
-            $stockIds = $user->transactions
-                ->where('type', 'buy')
-                ->pluck('stock_id')
-                ->unique()
-                ->filter();
+        // Eager Loading der Stock-Daten mit nur benötigten Feldern
+        $stockIds = $user->transactions
+            ->where('type', 'buy')
+            ->pluck('stock_id')
+            ->unique()
+            ->filter();
 
-            return Stock::whereIn('id', $stockIds)
-                #->select('id', 'name', 'firma', 'sektor', 'land') // Nur benötigte Felder
-                ->with(['prices' => function ($query) {
-                    $query->select('id', 'stock_id', 'name', 'game_time_id')
-                          ->orderBy('game_time_id', 'desc')
-                          ->take(1); // Nur der neueste Preis
-                }])
-                ->get();
-        });
+        return Stock::whereIn('id', $stockIds)
+            #->select('id', 'name', 'firma', 'sektor', 'land') // Nur benötigte Felder
+            ->with(['prices' => function ($query) {
+                $query->select('id', 'stock_id', 'name', 'game_time_id')
+                      ->orderBy('game_time_id', 'desc')
+                      ->take(1); // Nur der neueste Preis
+            }])
+            ->get();
     }
 
     /**
@@ -169,12 +167,10 @@ class StockService
     {
         $user = $user ?? Auth::user();
 
-        return Cache::remember("user_stocks_stats_{$user->id}", 300, function () use ($user, $currentMonth) {
-            return $this->getUserStocks($user)
-                ->filter(fn($stock) => $stock->getCurrentQuantity($user) > 0) // Nur Aktien mit positiver Menge einbeziehen
-                ->map(fn($stock) => $this->getStockStatistiks($stock, $user, $currentMonth))
-                ->values();
-        });
+        return $this->getUserStocks($user)
+            ->filter(fn($stock) => $stock->getCurrentQuantity($user) > 0) // Nur Aktien mit positiver Menge einbeziehen
+            ->map(fn($stock) => $this->getStockStatistiks($stock, $user, $currentMonth))
+            ->values();
     }
 
     /**

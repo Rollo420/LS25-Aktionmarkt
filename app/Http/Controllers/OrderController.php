@@ -92,10 +92,6 @@ class OrderController extends Controller
 
                 $buyTransaction->save();
 
-                // Clear caches that depend on user stocks
-                Cache::forget("user_stocks_{$user->id}");
-                Cache::forget("user_stocks_stats_{$user->id}");
-
                 DB::commit();
                 return redirect()->back()->with('success', 'Kauf erfolgreich! Neuer Kontostand: ' . $bank->balance);
             }
@@ -146,10 +142,6 @@ class OrderController extends Controller
                 $bank->save();
 
                 $sellTransaction->save();
-
-                // Clear caches that depend on user stocks
-                Cache::forget("user_stocks_{$user->id}");
-                Cache::forget("user_stocks_stats_{$user->id}");
 
                 DB::commit();
                 return redirect()->back()->with('success', 'Verkauf erfolgreich! Neuer Kontostand: ' . $bank->balance);

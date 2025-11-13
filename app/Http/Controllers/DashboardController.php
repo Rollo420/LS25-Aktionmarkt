@@ -20,14 +20,9 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Cache expensive operations for 5 minutes
-        $stocks = Cache::remember("user_stocks_{$user->id}", 300, function () use ($stockService, $user) {
-            return $stockService->getUserStocksWithStatistiks($user);
-        });
+        $stocks = $stockService->getUserStocksWithStatistiks($user);
 
-        $depotInfo['totalPortfolioValue'] = Cache::remember("portfolio_value_{$user->id}", 300, function () use ($stockService) {
-            return $stockService->getTotalPortfolioValue();
-        });
+        $depotInfo['totalPortfolioValue'] = $stockService->getTotalPortfolioValue();
 
         // Top/Flop Aktien - exklusiv, keine Überlappung
         $sortedStocks = $stocks->sortByDesc('profit_loss_percent');
@@ -41,14 +36,12 @@ class DashboardController extends Controller
         ];
 
         // Letzte 5 Transaktionen - Eager Loading für bessere Performance
-        $depotInfo['lastTransactions'] = Cache::remember("last_transactions_{$user->id}", 300, function () use ($user) {
-            return Transaction::where('user_id', $user->id)
-                ->with(['stock:id,name', 'gameTime:id,name']) // Nur benötigte Felder laden
-                ->latest()
-                ->take(5)
-                ->get()
-                ->toArray();
-        });
+        $depotInfo['lastTransactions'] = Transaction::where('user_id', $user->id)
+            ->with(['stock:id,name', 'gameTime:id,name']) // Nur benötigte Felder laden
+            ->latest()
+            ->take(5)
+            ->get()
+            ->toArray();
 
 
         $dividendeService = new DividendeService();
@@ -82,22 +75,16 @@ class DashboardController extends Controller
 
 
         // Performance-Metriken (3-Monats, 6-Monats & Benchmark)
-        $depotInfo["monthly_performance"] = Cache::remember("monthly_performance_{$user->id}", 300, function () use ($stocks, $user) {
-            return $this->calculatePortfolioPerformance($stocks, $user);
-        });
+        $depotInfo["monthly_performance"] = $this->calculatePortfolioPerformance($stocks, $user);
 
         // Risiko-Metriken (Cash-Anteil, Beta-Wert)
-        $depotInfo["risk_metrics"] = Cache::remember("risk_metrics_{$user->id}", 300, function () use ($user, $depotInfo) {
-            return $this->calculateRiskMetrics($user, $depotInfo['totalPortfolioValue']);
-        });
+        $depotInfo["risk_metrics"] = $this->calculateRiskMetrics($user, $depotInfo['totalPortfolioValue']);
 
         // Daten für den Dividenden-Chart
         $depotInfo["dividend_chart"] = 0;
 
         // Kaufkraft-Metrik
-        $depotInfo["purchasing_power"] = Cache::remember("purchasing_power_{$user->id}", 300, function () use ($stocks) {
-            return $this->calculatePurchasingPower($stocks);
-        });
+        $depotInfo["purchasing_power"] = $this->calculatePurchasingPower($stocks);
 
 
 
@@ -105,9 +92,7 @@ class DashboardController extends Controller
         #dd($depotInfo);
 
         // Chart-Daten (Ingame-Monate) - Lazy Loading: nur laden wenn explizit angefordert
-        $depotInfo['chartData'] = Cache::remember("chart_data_{$user->id}", 300, function () use ($stocks, $user) {
-            return $this->createChartData($stocks, $user);
-        });
+        $depotInfo['chartData'] = $this->createChartData($stocks, $user);
 
         return view('dashboard', compact('depotInfo'));
     }

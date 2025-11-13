@@ -138,8 +138,6 @@ class TimeController extends Controller
                 // 🧩 Prüfen, ob Dividende und aktueller Preis-Monat übereinstimmen
                 if ($divGameTime->id === $newGameTime->id) {
 
-                    $divService->shareDividendeToUsers($stock);
-
                     // 🚫 Verhindere doppelte Dividenden im selben Monat
                     $exists = $stock->dividends()
                         ->where('game_time_id', $divGameTime->id)
@@ -152,6 +150,9 @@ class TimeController extends Controller
                             'game_time_id' => $divGameTime->id,
                             'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0),
                         ]);
+
+                        // Nach Erstellung der Dividende auszahlen
+                        $divService->shareDividendeToUsers($stock);
                     }
                 }
             }
