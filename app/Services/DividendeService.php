@@ -80,15 +80,6 @@ class DividendeService
                 $user->addBankAccountBalance($total_dividend);
             }
         });
-
-        $nextDivDate = $gt->getOrCreate($stock->calculateNextDividendDate());
-
-        Dividend::create([
-            'stock_id' => $stock->id,
-            'game_time_id' => $nextDivDate->id,
-            'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0), // Realistischere Beträge,
-        ]);
-
         
     }
 }

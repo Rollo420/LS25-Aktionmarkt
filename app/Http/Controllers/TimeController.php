@@ -73,8 +73,9 @@ class TimeController extends Controller
     public function skipTime($selectedMonth)
     {
         $stocks = Stock::all();
-        $gtService = new GameTimeService();
         $gameTime = new GameTime();
+        $gtService = new GameTimeService();
+        $divService = new DividendeService();
 
         // 📅 Bestimme Zielmonat (als Zahl, 0-based von UI zu 1-based konvertieren)
         $selectedMonthNum = is_numeric($selectedMonth)
@@ -136,6 +137,8 @@ class TimeController extends Controller
 
                 // 🧩 Prüfen, ob Dividende und aktueller Preis-Monat übereinstimmen
                 if ($divGameTime->id === $newGameTime->id) {
+
+                    $divService->shareDividendeToUsers($stock);
 
                     // 🚫 Verhindere doppelte Dividenden im selben Monat
                     $exists = $stock->dividends()
