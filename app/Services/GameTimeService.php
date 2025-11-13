@@ -76,4 +76,13 @@ class GameTimeService
     {
         return Carbon::parse($gt->name);
     }
+
+    public function createNextGameTime()
+    {
+        $gtService = new GameTimeService();
+        $currentGameTime = GameTime::getCurrentGameTime();
+        $currentDate = Carbon::parse($currentGameTime->name);
+        $nextDate = $currentDate->copy()->addMonth();
+        return $gtService->getOrCreate($nextDate);
+    }
 }

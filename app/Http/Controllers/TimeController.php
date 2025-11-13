@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\GameTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+
 use App\Models\Stock\Price;
 use App\Models\Stock\Stock;
+use App\Models\Dividend;
 
 use App\Services\GameTimeService;
 use \App\Services\DividendeService;
@@ -71,6 +73,7 @@ class TimeController extends Controller
     public function skipTime($selectedMonth)
     {
         $stocks = Stock::all();
+        $gt = new GameTime();
         $gtService = new GameTimeService();
 
         $selectedMonthNum = is_numeric($selectedMonth)
@@ -79,55 +82,42 @@ class TimeController extends Controller
 
         foreach ($stocks as $stock) {
 
-            // nur die letzte GameTime
-            $currentGameTime = GameTime::getCurrentGameTime();
-            $lastDateString = $currentGameTime->name;
-            dd($lastDateString);
-            // Hole den letzten Preis für diese Aktie
-            $lastPriceRecord = $stock->prices()->orderByDesc('game_time_id')->first();
-            $lastPrice = $lastPriceRecord ? $lastPriceRecord->name : 100;
-
+            $lastDateString = $gt->getCurrentGameTime();
             // Berechne Monate bis zum nächsten gewünschten selectedMonth
-            $lastMonth = (int) date('m', strtotime($lastDateString));
+            $lastMonth = (int) date('m', strtotime($lastDateString->name));
             $monthsToAdvance = ($selectedMonthNum - $lastMonth + 12) % 12;
             if ($monthsToAdvance === 0) {
                 $monthsToAdvance = 12; // wenn gleiche Monatsnummer, spring gleich ein ganzes Jahr
             }
 
             for ($i = 1; $i <= $monthsToAdvance; $i++) {
-                // GameTime erzeugen
-                $nextDateString = Carbon::parse($gtService->advanceMonthsStrtotime($lastDateString, 1));
-                $gameTime = $gtService->getOrCreate($nextDateString);
+               //was gemacht werden soll
+               //Price mit Datum erstellen
+               //Dividende berechnene und erstellen 
+               //prüfen ob Dividende gleich CurrentGameTime ist
 
-                #if($gameTime->name == $stock->getNextDividendDate()){
-                    //Dividende auszahlen
-                    $divService = new DividendeService();
-                    $divService->shareDividendeToUsers($stock);
+               $newGameTime = $gtService->createNextGameTime();
 
-                #}
-
-                // Preis erzeugen - nur wenn noch kein Preis für diese GameTime existiert
-                $existingPrice = Price::where('stock_id', $stock->id)
-                    ->where('game_time_id', $gameTime->id)
-                    ->first();
-
-                if (!$existingPrice) {
-                    $newPrice = $this->generatePrice($lastPrice, $i);
-
-                    $price = new Price();
-                    $price->stock_id = $stock->id;
-                    $price->name = $newPrice;
-                    $price->game_time_id = $gameTime->id;
-                    $price->save();
-
-                    // Update lastPrice für nächste Iteration
-                    $lastPrice = $newPrice;
-                } else {
-                    // Verwende den bestehenden Preis als Basis für die nächste Berechnung
-                    $lastPrice = $existingPrice->name;
+                $price = Price::factory()->create([
+                    'stock_id' => $stock->id,
+                    'game_time_id' => $newGameTime->id,
+                ]);
+                
+                if($stock->getLatestDividend()->id == $price->game_time_id){
+                    //Dividende erstellen und ausschütten
+                    $nextDivGameTime = $stock->calculateNextDividendDate();
+                    $divGameTimeId = $gtService->getOrCreate($nextDivGameTime);
+                    // ✅ Dividende erzeugen
+                    $dividende = Dividend::factory()->create([
+                        'stock_id' => $stock->id,
+                        'game_time_id' => $divGameTimeId->id,
+                        'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0),
+                    ]);
                 }
 
-                $lastDateString = $nextDateString;
+
+
+
             }
         }
     }
@@ -190,4 +180,6 @@ class TimeController extends Controller
         $effect = sin(($monthIndex / 12) * 2 * M_PI) * $range; // ±range
         return $price * (1 + $effect);
     }
+
+    
 }
