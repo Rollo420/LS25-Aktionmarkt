@@ -76,36 +76,52 @@ class TimeController extends Controller
         $gtService = new GameTimeService();
         $gameTime = new GameTime();
 
-        // 📅 Bestimme Zielmonat (als Zahl)
+        // 📅 Bestimme Zielmonat (als Zahl, 0-based von UI zu 1-based konvertieren)
         $selectedMonthNum = is_numeric($selectedMonth)
-            ? (int) $selectedMonth
+            ? (int) $selectedMonth + 1  // UI ist 0-based, Monate 1-12
             : (int) date('m', strtotime($selectedMonth));
 
-        // 🔁 Iteriere über alle Aktien im System
-        foreach ($stocks as $stock) {
+        // Hole aktuelle GameTime (z. B. "2025-04-01")
+        $currentGameTime = $gameTime->getCurrentGameTime();
 
-            // Hole aktuelle GameTime (z. B. "2025-04-01")
-            $currentGameTime = $gameTime->getCurrentGameTime();
+        // Bestimme aktuellen Monatswert (1–12)
+        $currentMonth = (int) date('m', strtotime($currentGameTime->name));
 
-            // Bestimme aktuellen Monatswert (1–12)
-            $currentMonth = (int) date('m', strtotime($currentGameTime->name));
+        // Berechne, wie viele Monate wir vorspulen müssen
+        $monthsToAdvance = ($selectedMonthNum - $currentMonth + 12) % 12;
+        if ($monthsToAdvance === 0) {
+            $monthsToAdvance = 12; // gleiches Monat → ganzes Jahr überspringen
+        }
 
-            // Berechne, wie viele Monate wir vorspulen müssen
-            $monthsToAdvance = ($selectedMonthNum - $currentMonth + 12) % 12;
-            if ($monthsToAdvance === 0) {
-                $monthsToAdvance = 12; // gleiches Monat → ganzes Jahr überspringen
-            }
+        // 🧭 Simuliere jeden Monat bis zum Zielmonat (global)
+        $newGameTimes = [];
+        $currentDate = Carbon::parse($currentGameTime->name);
+        for ($i = 1; $i <= $monthsToAdvance; $i++) {
+            // ➕ Neuen GameTime-Eintrag für den nächsten Monat erzeugen (global)
+            $currentDate = $currentDate->addMonth();
+            $newGameTime = $gtService->getOrCreate($currentDate);
+            $newGameTimes[] = $newGameTime;
+        }
 
-            // 🧭 Simuliere jeden Monat bis zum Zielmonat
-            for ($i = 1; $i <= $monthsToAdvance; $i++) {
+        // 🔁 Für jede neue GameTime, für jede Stock Preise und Dividenden berechnen
+        foreach ($newGameTimes as $newGameTime) {
+            $monthIndex = (int) date('m', strtotime($newGameTime->name)) - 1; // 0-based für generatePrice
 
-                // ➕ Neuen GameTime-Eintrag für den nächsten Monat erzeugen
-                $newGameTime = $gtService->createNextGameTime();
+            foreach ($stocks as $stock) {
+                // 💰 Letzten Preis holen
+                $lastPrice = $stock->getLatestPrice();
+                if ($lastPrice <= 0) {
+                    $lastPrice = 100.0; // Fallback, wenn kein Preis vorhanden
+                }
 
-                // 💰 Preis-Eintrag für diesen Monat erzeugen
-                $price = Price::factory()->create([
+                // 📈 Neuen Preis berechnen mit generatePrice
+                $newPriceValue = $this->generatePrice($lastPrice, $monthIndex);
+
+                // 💰 Preis-Eintrag für diesen Monat erzeugen (manuell)
+                Price::create([
                     'stock_id' => $stock->id,
                     'game_time_id' => $newGameTime->id,
+                    'name' => $newPriceValue,
                 ]);
 
                 // 📈 Nächsten geplanten Dividendenzeitpunkt berechnen
@@ -119,7 +135,7 @@ class TimeController extends Controller
                 $divGameTime = $gtService->getOrCreate($nextDivGameTime);
 
                 // 🧩 Prüfen, ob Dividende und aktueller Preis-Monat übereinstimmen
-                if ($divGameTime->id === $price->game_time_id) {
+                if ($divGameTime->id === $newGameTime->id) {
 
                     // 🚫 Verhindere doppelte Dividenden im selben Monat
                     $exists = $stock->dividends()
@@ -144,7 +160,7 @@ class TimeController extends Controller
     // =========================
     // Preisgenerierung modular
     // =========================
-    protected function generatePrice(float $lastPrice, int $monthIndex): float
+    public function generatePrice(float $lastPrice, int $monthIndex): float
     {
         $price = $lastPrice;
 
