@@ -11,19 +11,33 @@ use Carbon\Carbon;
  */
 class GameTimeFactory extends Factory
 {
+    /**
+     * Static counters für Jahr und Monat (behalten Zustand zwischen Aufrufen)
+     */
+    private static $year = 2000;
+    private static $month = 1;
+
+    /**
+     * Definiere den Standardzustand des Models
+     */
     public function definition(): array
     {
-        // Hole das aktuellste GameTime-Datum
-        $current = GameTime::getCurrentGameTime();
+        $dateString = sprintf('%04d-%02d-01', self::$year, self::$month);
+        $date = Carbon::parse($dateString);
 
-        // Wenn vorhanden, einen Monat draufrechnen, sonst mit 2000-01-01 starten
-        $firstDate = $current
-            ? Carbon::parse($current->name)->addMonth()
-            : Carbon::create(2000, 1, 1);
+        // Erhöhe Monat und Jahr für nächste Factory-Aufrufe
+        self::$month++;
+        if (self::$month > 12) {
+            self::$month = 1;
+            self::$year++;
+        }
 
-        // 🔥 Hier den formatierten String zurückgeben, nicht das Carbon-Objekt
-        return [
-            'name' => $firstDate->format('Y-m-d'),
-        ];
+        // Reset wenn das Datum 2010-12-01 erreicht ist
+        if (self::$year == 2011 && self::$month == 1) {
+            self::$year = 2000;
+            self::$month = 1;
+        }
+
+        return ['name' => $date->toDateString()];
     }
 }

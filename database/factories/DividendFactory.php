@@ -23,7 +23,7 @@ class DividendFactory extends Factory
         return [
             'stock_id' => Stock::factory(), // fallback
             // create/ensure GameTime via service to avoid duplicate or inconsistent GameTime factory usage
-            'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
+            'game_time_id' => GameTime::factory(),
             'amount_per_share' => $this->faker->randomFloat(2, 0.5, 2.5),
         ];
     }

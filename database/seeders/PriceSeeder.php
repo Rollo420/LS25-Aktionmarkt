@@ -31,12 +31,12 @@ class PriceSeeder extends Seeder
 
         foreach ($stocks as $stock)
         {
-            $year = 2000;
+            $currentYear = date('Y'); // Aktuelles Jahr verwenden
             $month = 1;
             $gtService = new \App\Services\GameTimeService();
-            for ($i = 0; $i < 132; $i++) // 11 Jahre * 12 Monate = 132 Monate
+            for ($i = 0; $i < 12; $i++) // Nur das aktuelle Jahr, 12 Monate
             {
-                $timestamp = mktime(0, 0, 0, $month, 1, year: $year);
+                $timestamp = mktime(0, 0, 0, $month, 1, $currentYear);
                 $currentDate = date('Y-m-d', $timestamp);
 
                 $price = new Price(); // Neues Price-Objekt für jede Iteration
@@ -51,7 +51,7 @@ class PriceSeeder extends Seeder
                 $month++;
                 if ($month > 12) {
                     $month = 1;
-                    $year++;
+                    $currentYear++; // Jahr erhöhen, falls nötig, aber da nur aktuelles Jahr, vielleicht nicht
                 }
             }
         }
@@ -62,12 +62,12 @@ class PriceSeeder extends Seeder
     private function ensureLatestPrices()
     {
         $stocks = Stock::all();
-        $latestGameTime = GameTime::getCurrentGameTime()->name;
+        $latestGameTime = GameTime::getCurrentGameTime();
 
         if (!$latestGameTime) {
-            // If no GameTime exists, create one for the last GameTime in the range (2010-12-01)
+            // If no GameTime exists, create one for the current date
             $gtService = new \App\Services\GameTimeService();
-            $latestGameTime = GameTime::getCurrentGameTime();// $gtService->getOrCreate('2010-12-01');
+            $latestGameTime = $gtService->getOrCreate(Carbon::now());
         }
 
         foreach ($stocks as $stock) {

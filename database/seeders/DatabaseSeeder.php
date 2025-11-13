@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        GameTime::create([
+        $firstGameTime = GameTime::create([
             'name' => '2000-01-01'
         ]);
 
