@@ -73,54 +73,72 @@ class TimeController extends Controller
     public function skipTime($selectedMonth)
     {
         $stocks = Stock::all();
-        $gt = new GameTime();
         $gtService = new GameTimeService();
+        $gameTime = new GameTime();
 
+        // 📅 Bestimme Zielmonat (als Zahl)
         $selectedMonthNum = is_numeric($selectedMonth)
             ? (int) $selectedMonth
             : (int) date('m', strtotime($selectedMonth));
 
+        // 🔁 Iteriere über alle Aktien im System
         foreach ($stocks as $stock) {
 
-            $lastDateString = $gt->getCurrentGameTime();
-            // Berechne Monate bis zum nächsten gewünschten selectedMonth
-            $lastMonth = (int) date('m', strtotime($lastDateString->name));
-            $monthsToAdvance = ($selectedMonthNum - $lastMonth + 12) % 12;
+            // Hole aktuelle GameTime (z. B. "2025-04-01")
+            $currentGameTime = $gameTime->getCurrentGameTime();
+
+            // Bestimme aktuellen Monatswert (1–12)
+            $currentMonth = (int) date('m', strtotime($currentGameTime->name));
+
+            // Berechne, wie viele Monate wir vorspulen müssen
+            $monthsToAdvance = ($selectedMonthNum - $currentMonth + 12) % 12;
             if ($monthsToAdvance === 0) {
-                $monthsToAdvance = 12; // wenn gleiche Monatsnummer, spring gleich ein ganzes Jahr
+                $monthsToAdvance = 12; // gleiches Monat → ganzes Jahr überspringen
             }
 
+            // 🧭 Simuliere jeden Monat bis zum Zielmonat
             for ($i = 1; $i <= $monthsToAdvance; $i++) {
-               //was gemacht werden soll
-               //Price mit Datum erstellen
-               //Dividende berechnene und erstellen 
-               //prüfen ob Dividende gleich CurrentGameTime ist
 
-               $newGameTime = $gtService->createNextGameTime();
+                // ➕ Neuen GameTime-Eintrag für den nächsten Monat erzeugen
+                $newGameTime = $gtService->createNextGameTime();
 
+                // 💰 Preis-Eintrag für diesen Monat erzeugen
                 $price = Price::factory()->create([
                     'stock_id' => $stock->id,
                     'game_time_id' => $newGameTime->id,
                 ]);
-                
-                if($stock->getLatestDividend()->id == $price->game_time_id){
-                    //Dividende erstellen und ausschütten
-                    $nextDivGameTime = $stock->calculateNextDividendDate();
-                    $divGameTimeId = $gtService->getOrCreate($nextDivGameTime);
-                    // ✅ Dividende erzeugen
-                    $dividende = Dividend::factory()->create([
-                        'stock_id' => $stock->id,
-                        'game_time_id' => $divGameTimeId->id,
-                        'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0),
-                    ]);
+
+                // 📈 Nächsten geplanten Dividendenzeitpunkt berechnen
+                $nextDivGameTime = $stock->calculateNextDividendDate();
+                if (!$nextDivGameTime) {
+                    // Keine Dividende geplant → nächste Aktie
+                    continue;
                 }
 
+                // 🔍 Sicherstellen, dass GameTime existiert oder erzeugen
+                $divGameTime = $gtService->getOrCreate($nextDivGameTime);
 
+                // 🧩 Prüfen, ob Dividende und aktueller Preis-Monat übereinstimmen
+                if ($divGameTime->id === $price->game_time_id) {
 
+                    // 🚫 Verhindere doppelte Dividenden im selben Monat
+                    $exists = $stock->dividends()
+                        ->where('game_time_id', $divGameTime->id)
+                        ->exists();
 
+                    if (!$exists) {
+                        // ✅ Neue Dividende erzeugen
+                        Dividend::factory()->create([
+                            'stock_id' => $stock->id,
+                            'game_time_id' => $divGameTime->id,
+                            'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0),
+                        ]);
+                    }
+                }
             }
         }
     }
+
 
 
     // =========================
