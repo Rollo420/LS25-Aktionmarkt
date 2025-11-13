@@ -71,19 +71,26 @@ class Stock extends Model
         return (float) ($this->getLatestDividend()->amount_per_share ?? 0);
     }
 
-    public function calculateNextDividendDate(): ?Carbon
+    public function calculateNextDividendDate($date = null): ?Carbon
     {
-        $latestDividend = $this->getLatestDividend();
-        #dd($latestDividend);
-        if (!$latestDividend) {
-            return null;
+        // 1️⃣ Basisdatum bestimmen
+        if (is_null($date)) {
+            $latestDividend = $this->getLatestDividend();
+            if (!$latestDividend) {
+                return null; // keine Dividende vorhanden
+            }
+            $baseDate = Carbon::parse($latestDividend->gameTime->name);
+        } else {
+            $baseDate = $date instanceof Carbon ? $date : Carbon::parse($date);
         }
 
-        $latestDate = Carbon::parse($latestDividend->gameTime->name);
+        // 2️⃣ Monate zwischen Dividenden berechnen
         $monthsBetween = $this->dividend_frequency > 0 ? 12 / $this->dividend_frequency : 12;
 
-        return $latestDate->addMonths($monthsBetween);
+        // 3️⃣ Nächste Dividende berechnen
+        return $baseDate->copy()->addMonths($monthsBetween);
     }
+
 
     public function getLastBuyTransactionDateForStock()
     {

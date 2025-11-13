@@ -54,15 +54,7 @@ class StockService
     {
         $user = Auth::user();
 
-        $buyValue = $user->transactions
-            ->where('type', 'buy')
-            ->reduce(fn($carry, $t) => $carry + ($t->quantity * ($t->resolvedPriceAtBuy() ?? 0)), 0);
-
-        $sellValue = $user->transactions
-            ->where('type', 'sell')
-            ->reduce(fn($carry, $t) => $carry + ($t->quantity * ($t->resolvedPriceAtBuy() ?? 0)), 0);
-
-        return $buyValue - $sellValue;
+        return $this->getUserStocksWithStatistiks($user)->sum(fn($stat) => $stat->avg_buy_price * $stat->quantity);
     }
 
     /**

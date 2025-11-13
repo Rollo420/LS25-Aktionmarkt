@@ -22,14 +22,21 @@ class StockSeeder extends Seeder
         $stocks = Stock::factory(5)->create();
 
         
-        $nextGameTime = '2000-01-01';
         
         foreach ($stocks as $stock) {
-            // Hole die nächste oder aktuelle GameTime-ID
-            if($nextGameTime != '2000-01-01')
-                $nextGameTime = $stock->calculateNextDividendDate();
+
+            $nextGameTime = $stock->calculateNextDividendDate();
+
+            if(is_null($nextGameTime)) {
+                $nextGameTime = $stock->calculateNextDividendDate($gt->getCurrentGameTime()->name);
+            }
             
             $gameTimeId = $gtService->getOrCreate($nextGameTime);
+            
+            // ✅ Preisverläufe erzeugen
+            $price = Price::factory(132)->create([
+                'stock_id' => $stock->id,
+            ]);
             
             // ✅ Dividende erzeugen
             $dividende = Dividend::factory()->create([
@@ -37,12 +44,6 @@ class StockSeeder extends Seeder
                 'game_time_id' => $gameTimeId->id,
                 'amount_per_share' => $faker->randomFloat(2, 0.1, 5.0),
             ]);
-            
-            // ✅ Preisverläufe erzeugen
-            $price = Price::factory(132)->create([
-                'stock_id' => $stock->id,
-            ]);
-
         }
     }
 }

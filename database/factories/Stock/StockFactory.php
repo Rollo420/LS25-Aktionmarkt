@@ -26,7 +26,7 @@ class StockFactory extends Factory
             'land' => fake()->word(),
             'description' => fake()->text(),
             'net_income' => fake()->randomFloat(2, 1000, 1000000),
-            'dividend_frequency' => rand(0,4),
+            'dividend_frequency' => rand(1,4),
         ];
     }
 
