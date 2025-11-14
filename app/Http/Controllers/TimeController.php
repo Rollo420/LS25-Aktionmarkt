@@ -77,7 +77,7 @@ class TimeController extends Controller
         $gtService = new GameTimeService();
         $divService = new DividendeService();
 
-        // 📅 Bestimme Zielmonat (als Zahl, 0-based von UI zu 1-based konvertieren)
+        // Bestimme Zielmonat (als Zahl, 0-based von UI zu 1-based konvertieren)
         $selectedMonthNum = is_numeric($selectedMonth)
             ? (int) $selectedMonth + 1  // UI ist 0-based, Monate 1-12
             : (int) date('m', strtotime($selectedMonth));
@@ -94,7 +94,7 @@ class TimeController extends Controller
             $monthsToAdvance = 12; // gleiches Monat → ganzes Jahr überspringen
         }
 
-        // 🧭 Simuliere jeden Monat bis zum Zielmonat (global)
+        // Simuliere jeden Monat bis zum Zielmonat (global)
         $newGameTimes = [];
         $currentDate = Carbon::parse($currentGameTime->name);
         for ($i = 1; $i <= $monthsToAdvance; $i++) {
@@ -104,55 +104,57 @@ class TimeController extends Controller
             $newGameTimes[] = $newGameTime;
         }
 
-        // 🔁 Für jede neue GameTime, für jede Stock Preise und Dividenden berechnen
+        // Für jede neue GameTime, für jede Stock Preise und Dividenden berechnen
         foreach ($newGameTimes as $newGameTime) {
             $monthIndex = (int) date('m', strtotime($newGameTime->name)) - 1; // 0-based für generatePrice
 
             foreach ($stocks as $stock) {
-                // 💰 Letzten Preis holen
+                // Letzten Preis holen
                 $lastPrice = $stock->getLatestPrice();
                 if ($lastPrice <= 0) {
                     $lastPrice = 100.0; // Fallback, wenn kein Preis vorhanden
                 }
 
-                // 📈 Neuen Preis berechnen mit generatePrice
+                // Neuen Preis berechnen mit generatePrice
                 $newPriceValue = $this->generatePrice($lastPrice, $monthIndex);
 
-                // 💰 Preis-Eintrag für diesen Monat erzeugen (manuell)
+                // Preis-Eintrag für diesen Monat erzeugen (manuell)
                 Price::create([
                     'stock_id' => $stock->id,
                     'game_time_id' => $newGameTime->id,
                     'name' => $newPriceValue,
                 ]);
 
-                // 📈 Nächsten geplanten Dividendenzeitpunkt berechnen
+                // Nächsten geplanten Dividendenzeitpunkt berechnen
                 $nextDivGameTime = $stock->calculateNextDividendDate();
                 if (!$nextDivGameTime) {
                     // Keine Dividende geplant → nächste Aktie
                     continue;
                 }
 
-                // 🔍 Sicherstellen, dass GameTime existiert oder erzeugen
+                // Sicherstellen, dass GameTime existiert oder erzeugen
                 $divGameTime = $gtService->getOrCreate($nextDivGameTime);
 
-                // 🧩 Prüfen, ob Dividende und aktueller Preis-Monat übereinstimmen
+                // Prüfen, ob Dividende und aktueller Preis-Monat übereinstimmen
                 if ($divGameTime->id === $newGameTime->id) {
 
-                    // 🚫 Verhindere doppelte Dividenden im selben Monat
+                    // Verhindere doppelte Dividenden im selben Monat
                     $exists = $stock->dividends()
                         ->where('game_time_id', $divGameTime->id)
                         ->exists();
 
                     if (!$exists) {
-                        // ✅ Neue Dividende erzeugen
-                        Dividend::factory()->create([
+                        
+                        // Dividende an Benutzer ausschütten
+                        $divService->shareDividendeToUsers($stock);
+
+                        // Neue Dividende erzeugen
+                        Dividend::create([
                             'stock_id' => $stock->id,
                             'game_time_id' => $divGameTime->id,
                             'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0),
                         ]);
 
-                        // Nach Erstellung der Dividende auszahlen
-                        $divService->shareDividendeToUsers($stock);
                     }
                 }
             }

@@ -68,17 +68,26 @@ class DividendeService
 
     public function shareDividendeToUsers(Stock $stock)
     {
-        $gt = new GameTimeService();
-
+        
+        $gt = new GameTime();
         $userAccounts = $stock->getUserAccount();
-        $userAccounts->map(function ($user) use ($stock) {
-
+        $userAccounts->map(function ($user) use ($stock, $gt) {
+            
             $quantity = $stock->getCurrentQuantity($user);
             $dividend_per_share = $stock->getCurrentDividendAmount();
             $total_dividend = $quantity * $dividend_per_share;
             if ($total_dividend > 0) {
                 $user->addBankAccountBalance($total_dividend);
             }
+
+            $user->transactions()->create([
+                'type' => 'dividend',
+                'stock_id' => $stock->id,
+                'quantity' => $quantity,
+                'price_at_buy' => $dividend_per_share,
+                'status' => true,
+                'game_time_id' => $gt->getCurrentGameTime()->id,
+            ]);
         });
         
     }

@@ -76,7 +76,7 @@ class OrderController extends Controller
                 $buyTransaction->user_id = $user->id;
                 $buyTransaction->stock_id = $stock->id;
                 $buyTransaction->quantity = $quantityToBuy;
-                $buyTransaction->price_at_buy = $averagePrice;
+                $buyTransaction->price_at_buy = null;
                 $buyTransaction->type = 'buy';
                 $buyTransaction->status = false; // closed
                 $buyTransaction->game_time_id = $gameTime->id; // link to game_time

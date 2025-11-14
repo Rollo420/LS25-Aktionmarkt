@@ -24,7 +24,7 @@ class TransactionFactory extends Factory
     {
         $type = fake()->randomElement(['buy', 'sell', 'deposit', 'withdraw', 'transfer']);
         $stockId = ($type === 'buy' || $type === 'sell') ? Stock::inRandomOrder()->first()?->id ?? 1 : null;
-        $priceAtBuy = 0; // Default auf 0 setzen, da Spalte nicht NULL erlaubt
+        $priceAtBuy = null; // Default auf 0 setzen, da Spalte nicht NULL erlaubt
 
         if ($type === 'buy') {
             // Aktueller Preis der Aktie zum Zeitpunkt der Transaktion ermitteln
@@ -34,7 +34,8 @@ class TransactionFactory extends Factory
             } else {
                 $priceAtBuy = fake()->randomFloat(2, 10, 500); // Fallback für zufällige Daten
             }
-        }
+        } 
+        
 
         return [
             'user_id' => User::inRandomOrder()->first()?->id ?? 1,

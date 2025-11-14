@@ -46,15 +46,14 @@ class StockSeeder extends Seeder
                 ]);
 
                 $lastPrice = $newPrice;
-            }
 
-            // Dividende für den ersten GameTime erstellen
-            $firstGameTime = $gameTimes[0];
-            Dividend::factory()->create([
-                'stock_id' => $stock->id,
-                'game_time_id' => $firstGameTime->id,
-                'amount_per_share' => $faker->randomFloat(2, 0.1, 5.0),
-            ]);
+                // Dividende für den ersten GameTime erstellen
+                Dividend::factory()->create([
+                    'stock_id' => $stock->id,
+                    'game_time_id' => $gt->id,
+                    'amount_per_share' => $faker->randomFloat(2, 0.1, 5.0),
+                ]);
+            }
         }
     }
 }

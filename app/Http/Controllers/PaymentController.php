@@ -20,7 +20,7 @@ class PaymentController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
         $orders = Transaction::where('user_id', auth()->id())
-            ->whereIn('type', ['buy', 'sell', 'deposit', 'withdraw', 'transfer'])
+           # ->whereIn('type', ['buy', 'sell', 'deposit', 'withdraw', 'transfer'])
             ->where('status', true)
             ->orderBy('created_at', 'desc')
             ->get();
