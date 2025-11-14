@@ -187,7 +187,7 @@ class TimeController extends Controller
             $price = max(0.1, abs($lastPrice * 0.9));
 
         return round($price, 2);
-    }
+    } 
 
     // =========================
     // Excel-artige Zufallsbewegung

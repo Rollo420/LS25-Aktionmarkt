@@ -9,6 +9,8 @@ use \Carbon\Carbon;
 use App\Models\Dividend;
 use App\Models\Stock\Price;
 use App\Models\Stock\Transaction;
+use \App\Models\StockConfig;
+use \App\Models\Config;
 
 class Stock extends Model
 {
@@ -131,6 +133,11 @@ class Stock extends Model
         return $this->transactions()->get()->map(function ($transaction) {
             return $transaction->user;
         })->unique();
+    }
+
+    public function configs()
+    {
+        return $this->hasManyThrough(Config::class, StockConfig::class, 'stock_id', 'id', 'id', 'config_id');
     }
     
     
