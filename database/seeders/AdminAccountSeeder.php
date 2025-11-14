@@ -37,7 +37,7 @@ class AdminAccountSeeder extends Seeder
                 [
                     'user_id' => $woodly->id,
                     'stock_id' => 2,
-                    'status' => false, // closed -> false
+                    'status' => true, // closed -> true (sofort ausgeführt)
                     'type' => 'buy',
                     'quantity' => 15,
                     'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
@@ -46,7 +46,7 @@ class AdminAccountSeeder extends Seeder
                 [
                     'user_id' => $woodly->id,
                     'stock_id' => 4,
-                    'status' => true, // open -> true
+                    'status' => true, // closed -> true (sofort ausgeführt)
                     'type' => 'sell',
                     'quantity' => 30,
                     'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
@@ -79,7 +79,7 @@ class AdminAccountSeeder extends Seeder
                 [
                     'user_id' => $maro->id,
                     'stock_id' => 1,
-                    'status' => true, // open -> true
+                    'status' => true, // closed -> true (sofort ausgeführt)
                     'type' => 'buy',
                         'quantity' => 10,
                         'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
@@ -88,7 +88,7 @@ class AdminAccountSeeder extends Seeder
                 [
                     'user_id' => $maro->id,
                     'stock_id' => 5,
-                    'status' => false, // closed -> false
+                    'status' => true, // closed -> true (sofort ausgeführt)
                     'type' => 'sell',
                         'quantity' => 20,
                         'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,

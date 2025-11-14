@@ -83,7 +83,7 @@ class DividendeService
             $user->transactions()->create([
                 'type' => 'dividend',
                 'stock_id' => $stock->id,
-                'quantity' => $quantity,
+                'quantity' => -$quantity,
                 'price_at_buy' => $dividend_per_share,
                 'status' => true,
                 'game_time_id' => $gt->getCurrentGameTime()->id,

@@ -17,11 +17,13 @@ class PaymentController extends Controller
     public function index()
     {
         $transaktionen = Transaction::where('user_id', auth()->id())
+            ->with(['stock', 'gameTime']) // Eager load relations
             ->orderBy('created_at', 'desc')
             ->get();
         $orders = Transaction::where('user_id', auth()->id())
            # ->whereIn('type', ['buy', 'sell', 'deposit', 'withdraw', 'transfer'])
-            ->where('status', true)
+            ->where('status', false)
+            ->with(['stock', 'gameTime']) // Eager load relations
             ->orderBy('created_at', 'desc')
             ->get();
         //dd($transaktionen, $orders);

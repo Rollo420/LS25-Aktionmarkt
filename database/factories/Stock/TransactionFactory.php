@@ -42,8 +42,8 @@ class TransactionFactory extends Factory
             // prefer GameTimeService to ensure a consistent GameTime exists (current month)
             'game_time_id' => GameTime::inRandomOrder()->first()?->id ?? 1,
             'stock_id' => $stockId,
-            // Status: boolean in DB. true = active/open/pending, false = closed/finished
-            'status' => fake()->boolean(),
+            // Status: boolean in DB. true = closed/finished (sofort ausgeführt), false = open/pending
+            'status' => true, // Alle Transaktionen sind standardmäßig abgeschlossen
             'quantity' => fake()->numberBetween(1, 100),
             'type' => $type,
             'price_at_buy' => $priceAtBuy,
