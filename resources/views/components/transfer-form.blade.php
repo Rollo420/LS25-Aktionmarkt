@@ -9,6 +9,7 @@
 
         <label class="text-gray-200">Amount</label>
         <input type="number" name="amount" step="0.10" min="1" max="4294967295" class="rounded p-2 bg-gray-900 text-white" placeholder="Amount" required>
+        <p class="text-gray-400 text-xs">Maximaler Betrag: 4.294.967.295</p>
         @error('amount')
             <p class="text-red-500 text-sm">{{ $message }}</p>
         @enderror
