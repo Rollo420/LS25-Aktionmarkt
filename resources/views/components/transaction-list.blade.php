@@ -112,7 +112,7 @@
                     @elseif($transaction->type === 'buy')
                         <span class="text-red-600 dark:text-red-400">-{{ number_format(abs($transaction->quantity) * ($transaction->price_at_buy ?? $transaction->computeResolvedPriceAtBuy() ?? 0), 2, ',', '.') }} €</span>
                     @elseif($transaction->type === 'sell')
-                        <span class="text-red-600 dark:text-red-400">-{{ number_format(abs($transaction->quantity) * ($transaction->price_at_buy ?? $transaction->computeResolvedPriceAtBuy() ?? 0), 2, ',', '.') }} €</span>
+                        <span class="text-green-600 dark:text-green-400">+{{ number_format(abs($transaction->quantity) * ($transaction->price_at_buy ?? $transaction->computeResolvedPriceAtBuy() ?? 0), 2, ',', '.') }} €</span>
                     @elseif($transaction->type === 'deposit')
                         <span class="text-green-600 dark:text-green-400">+{{ number_format($transaction->quantity, 2, ',', '.') }} €</span>
                     @elseif($transaction->type === 'withdraw')
@@ -124,17 +124,23 @@
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    @php
-                        $isClosed = $transaction->status ?? false;
-                    @endphp
-                    @if($isClosed)
+                    @if(in_array($transaction->type, ['buy', 'sell']))
                         <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                             Abgeschlossen
                         </span>
                     @else
-                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                            Offen
-                        </span>
+                        @php
+                            $isOpen = $transaction->status ?? false;
+                        @endphp
+                        @if($isOpen)
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                Offen
+                            </span>
+                        @else
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                Abgeschlossen
+                            </span>
+                        @endif
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">

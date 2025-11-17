@@ -28,8 +28,8 @@ class PaymentController extends Controller
                 return $transaction;
             });
         $orders = Transaction::where('user_id', auth()->id())
-           # ->whereIn('type', ['buy', 'sell', 'deposit', 'withdraw', 'transfer'])
-            ->where('status', false)
+            ->whereIn('type', ['buy', 'sell', 'deposit', 'withdraw', 'transfer'])
+            ->where('status', true)
             ->with(['stock', 'gameTime']) // Eager load relations
             ->orderBy('created_at', 'desc')
             ->get();
@@ -57,7 +57,7 @@ class PaymentController extends Controller
             $payin = new Transaction();
 
             $payin->type = 'deposit';
-            $payin->status = true; // open
+            $payin->status = true; // pending approval
             $payin->quantity = $request->input('payin');
             $payin->user_id = auth()->id();
 
@@ -146,7 +146,7 @@ class PaymentController extends Controller
 
                     $transfer = new Transaction();
                     $transfer->type = 'transfer';
-                    $transfer->status = false; // confirmed -> final
+                    $transfer->status = true; // confirmed -> final
                     $transfer->quantity = $amount;
                     $transfer->user_id = auth()->id();
 

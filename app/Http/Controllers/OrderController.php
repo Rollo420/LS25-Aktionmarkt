@@ -78,7 +78,7 @@ class OrderController extends Controller
                 $buyTransaction->quantity = $quantityToBuy;
                 $buyTransaction->price_at_buy = null;
                 $buyTransaction->type = 'buy';
-                $buyTransaction->status = true; // closed - sofort ausgeführt
+                $buyTransaction->status = false; // closed - sofort ausgeführt
                 $buyTransaction->game_time_id = $gameTime->id; // link to game_time
 
                 $totalCostForThisBuy = $quantityToBuy * $currentPrice;
@@ -105,7 +105,7 @@ class OrderController extends Controller
                 $sellTransaction->stock_id = $stock->id;
                 $sellTransaction->quantity = $sellQuantity;
                 $sellTransaction->price_at_buy = $stock->getCurrentPrice();
-                $sellTransaction->status = true; // closed - sofort ausgeführt
+                $sellTransaction->status = false; // closed - sofort ausgeführt
                 $sellTransaction->type = 'sell';
                 $sellTransaction->game_time_id = $gameTime->id; // link to game_time
 
