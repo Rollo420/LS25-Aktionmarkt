@@ -65,7 +65,7 @@ class OrderController extends Controller
                 // Gewichteter Durchschnittspreis
                 $totalQuantity = $previousBuys->sum('quantity') + $quantityToBuy;
                 $totalCost = $previousBuys->reduce(function ($carry, $t) {
-                    $price = $t->resolvedPriceAtBuy() ?? $t->stock?->getCurrentPrice() ?? 0;
+                    $price = $t->computeResolvedPriceAtBuy() ?? $t->stock?->getCurrentPrice() ?? 0;
                     return $carry + ($t->quantity * $price);
                 }, 0) + ($quantityToBuy * $currentPrice);
 

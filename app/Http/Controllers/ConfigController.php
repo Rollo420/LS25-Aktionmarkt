@@ -50,4 +50,15 @@ class ConfigController extends Controller
             ->with('success', 'Config gespeichert (bestehend oder neu erstellt)');
     }
 
+    public function update(ConfigRequest $request, $id = 1)
+    {
+        $config = Config::findOrFail($id);
+
+        $data = $request->validated();
+        $config->update($data);
+
+        return redirect()->route('admin.configs.index')
+            ->with('success', 'Config aktualisiert');
+    }
+
 }

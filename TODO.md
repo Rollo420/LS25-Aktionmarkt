@@ -1,6 +1,4 @@
-- [x] Add GET route for /admin/configs/create in routes/web.php
-- [x] Add create method in ConfigController.php to return the create view
-- [x] Fix store method in ConfigController.php to create Config and redirect with success
-- [x] Update link in resources/views/admin/configs/index.blade.php to use route('admin.configs.create')
-- [x] Fix storage permissions in setup.sh and docker start-container script
-- [x] Test the routes to ensure GET works and POST creates config
+- [ ] Rename transaktion() to transaction() in PaymentController.php
+- [ ] Remove unused payment.buy and payment.sell routes from routes/web.php
+- [ ] Fix the transfer div in resources/views/payment/index.blade.php to remove action attribute
+- [ ] Test the payment routes to ensure they work correctly

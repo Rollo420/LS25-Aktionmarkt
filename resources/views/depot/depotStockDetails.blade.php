@@ -286,10 +286,10 @@
                                         {{ number_format($stockTransaction->quantity, 0, ',', '.') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                                        {{ number_format($stockTransaction->resolvedPriceAtBuy(), 2, ',', '.') }} €
+                                        {{ number_format($stockTransaction->computeResolvedPriceAtBuy(), 2, ',', '.') }} €
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                                        {{ number_format($stockTransaction->quantity * $stockTransaction->resolvedPriceAtBuy(), 2, ',', '.') }} €
+                                        {{ number_format($stockTransaction->quantity * $stockTransaction->computeResolvedPriceAtBuy(), 2, ',', '.') }} €
                                     </td>
                                 </tr>
                             @endforeach

@@ -63,7 +63,7 @@ class StockService
     public function getPriceAtBuyForTransaction($transaction): float
     {
         // Use resolvedPriceAtBuy which handles stored value and fallbacks
-        return (float) ($transaction->resolvedPriceAtBuy() ?? $transaction->stock?->getCurrentPrice() ?? 0);
+        return (float) ($transaction->computeResolvedPriceAtBuy() ?? $transaction->stock?->getCurrentPrice() ?? 0);
     }
 
     /**

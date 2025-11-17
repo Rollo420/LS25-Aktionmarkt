@@ -48,8 +48,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/payment/payout', [PaymentController::class, 'payout'])->name('payment.payout');
     Route::post('/payment/transfer', [PaymentController::class, 'transfer'])->name('payment.transfer');
     Route::post('/payment/transaction', [PaymentController::class, 'transaction'])->name('payment.transaction');
-    Route::post('/payment/buy', [PaymentController::class, 'buy'])->name('payment.buy');
-    Route::post('/payment/sell', [PaymentController::class, 'sell'])->name('payment.sell');
 
     // Buy/Sell routes für normale User (ohne PaymentAuthorizationMiddleware)
     Route::post('/stock/{id}/payment/sellBuy', [OrderController::class, 'index'])->name('payment.SellBuy');
@@ -78,9 +76,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/configs', [ConfigController::class, 'index'])->name('admin.configs.index');
     Route::get('/admin/configs/create', [ConfigController::class, 'create'])->name('admin.configs.create');
     Route::post('/admin/configs/create', [ConfigController::class, 'store'])->name('admin.configs.store');
-    Route::get('/admin/configs/{config}/edit', function () {
-        return view('admin.configs.edit');
-    })->name('admin.configs.edit');
+    Route::post('/admin/configs/{config}/edit', [ConfigController::class, 'update'])->name('admin.configs.edit');
     //Route::get('/stock/{id}', [ChartController::class, 'OneChart'])->name('stock.store');
 });
 

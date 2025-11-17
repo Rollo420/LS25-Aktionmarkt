@@ -160,7 +160,7 @@ class PaymentController extends Controller
         return redirect()->route('payment.index')->with('success', 'Transfer processed successfully!');
     }
 
-    public function transaktion()
+    public function transaction()
     {
         $transaktionen = Transaction::where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')

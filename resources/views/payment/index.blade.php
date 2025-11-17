@@ -88,7 +88,7 @@
 
                 <!-- Transfer -->
                 <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'transfer' ? 'active' : '']">
-                    <div class="max-w-xl" action="{{route("payment.transaction")}}" @click="open === 'transfer' ? open = '' : open = 'transfer'" style="cursor:pointer;">
+                    <div class="max-w-xl" @click="open === 'transfer' ? open = '' : open = 'transfer'" style="cursor:pointer;">
                         <h1>Transfer</h1>
                     </div>
                     <template x-if="open === 'transfer'">

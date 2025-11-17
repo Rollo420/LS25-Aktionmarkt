@@ -85,7 +85,7 @@ class Transaction extends Model
      *
      * @return float|null
      */
-    public function resolvedPriceAtBuy(): ?float
+    public function computeResolvedPriceAtBuy(): ?float
     {
         // Use persisted value if available
         if (isset($this->price_at_buy) && $this->price_at_buy !== null && $this->price_at_buy > 0) {

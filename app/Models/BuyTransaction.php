@@ -21,14 +21,14 @@ class BuyTransaction extends Transaction
             ->where('stock_id', $stockId);
 
         $totalValue = $buyTransactions->get()->sum(function ($transaction) {
-            return $transaction->quantity * ($transaction->resolvedPriceAtBuy() ?? 0);
+            return $transaction->quantity * ($transaction->computeResolvedPriceAtBuy() ?? 0);
         });
 
         $totalInvested = $user->transactions()
             ->where('type', 'buy')
             ->get()
             ->sum(function ($transaction) {
-                return $transaction->quantity * ($transaction->resolvedPriceAtBuy() ?? 0);
+                return $transaction->quantity * ($transaction->computeResolvedPriceAtBuy() ?? 0);
             });
 
 
@@ -45,7 +45,7 @@ class BuyTransaction extends Transaction
      */
     private static function getPriceAtBuyForTransaction($transaction): float
     {
-        return (float) ($transaction->resolvedPriceAtBuy() ?? $transaction->stock?->getCurrentPrice() ?? 0);
+        return (float) ($transaction->computeResolvedPriceAtBuy() ?? $transaction->stock?->getCurrentPrice() ?? 0);
     }
 
 

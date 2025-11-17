@@ -110,9 +110,9 @@
                     @if($transaction['type'] === 'dividend')
                         <span class="text-green-600 dark:text-green-400">+{{ number_format(abs($transaction['quantity']) * $transaction['price_at_buy'], 2, ',', '.') }} €</span>
                     @elseif($transaction['type'] === 'buy')
-                        <span class="text-red-600 dark:text-red-400">-{{ number_format(abs($transaction['quantity']) * ($transaction['price_at_buy'] ?? (isset($transaction->resolvedPriceAtBuy) ? $transaction->resolvedPriceAtBuy() : 0) ?? 0), 2, ',', '.') }} €</span>
+                        <span class="text-red-600 dark:text-red-400">-{{ number_format(abs($transaction['quantity']) * ($transaction['price_at_buy'] ?? $transaction->computeResolvedPriceAtBuy() ?? 0), 2, ',', '.') }} €</span>
                     @elseif($transaction['type'] === 'sell')
-                        <span class="text-green-600 dark:text-green-400">+{{ number_format(abs($transaction['quantity']) * ($transaction['price_at_buy'] ?? (isset($transaction->resolvedPriceAtBuy) ? $transaction->resolvedPriceAtBuy() : 0) ?? 0), 2, ',', '.') }} €</span>
+                        <span class="text-red-600 dark:text-red-400">-{{ number_format(abs($transaction['quantity']) * ($transaction['price_at_buy'] ?? $transaction->computeResolvedPriceAtBuy() ?? 0), 2, ',', '.') }} €</span>
                     @elseif($transaction['type'] === 'deposit')
                         <span class="text-green-600 dark:text-green-400">+{{ number_format($transaction['quantity'], 2, ',', '.') }} €</span>
                     @elseif($transaction['type'] === 'withdraw')
