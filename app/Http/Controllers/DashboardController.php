@@ -40,8 +40,7 @@ class DashboardController extends Controller
             ->with(['stock:id,name', 'gameTime:id,name']) // Nur benötigte Felder laden
             ->latest()
             ->take(5)
-            ->get()
-            ->toArray();
+            ->get();
 
 
         $dividendeService = new DividendeService();

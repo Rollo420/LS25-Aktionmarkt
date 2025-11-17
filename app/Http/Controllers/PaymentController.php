@@ -23,7 +23,10 @@ class PaymentController extends Controller
         $transaktionen = Transaction::where('user_id', auth()->id())
             ->with(['stock', 'gameTime']) // Eager load relations
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($transaction) {
+                return $transaction;
+            });
         $orders = Transaction::where('user_id', auth()->id())
            # ->whereIn('type', ['buy', 'sell', 'deposit', 'withdraw', 'transfer'])
             ->where('status', false)
@@ -168,7 +171,10 @@ class PaymentController extends Controller
     {
         $transaktionen = Transaction::where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($transaction) {
+                return $transaction;
+            });
         return view('payment.index', [
             'transaktionens' => $transaktionen,
         ]);
