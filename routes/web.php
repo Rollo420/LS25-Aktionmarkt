@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -74,12 +75,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/generate-field', [AdminController::class, 'generateField'])->name('admin.generate-field');
     
     // Config routes
-    Route::get('/admin/configs', function () {
-        return view('admin.configs.index');
-    })->name('admin.configs.index');
-    Route::get('/admin/configs/create', function () {
-        return view('admin.configs.create');
-    })->name('admin.configs.create');
+    Route::get('/admin/configs', [ConfigController::class, 'index'])->name('admin.configs.index');
+    Route::get('/admin/configs/create', [ConfigController::class, 'create'])->name('admin.configs.create');
+    Route::post('/admin/configs/create', [ConfigController::class, 'store'])->name('admin.configs.store');
     Route::get('/admin/configs/{config}/edit', function () {
         return view('admin.configs.edit');
     })->name('admin.configs.edit');

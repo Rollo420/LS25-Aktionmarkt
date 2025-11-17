@@ -1,14 +1,5 @@
-- [x] Überarbeite TimeController::skipTime Methode:
-  - GameTimes global voranschreiten lassen (einmal pro Monat).
-  - Für jede neue GameTime, für jede Stock Preise berechnen basierend auf dem letzten Preis unter Verwendung von generatePrice.
-  - Dividenden-Logik anpassen: Prüfe pro Stock pro neuem GameTime, ob Dividende fällig ist.
-  - Entferne Price::factory()->create und erstelle manuell mit berechneten Werten.
-- [x] Testen: Überprüfe, ob Daten generiert werden und der Chart korrekt anzeigt.
-  - Daten werden generiert: Preise für jeden Monat pro Stock erstellt.
-  - Chart sollte jetzt korrekt anzeigen, da Preise basierend auf vorherigen berechnet werden.
-- [x] Testen: Überprüfe, ob beim Skip von 2010-12-01 nach 2011-01-01 die Monate korrekt übersprungen und angezeigt werden.
-  - GameTimes sind vorhanden: 2010-12-01 (5 Preise), 2011-01-01 (1 Preis, aber sollte 5 sein?).
-  - Problem: Bei 2011-01-01 nur 1 Preis statt 5. Das deutet auf ein Problem hin, dass nicht alle Stocks Preise bekommen haben.
-  - Weiteres Problem: Nur 818 Preise statt erwarteten 3350 (5 Stocks * 670 GameTimes). Das bedeutet, dass die Simulation nicht vollständig läuft oder Preise nicht für alle GameTimes erstellt werden.
-  - Ursache: Die alte skipTime Logik wurde nicht vollständig entfernt; es gibt noch Reste der pro-Stock-Schleife, die GameTimes erstellt hat, aber die neue Logik läuft parallel.
-  - Lösung: Vollständig die alte Logik entfernen und sicherstellen, dass Preise für alle Stocks pro neuer GameTime erstellt werden.
+- [x] Add GET route for /admin/configs/create in routes/web.php
+- [x] Add create method in ConfigController.php to return the create view
+- [x] Fix store method in ConfigController.php to create Config and redirect with success
+- [x] Update link in resources/views/admin/configs/index.blade.php to use route('admin.configs.create')
+- [x] Test the routes to ensure GET works and POST creates config

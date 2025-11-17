@@ -11,6 +11,8 @@ class Config extends Model
     use HasFactory;
     
     protected $fillable = [
+        'name',
+        'description',
         'volatility_range',
         'seasonal_effect_strength',
         'crash_interval_months',

@@ -9,6 +9,7 @@ use App\Models\Stock\Stock;
 use App\Models\Stock\Price;
 use App\Services\GameTimeService;
 use Illuminate\Support\Facades\Redirect;
+use App\Models\GameTime;
 
 class AdminController extends Controller
 {
@@ -35,8 +36,9 @@ class AdminController extends Controller
         $sectors = ['Technology', 'Healthcare', 'Finance', 'Energy', 'Consumer Goods', 'Industrials', 'Materials', 'Utilities', 'Real Estate', 'Telecommunications'];
         $countries = ['Germany', 'USA', 'UK', 'France', 'Japan', 'China', 'India', 'Canada', 'Australia', 'Brazil'];
         $productTypes = \App\Models\ProductType::all();
+        $configs = \App\Models\Config::all();
 
-        return view('admin.stock.create', compact('sectors', 'countries', 'productTypes'));
+        return view('admin.stock.create', compact('sectors', 'countries', 'productTypes', 'configs'));
     }
 
     public function generateField(Request $request)
@@ -137,10 +139,10 @@ class AdminController extends Controller
         $stockData['dividend_frequency'] = $request->dividend_frequency ?? rand(0, 4);
 
         $stock = Stock::create($stockData);
-        $stock->configs()->findOrCreate(1);
+        $stock->configs()->attach(1);
 
         // Create initial price for current game time
-        $currentGameTime = $gameTimeService->getOrCreate(now());
+        $currentGameTime = GameTime::getCurrentGameTime();
         $startPrice = $request->start_price ?: fake()->numberBetween(10, 500);
 
         Price::create([

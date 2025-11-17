@@ -35,54 +35,6 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                @php
-                                    $configs = [
-                                        [
-                                            'id' => 1,
-                                            'name' => 'Standard Config',
-                                            'description' => 'Basis-Konfiguration für Aktien',
-                                            'volatility_range' => 0.04,
-                                            'seasonal_effect_strength' => 0.026,
-                                            'crash_probability_monthly' => 1,
-                                            'crash_interval_months' => 240,
-                                            'rally_probability_monthly' => 1,
-                                            'rally_interval_months' => 360,
-                                        ],
-                                        [
-                                            'id' => 2,
-                                            'name' => 'Volatile Config',
-                                            'description' => 'Hohe Volatilität für dynamische Märkte',
-                                            'volatility_range' => 0.08,
-                                            'seasonal_effect_strength' => 0.052,
-                                            'crash_probability_monthly' => 0.8,
-                                            'crash_interval_months' => 120,
-                                            'rally_probability_monthly' => 0.9,
-                                            'rally_interval_months' => 180,
-                                        ],
-                                        [
-                                            'id' => 3,
-                                            'name' => 'Stable Config',
-                                            'description' => 'Niedrige Volatilität für stabile Aktien',
-                                            'volatility_range' => 0.02,
-                                            'seasonal_effect_strength' => 0.013,
-                                            'crash_probability_monthly' => 1.2,
-                                            'crash_interval_months' => 480,
-                                            'rally_probability_monthly' => 1.1,
-                                            'rally_interval_months' => 720,
-                                        ],
-                                        [
-                                            'id' => 4,
-                                            'name' => 'Growth Config',
-                                            'description' => 'Fokus auf Wachstum und Rallys',
-                                            'volatility_range' => 0.06,
-                                            'seasonal_effect_strength' => 0.039,
-                                            'crash_probability_monthly' => 1.5,
-                                            'crash_interval_months' => 360,
-                                            'rally_probability_monthly' => 0.7,
-                                            'rally_interval_months' => 240,
-                                        ],
-                                    ];
-                                @endphp
                                 @forelse($configs as $config)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
