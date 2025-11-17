@@ -137,6 +137,7 @@ class AdminController extends Controller
         $stockData['dividend_frequency'] = $request->dividend_frequency ?? rand(0, 4);
 
         $stock = Stock::create($stockData);
+        $stock->configs()->findOrCreate(1);
 
         // Create initial price for current game time
         $currentGameTime = $gameTimeService->getOrCreate(now());

@@ -9,6 +9,8 @@ use App\Models\Dividend;
 use App\Models\Stock\Stock;
 use App\Models\Stock\Price;
 use App\Models\GameTime;
+use App\Models\Config;
+
 use App\Http\Controllers\TimeController;
 
 use Carbon\Carbon;
@@ -21,7 +23,8 @@ class StockSeeder extends Seeder
         $gt = new GameTime();
         $gtService = new GameTimeService();
         $timeController = new TimeController();
-
+        $config = Config::factory()->create(['name' => 'Default Config', 'description' => 'Dieses ist die standart Einstellungen'])->get()->first();
+        #dd($config);
         // 5 Stocks erstellen
         $stocks = Stock::factory(5)->create();
 
@@ -54,7 +57,9 @@ class StockSeeder extends Seeder
                     'game_time_id' => $gt->id,
                     'amount_per_share' => $faker->randomFloat(2, 0.1, 5.0),
                 ]);
-            }            
+            }      
+
+            $stock->configs()->attach($config->id);
         }
     }
 }

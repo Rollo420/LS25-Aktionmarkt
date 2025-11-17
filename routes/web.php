@@ -72,6 +72,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/stock/create', [AdminController::class, 'create'])->name('admin.stock.create');
     Route::post('/admin/stock', [AdminController::class, 'store'])->name('admin.stock.store');
     Route::post('/admin/generate-field', [AdminController::class, 'generateField'])->name('admin.generate-field');
+    
     // Config routes
     Route::get('/admin/configs', function () {
         return view('admin.configs.index');
