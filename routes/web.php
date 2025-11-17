@@ -72,6 +72,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/stock/create', [AdminController::class, 'create'])->name('admin.stock.create');
     Route::post('/admin/stock', [AdminController::class, 'store'])->name('admin.stock.store');
     Route::post('/admin/generate-field', [AdminController::class, 'generateField'])->name('admin.generate-field');
+    // Config routes
+    Route::get('/admin/configs', function () {
+        return view('admin.configs.index');
+    })->name('admin.configs.index');
+    Route::get('/admin/configs/create', function () {
+        return view('admin.configs.create');
+    })->name('admin.configs.create');
+    Route::get('/admin/configs/{config}/edit', function () {
+        return view('admin.configs.edit');
+    })->name('admin.configs.edit');
     //Route::get('/stock/{id}', [ChartController::class, 'OneChart'])->name('stock.store');
 });
 

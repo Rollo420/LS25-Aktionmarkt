@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Stock\Stock;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Config extends Model
 {
+    use HasFactory;
+    
     protected $fillable = [
         'volatility_range',
         'seasonal_effect_strength',
@@ -16,8 +19,12 @@ class Config extends Model
         'rally_interval_months',
     ];
 
-    public function stock_configs()
-    {
-        return $this->hasManyThrough(StockConfig::class, Stock::class, 'id', 'config_id', 'id', 'stock_id');
-    }
+   public function stocks()
+{
+    return $this->belongsToMany(Stock::class, 'config_stocks')
+        ->withPivot('applied_at')
+        ->withTimestamps();
+}
+
+
 }

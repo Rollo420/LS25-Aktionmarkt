@@ -135,11 +135,13 @@ class Stock extends Model
         })->unique();
     }
 
-    public function configs()
-    {
-        return $this->hasManyThrough(Config::class, StockConfig::class, 'stock_id', 'id', 'id', 'config_id');
-    }
-    
-    
+  public function configs()
+{
+    return $this->belongsToMany(Config::class, 'config_stocks')
+        ->withPivot('applied_at')
+        ->withTimestamps();
+}
+
+
 }
 

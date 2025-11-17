@@ -10,8 +10,9 @@ use App\Models\Stock\Stock;
 use App\Models\Stock\Price;
 use App\Models\GameTime;
 use App\Http\Controllers\TimeController;
-use Carbon\Carbon;
 
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 class StockSeeder extends Seeder
 {
     public function run(): void
@@ -53,7 +54,7 @@ class StockSeeder extends Seeder
                     'game_time_id' => $gt->id,
                     'amount_per_share' => $faker->randomFloat(2, 0.1, 5.0),
                 ]);
-            }
+            }            
         }
     }
 }
