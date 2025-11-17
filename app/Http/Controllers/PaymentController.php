@@ -12,6 +12,10 @@ use App\Models\Stock\Transaction;
 use App\Models\User;
 use App\Models\Bank;
 
+use App\Http\Requests\PayinRequest;
+use App\Http\Requests\PayoutRequest;
+use App\Http\Requests\TransferRequest;
+
 class PaymentController extends Controller
 {
     public function index()
@@ -43,7 +47,7 @@ class PaymentController extends Controller
     }
     // kaufen, verkaufen, einzahlen, abheben, überweisen
     // 'buy', 'sell', 'deposit', 'withdraw', 'transfer'
-    public function payin(Request $request)
+    public function payin(PayinRequest $request)
     {
         try {
 
@@ -69,7 +73,7 @@ class PaymentController extends Controller
     return redirect()->route('payment.index')->with('success', 'Pay-in processed successfully!');
     }
 
-    public function payout(Request $request)
+    public function payout(PayoutRequest $request)
     {
         try {
             $user = Auth::user();
@@ -106,7 +110,7 @@ class PaymentController extends Controller
     }
 
 
-    public function transfer(Request $request)
+    public function transfer(TransferRequest $request)
     {
         try {
             DB::transaction(function () use ($request) {

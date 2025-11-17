@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('stock_id')->nullable()->constrained()->onDelete('cascade');
             $table->integer('quantity');
-            // allow null for non-buy transactions (we store price only for buys)
             $table->float('price_at_buy')->nullable();
             $table->boolean('status');
             $table->string('type');
