@@ -15,6 +15,13 @@ fi
 
 chmod -R ugo+rw /.composer
 
+# Ensure Laravel storage directories exist
+mkdir -p /var/www/html/storage/framework/views
+mkdir -p /var/www/html/storage/framework/cache
+mkdir -p /var/www/html/storage/framework/sessions
+mkdir -p /var/www/html/storage/logs
+chmod -R 775 /var/www/html/storage
+
 if [ $# -gt 0 ]; then
     if [ "$SUPERVISOR_PHP_USER" = "root" ]; then
         exec "$@"

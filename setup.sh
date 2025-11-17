@@ -34,6 +34,7 @@ $sail up -d --remove-orphans
 echo "🔧 Setze Rechte für Laravel..."
 $sail exec laravel.test chown -R $(id -u):$(id -g) /var/www/html
 $sail exec laravel.test chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+$sail exec laravel.test mkdir -p /var/www/html/storage/framework/views
 $sail exec laravel.test chmod 664 /var/www/html/.env
 
 # 6️⃣ Laravel Artisan Befehle ausführen

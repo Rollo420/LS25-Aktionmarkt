@@ -2,4 +2,5 @@
 - [x] Add create method in ConfigController.php to return the create view
 - [x] Fix store method in ConfigController.php to create Config and redirect with success
 - [x] Update link in resources/views/admin/configs/index.blade.php to use route('admin.configs.create')
+- [x] Fix storage permissions in setup.sh and docker start-container script
 - [x] Test the routes to ensure GET works and POST creates config
