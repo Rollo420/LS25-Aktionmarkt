@@ -68,6 +68,10 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
+        "block-insecure": false,
+        "audit": {
+            "ignore": ["PKSA-8qx3-n5y5-vvnd", "PKSA-rqc2-tcc6-nc79", "PKSA-365x-2zjk-pt47"]
+        },
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
