@@ -1,4 +1,4 @@
-# TODO: Dividenden-Auszahlung beheben und Timeskip-Refresh für alle User-Clients verbessern
+ # TODO: Dividenden-Auszahlung beheben und Timeskip-Refresh für alle User-Clients verbessern
 
 ## Problemstellung
 - Dividenden werden nicht immer korrekt ausgeschüttet (z.B. bei Timeskip).
@@ -49,11 +49,18 @@
    - Broadcasting-Konfig nutzen.
 
 ## Schritte zur Umsetzung
-1. Logging in DividendeService erweitern.
-2. calculateNextDividendDate() debuggen (Logs hinzufügen).
-3. JS-Listener verbessern (AJAX-Refresh statt full reload).
-4. Fallback-Timer in JS hinzufügen.
-5. Tests durchführen: Timeskip simulieren, Logs prüfen, Multi-Tab-Test.
+1. [x] Job asynchron dispatchen statt synchron ausführen (bereits gemacht).
+2. [x] Erste Tests: Timeskip zu 2012-12-01 und 2013-06-01, Queue verarbeiten, Dividenden wurden ausgeschüttet (Balance +21.7 und +26.7).
+3. [x] Logging in DividendeService erweitern (Balance-Update und Transaction-Details geloggt).
+4. [x] calculateNextDividendDate() debuggen (Logs in TimeController hinzugefügt).
+5. JS-Listener verbessern (AJAX-Refresh statt full reload).
+6. Fallback-Timer in JS hinzufügen.
+7. Tests durchführen: Timeskip simulieren, Logs prüfen, Multi-Tab-Test.
+3. Logging in DividendeService erweitern.
+4. calculateNextDividendDate() debuggen (Logs hinzufügen).
+5. JS-Listener verbessern (AJAX-Refresh statt full reload).
+6. Fallback-Timer in JS hinzufügen.
+7. Tests durchführen: Timeskip simulieren, Logs prüfen, Multi-Tab-Test.
 
 ## Followup
 - Nach Änderungen: Laravel Sail starten, Timeskip testen, Logs prüfen, Browser-DevTools für JS.

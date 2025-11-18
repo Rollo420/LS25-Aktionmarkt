@@ -94,10 +94,10 @@ class DividendeService
 
             if ($total_dividend > 0) {
                 try {
-                    $oldBalance = $user->bank_account_balance ?? 0;
+                    $oldBalance = $user->getBankAccountBalance();
                     $user->addBankAccountBalance($total_dividend);
-                    $newBalance = $user->fresh()->bank_account_balance ?? 0; // Refresh to get updated balance
-                    Log::info("User {$user->id} balance updated: {$oldBalance} -> {$newBalance}");
+                    $newBalance = $user->getBankAccountBalance();
+                    Log::info("User {$user->id} balance updated: {$oldBalance} -> {$newBalance} (+{$total_dividend})");
 
                     $transaction = $user->transactions()->create([
                         'type' => 'dividend',
@@ -109,7 +109,7 @@ class DividendeService
                     ]);
 
                     if ($transaction) {
-                        Log::info("Dividend transaction created for user {$user->id}, transaction ID: {$transaction->id}");
+                        Log::info("Dividend transaction created for user {$user->id}: ID={$transaction->id}, type=dividend, stock={$stock->id}, quantity={$quantity}, amount={$total_dividend}");
                         $totalPayout += $total_dividend;
                         $successfulPayouts++;
                     } else {

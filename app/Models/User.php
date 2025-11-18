@@ -82,6 +82,11 @@ class User extends Authenticatable
         }
     }
 
+    public function getBankAccountBalanceAttribute(): float
+    {
+        return $this->getBankAccountBalance();
+    }
+
     public function getStockQuantity()
     {
         $this->transactions();

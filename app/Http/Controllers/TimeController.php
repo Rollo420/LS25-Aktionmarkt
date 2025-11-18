@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use App\Models\GameTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -132,37 +133,36 @@ class TimeController extends Controller
                 ]);
 
                 // Nächsten geplanten Dividendenzeitpunkt berechnen
-                $nextDivGameTime = $stock->calculateNextDividendDate();
-                if (!$nextDivGameTime) {
+                $nextDividendDate = $stock->calculateNextDividendDate();
+                if (!$nextDividendDate) {
                     // Keine Dividende geplant → nächste Aktie
                     continue;
                 }
 
-                // Sicherstellen, dass GameTime existiert oder erzeugen
-                $divGameTime = $gtService->getOrCreate($nextDivGameTime);
-
-                // Prüfen, ob Dividende und aktueller Preis-Monat übereinstimmen
-                if ($divGameTime->id === $newGameTime->id) {
+                // Prüfen, ob Dividende fällig ist (Datum <= aktuelle GameTime)
+                if ($nextDividendDate->lte(Carbon::parse($newGameTime->name))) {
 
                     // Verhindere doppelte Dividenden im selben Monat
                     $exists = $stock->dividends()
-                        ->where('game_time_id', $divGameTime->id)
+                        ->where('game_time_id', $newGameTime->id)
                         ->exists();
 
                     if (!$exists) {
-
-                        // Dividende an Benutzer ausschütten (synchron ausführen, um sicherzustellen, dass es funktioniert)
-                        $job = new \App\Jobs\ProcessDividendPayout($stock->id);
-                        $job->handle();
-                        \Log::info("Dividend payout job executed synchronously for stock {$stock->id}");
+                        \Log::info("Dividend due for stock {$stock->id} at game time {$newGameTime->name}");
 
                         // Neue Dividende erzeugen
                         Dividend::create([
                             'stock_id' => $stock->id,
-                            'game_time_id' => $divGameTime->id,
+                            'game_time_id' => $newGameTime->id,
                             'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0),
                         ]);
 
+                        // Job dispatchen für asynchrone Ausführung
+                        \App\Jobs\ProcessDividendPayout::dispatch($stock->id);
+                        \Log::info("Dividend payout job dispatched for stock {$stock->id}");
+
+                    } else {
+                        \Log::debug("Dividend already exists for stock {$stock->id} at game time {$newGameTime->name}, skipping");
                     }
                 }
             }
