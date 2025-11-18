@@ -155,7 +155,7 @@ class ChartController extends Controller
 
         $stockController = new StockController();
         $stockDetails = $stockController->stockDetails($id);
-        //dd($id);
+        #dd($stock);
         return view('Stock.store', [
             'chartData' => $listStock,
             'chartOptions' => $chartOptions,

@@ -5,3 +5,4 @@
 - [x] wenn timeskip refresh clinets - Added broadcasting to refresh all connected clients after timeskip
 - [x] dividende als kauf statt verkauf - Transaction type is already 'dividend' as confirmed
 - [x] dividendte debuggen - Added logging to DividendeService::shareDividendeToUsers
+- [x] Dividenden-Auszahlung und Timeskip-Refresh beheben: Job synchron ausgeführt statt dispatch, '->toOthers()' aus Broadcast entfernt, Logging hinzugefügt. Tests durchführen.

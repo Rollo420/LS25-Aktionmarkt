@@ -75,10 +75,11 @@ class DividendeService
         $userAccounts = $stock->getUserAccount();
         $totalUsers = $userAccounts->count();
         $totalPayout = 0;
+        $successfulPayouts = 0;
 
         Log::info("Found {$totalUsers} users with holdings for stock {$stock->name}");
 
-        $userAccounts->map(function ($user) use ($stock, $gt, &$totalPayout) {
+        $userAccounts->map(function ($user) use ($stock, $gt, &$totalPayout, &$successfulPayouts) {
 
             $quantity = $stock->getCurrentQuantity($user);
             if ($quantity <= 0) {
@@ -92,20 +93,36 @@ class DividendeService
             Log::info("User {$user->id}: quantity={$quantity}, dividend_per_share={$dividend_per_share}, total_dividend={$total_dividend}");
 
             if ($total_dividend > 0) {
-                $user->addBankAccountBalance($total_dividend);
-                $totalPayout += $total_dividend;
-            }
+                try {
+                    $oldBalance = $user->bank_account_balance ?? 0;
+                    $user->addBankAccountBalance($total_dividend);
+                    $newBalance = $user->fresh()->bank_account_balance ?? 0; // Refresh to get updated balance
+                    Log::info("User {$user->id} balance updated: {$oldBalance} -> {$newBalance}");
 
-            $user->transactions()->create([
-                'type' => 'dividend',
-                'stock_id' => $stock->id,
-                'quantity' => $quantity,
-                'price_at_buy' => $dividend_per_share,
-                'status' => true,
-                'game_time_id' => $gt->getCurrentGameTime()->id,
-            ]);
+                    $transaction = $user->transactions()->create([
+                        'type' => 'dividend',
+                        'stock_id' => $stock->id,
+                        'quantity' => $quantity,
+                        'price_at_buy' => $dividend_per_share,
+                        'status' => true,
+                        'game_time_id' => $gt->getCurrentGameTime()->id,
+                    ]);
+
+                    if ($transaction) {
+                        Log::info("Dividend transaction created for user {$user->id}, transaction ID: {$transaction->id}");
+                        $totalPayout += $total_dividend;
+                        $successfulPayouts++;
+                    } else {
+                        Log::error("Failed to create dividend transaction for user {$user->id}");
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Error during dividend payout for user {$user->id}: " . $e->getMessage());
+                }
+            } else {
+                Log::warning("Total dividend for user {$user->id} is zero or negative, skipping payout");
+            }
         });
 
-        Log::info("Dividend payout completed for stock {$stock->name}. Total payout: {$totalPayout} to {$totalUsers} users");
+        Log::info("Dividend payout completed for stock {$stock->name}. Total payout: {$totalPayout} to {$successfulPayouts}/{$totalUsers} users");
     }
 }

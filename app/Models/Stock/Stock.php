@@ -79,6 +79,7 @@ class Stock extends Model
         if (is_null($date)) {
             $latestDividend = $this->getLatestDividend();
             if (!$latestDividend) {
+                \Log::debug("No latest dividend found for stock {$this->id}, cannot calculate next date");
                 return null; // keine Dividende vorhanden
             }
             $baseDate = Carbon::parse($latestDividend->gameTime->name);
@@ -88,9 +89,12 @@ class Stock extends Model
 
         // 2️⃣ Monate zwischen Dividenden berechnen
         $monthsBetween = $this->dividend_frequency > 0 ? 12 / $this->dividend_frequency : 12;
+        \Log::debug("Stock {$this->id} dividend_frequency: {$this->dividend_frequency}, monthsBetween: {$monthsBetween}");
 
         // 3️⃣ Nächste Dividende berechnen
-        return $baseDate->copy()->addMonths($monthsBetween);
+        $nextDate = $baseDate->copy()->addMonths($monthsBetween);
+        \Log::debug("Next dividend date for stock {$this->id}: {$nextDate->format('Y-m-d')} (base: {$baseDate->format('Y-m-d')})");
+        return $nextDate;
     }
 
 

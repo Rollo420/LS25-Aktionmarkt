@@ -29,12 +29,12 @@ Dividendentermine	Nächster Zahlungstermin
 
         <div>
             <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Firma</h3>
-            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ $firmenDetails->frima }}</p>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ $firmenDetails->firma }}</p>
         </div>
 
         <div>
             <h3 class="font-medium text-sm sm:text-base text-gray-700 dark:text-gray-300">Sector</h3>
-            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ $firmenDetails->sector }}</p>
+            <p class="text-sm sm:text-base text-gray-900 dark:text-gray-100">{{ $firmenDetails->sektor }}</p>
         </div>
 
         <div>

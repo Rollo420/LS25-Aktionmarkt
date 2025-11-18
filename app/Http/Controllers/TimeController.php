@@ -69,8 +69,9 @@ class TimeController extends Controller
         $this->skipTime($selectedMonth);
         session(['selectedMonth' => $selectedMonth]);
 
-        // Broadcast timeskip completion to refresh all connected clients
-        broadcast(new TimeskipCompleted('Timeskip to ' . $selectedMonth . ' completed successfully'))->toOthers();
+        // Broadcast timeskip completion to refresh all connected clients (inklusive des auslösenden Users)
+        broadcast(new TimeskipCompleted('Timeskip to ' . $selectedMonth . ' completed successfully'));
+        \Log::info("Timeskip completed event broadcasted for month {$selectedMonth}");
 
         return redirect()->route('time.index');
     }
@@ -150,8 +151,10 @@ class TimeController extends Controller
 
                     if (!$exists) {
 
-                        // Dividende an Benutzer ausschütten (via Job for better performance)
-                        \App\Jobs\ProcessDividendPayout::dispatch($stock->id);
+                        // Dividende an Benutzer ausschütten (synchron ausführen, um sicherzustellen, dass es funktioniert)
+                        $job = new \App\Jobs\ProcessDividendPayout($stock->id);
+                        $job->handle();
+                        \Log::info("Dividend payout job executed synchronously for stock {$stock->id}");
 
                         // Neue Dividende erzeugen
                         Dividend::create([
