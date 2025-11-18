@@ -144,11 +144,10 @@ class StockService
     public function getUserStocks($user)
     {
         // Eager Loading der Stock-Daten mit nur benötigten Feldern
-        $stockIds = $user->transactions
+        $stockIds = Transaction::where('user_id', $user->id)
             ->where('type', 'buy')
             ->pluck('stock_id')
-            ->unique()
-            ->filter();
+            ->unique();
 
         return Stock::whereIn('id', $stockIds)
             #->select('id', 'name', 'firma', 'sektor', 'land') // Nur benötigte Felder

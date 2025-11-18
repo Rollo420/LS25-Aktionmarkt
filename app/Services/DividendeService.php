@@ -72,8 +72,12 @@ class DividendeService
         $gt = new GameTime();
         $userAccounts = $stock->getUserAccount();
         $userAccounts->map(function ($user) use ($stock, $gt) {
-            
+
             $quantity = $stock->getCurrentQuantity($user);
+            if ($quantity <= 0) {
+                return; // Keine Dividende, wenn keine Aktien vorhanden
+            }
+
             $dividend_per_share = $stock->getCurrentDividendAmount();
             $total_dividend = $quantity * $dividend_per_share;
             if ($total_dividend > 0) {
@@ -83,7 +87,7 @@ class DividendeService
             $user->transactions()->create([
                 'type' => 'dividend',
                 'stock_id' => $stock->id,
-                'quantity' => -$quantity,
+                'quantity' => $quantity,
                 'price_at_buy' => $dividend_per_share,
                 'status' => true,
                 'game_time_id' => $gt->getCurrentGameTime()->id,

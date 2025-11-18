@@ -23,15 +23,8 @@ class DepositTransactionController extends Controller
         $user = Auth::user();
 
         // Alle Aktien des Users mit aggregierten Kennzahlen holen
-        // Alle Aktien des Users mit aggregierten Kennzahlen holen
-        $stocks = $stockService->getUserStocksWithStatistiks($user)
-            ->filter(function ($item) {
-                return $item->quantity !== 0;
-            })
-            ->values(); // ->values() sorgt dafür, dass die Keys neu nummeriert werden
+        $stocks = $stockService->getUserStocksWithStatistiks($user);
 
-
-        #dd($stocks);
         // Zur Depot-Übersichtsseite weiterleiten
         return view('depot.index', compact('stocks'));
     }

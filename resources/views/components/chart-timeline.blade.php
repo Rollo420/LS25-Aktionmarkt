@@ -5,8 +5,8 @@
         <button type="submit" name="months" value="3"
             @class([
                 'timeline-item',
-                'active' => session('timelineSelectedMonth') == 3,
-                'inactive' => session('timelineSelectedMonth') != 3,
+                'active' => session('timelineSelectedMonth', 12) == 3,
+                'inactive' => session('timelineSelectedMonth', 12) != 3,
             ])
         >
             3 Monate
@@ -15,8 +15,8 @@
         <button type="submit" name="months" value="6"
             @class([
                 'timeline-item',
-                'active' => session('timelineSelectedMonth') == 6,
-                'inactive' => session('timelineSelectedMonth') != 6,
+                'active' => session('timelineSelectedMonth', 12) == 6,
+                'inactive' => session('timelineSelectedMonth', 12) != 6,
             ])
         >
             6 Monate
@@ -25,8 +25,8 @@
         <button type="submit" name="months" value="12"
             @class([
                 'timeline-item',
-                'active' => session('timelineSelectedMonth') == 12,
-                'inactive' => session('timelineSelectedMonth') != 12,
+                'active' => session('timelineSelectedMonth', 12) == 12,
+                'inactive' => session('timelineSelectedMonth', 12) != 12,
             ])
         >
             12 Monate
@@ -35,8 +35,8 @@
         <button type="submit" name="months" value="24"
             @class([
                 'timeline-item',
-                'active' => session('timelineSelectedMonth') == 24,
-                'inactive' => session('timelineSelectedMonth') != 24,
+                'active' => session('timelineSelectedMonth', 12) == 24,
+                'inactive' => session('timelineSelectedMonth', 12) != 24,
             ])
         >
             24 Monate

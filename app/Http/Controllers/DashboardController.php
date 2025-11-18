@@ -339,7 +339,7 @@ class DashboardController extends Controller
      */
     private function createChartData($stocks, $user)
     {
-        $months = session('timelineSelectedMonth', 12);
+        $months = 12;
 
         // determine stock ids from provided $stocks collection (structure from StockService)
         $stockIds = collect($stocks)->map(fn($item) => data_get($item, 'stock.id'))->filter()->unique()->all();
