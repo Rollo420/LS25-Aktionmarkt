@@ -43,9 +43,11 @@ $sail artisan config:clear
 $sail artisan key:generate
 $sail artisan migrate:fresh --seed
 
-# 7️⃣ Node/Vite vorbereiten (optional)
+# 7️⃣ Node/Vite vorbereiten und Assets bauen
 echo "📦 Bereite Node/Vite vor..."
 $sail exec -T laravel.test bash -c "mkdir -p /app/node_modules"
+$sail exec laravel.test npm install
+$sail exec laravel.test npm run build
 
 # --- Permanenter Sail-Alias nur auf Linux ---
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
