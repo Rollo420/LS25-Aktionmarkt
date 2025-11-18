@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Models\Stock\Stock;
 use App\Models\BuyTransaction;
 use App\Models\SellTransaction;
+use \App\Models\GameTime;
 use App\Services\StockService;
 
 class OrderController extends Controller
@@ -31,12 +32,13 @@ class OrderController extends Controller
 
         try {
             // Always use the latest GameTime for synchronization with Price
-            $gameTime = \App\Models\GameTime::latest()->first();
+            $gameTime = GameTime::getCurrentGameTime();
             if (!$gameTime) {
                 // If no GameTime exists, create one for current date
                 $gtService = new \App\Services\GameTimeService();
                 $gameTime = $gtService->getOrCreate(Carbon::now());
             }
+            
 
             // Ensure a Price exists for this GameTime and Stock
             $existingPrice = \App\Models\Stock\Price::where('stock_id', $stock->id)
@@ -51,32 +53,17 @@ class OrderController extends Controller
                 $newPrice->save();
             }
             $bank = $user->bank()->first();
+            $currentPrice = $stock->getCurrentPrice();  
 
             if ($request->has('buy')) {
                 $quantityToBuy = $request->input('quantity');
-                $currentPrice = $stock->getCurrentPrice();
-
-                // Letzte offene Käufe
-                $previousBuys = BuyTransaction::where('user_id', $user->id)
-                    ->where('stock_id', $stock->id)
-                    ->where('quantity', '>', 0)
-                    ->get();
-
-                // Gewichteter Durchschnittspreis
-                $totalQuantity = $previousBuys->sum('quantity') + $quantityToBuy;
-                $totalCost = $previousBuys->reduce(function ($carry, $t) {
-                    $price = $t->computeResolvedPriceAtBuy() ?? $t->stock?->getCurrentPrice() ?? 0;
-                    return $carry + ($t->quantity * $price);
-                }, 0) + ($quantityToBuy * $currentPrice);
-
-                $averagePrice = $totalQuantity > 0 ? $totalCost / $totalQuantity : $currentPrice;
 
                 // Neue BuyTransaction erstellen
                 $buyTransaction = new BuyTransaction();
                 $buyTransaction->user_id = $user->id;
                 $buyTransaction->stock_id = $stock->id;
                 $buyTransaction->quantity = $quantityToBuy;
-                $buyTransaction->price_at_buy = null;
+                $buyTransaction->price_at_buy = $currentPrice;
                 $buyTransaction->type = 'buy';
                 $buyTransaction->status = false; // closed - sofort ausgeführt
                 $buyTransaction->game_time_id = $gameTime->id; // link to game_time
@@ -93,52 +80,30 @@ class OrderController extends Controller
                 $buyTransaction->save();
 
                 DB::commit();
-                return redirect()->back()->with('success', 'Kauf erfolgreich! Neuer Kontostand: ' . $bank->balance);
+                return redirect()->back()->with('success', 'Kauf erfolgreich! Sie haben Anteile im Wert von ' . $totalCostForThisBuy . ' erworben.');
             }
 
             if ($request->has('sell')) {
                 $sellQuantity = $request->input('quantity');
+                $totalBuyQuantity = $stock->getCurrentQuantity($user);
 
+                if($sellQuantity > $totalBuyQuantity) {
+                    throw new \Exception('Sie können nicht mehr Aktien verkaufen, als Sie besitzen.');
+                }
+                
                 // SellTransaction erstellen
                 $sellTransaction = new SellTransaction();
                 $sellTransaction->user_id = $user->id;
                 $sellTransaction->stock_id = $stock->id;
                 $sellTransaction->quantity = $sellQuantity;
-                $sellTransaction->price_at_buy = $stock->getCurrentPrice();
+                $sellTransaction->price_at_buy = $currentPrice;
                 $sellTransaction->status = false; // closed - sofort ausgeführt
                 $sellTransaction->type = 'sell';
                 $sellTransaction->game_time_id = $gameTime->id; // link to game_time
 
-                // Alte Käufe abrufen (FIFO)
-                $buyTransactions = BuyTransaction::where('user_id', $user->id)
-                    ->where('stock_id', $stock->id)
-                    ->where('quantity', '>', 0)
-                    ->where('type', 'buy')
-                    ->orderBy('game_time_id', 'asc')
-                    ->get();
-
-                $totalAvailable = $buyTransactions->sum('quantity');
-                if ($totalAvailable < $sellQuantity) {
-                    throw new \Exception('Nicht genügend offene Kaufpositionen. Du besitzt nur: ' . $totalAvailable);
-                }
-
-                // FIFO Verkauf
-                foreach ($buyTransactions as $buy) {
-                    if ($sellQuantity <= 0)
-                        break;
-                    $toSell = min($buy->quantity, $sellQuantity);
-                    $buy->quantity -= $toSell;
-
-                    if ($buy->quantity == 0) {
-                        $buy->status = false; // closed
-                    }
-                    $buy->save();
-                    $sellQuantity -= $toSell;
-                }
-
                 // Bank gutschreiben
                 $bank = $user->bank()->first();
-                $bank->balance += $sellTransaction->quantity * $stock->getCurrentPrice();
+                $bank->balance += $sellTransaction->quantity * $currentPrice;
                 $bank->save();
 
                 $sellTransaction->save();

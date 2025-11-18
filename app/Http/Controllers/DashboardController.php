@@ -62,10 +62,33 @@ class DashboardController extends Controller
             })
             ->values();
 
+        // Calculate proper averages from all holdings
+        $totalBuyPrice = $stocks->sum(function ($stockItem) {
+            return ($stockItem->avg_buy_price ?? 0) * ($stockItem->quantity ?? 0);
+        });
+        $totalQuantity = $stocks->sum('quantity');
+        $avgBuyPrice = $totalQuantity > 0 ? $totalBuyPrice / $totalQuantity : 0;
+
+        $avgDividendAmount = $stocks->avg(function ($stockItem) {
+            $stock = $stockItem->stock;
+            if (!$stock) return 0;
+            $latestDividend = $stock->getLatestDividend();
+            return $latestDividend ? ($latestDividend->amount_per_share ?? 0) : 0;
+        });
+
+        $avgDividendPercent = $stocks->avg(function ($stockItem) {
+            $stock = $stockItem->stock;
+            if (!$stock) return 0;
+            $latestDividend = $stock->getLatestDividend();
+            $currentPrice = $stock->getCurrentPrice();
+            if ($currentPrice <= 0) return 0;
+            return $latestDividend ? (($latestDividend->amount_per_share ?? 0) / $currentPrice) * 100 : 0;
+        });
+
         $depotInfo['averages'] = [
-            'avg_stock_price_eur' => round($depotInfo['nextDividends']->avg('price'), 2),        // Durchschnittlicher Aktienkurs (€)
-            'avg_dividend_amount_eur' => round($depotInfo['nextDividends']->avg('dividend'), 2),    // Durchschnittliche Dividende (€)
-            'avg_dividend_percent_total' => round($depotInfo['nextDividends']->avg('percent'), 2),     // Durchschnittliche Dividendenrendite (%)
+            'avg_stock_price_eur' => round($avgBuyPrice, 2),        // Durchschnittlicher Kaufpreis (€)
+            'avg_dividend_amount_eur' => round($avgDividendAmount, 2),    // Durchschnittliche Dividende (€)
+            'avg_dividend_percent_total' => round($avgDividendPercent, 2),     // Durchschnittliche Dividendenrendite (%)
         ];
 
         // Calculate total annual dividend income

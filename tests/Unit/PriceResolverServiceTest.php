@@ -32,8 +32,8 @@ class PriceResolverServiceTest extends TestCase
 
         $month = Carbon::createFromDate(2004, 5, 1);
 
-        $p1 = (object)[ 'name' => '10.00', 'gameTime' => (object)['current_year'=>2004,'month_id'=>3], 'created_at'=>'2025-11-01 00:00:00' ];
-        $p2 = (object)[ 'name' => '12.50', 'gameTime' => (object)['current_year'=>2004,'month_id'=>4], 'created_at'=>'2025-11-02 00:00:00' ];
+        $p1 = (object)[ 'name' => '10.00', 'gameTime' => (object)['name'=>'2004-03-01'], 'created_at'=>'2025-11-01 00:00:00' ];
+        $p2 = (object)[ 'name' => '12.50', 'gameTime' => (object)['name'=>'2004-04-01'], 'created_at'=>'2025-11-02 00:00:00' ];
 
         $pricesByStock = collect([1 => collect([$p1, $p2])]);
 

@@ -32,15 +32,12 @@ class StockService
 
         // Optimierte Berechnung mit einer einzigen Query statt mehreren N+1 Queries
         return Transaction::where('user_id', $user->id)
-            ->whereIn('type', ['buy', 'sell'])
+            ->where('type', 'buy')
             ->with(['stock:id,name']) // Eager Loading
             ->get()
             ->groupBy('stock_id')
             ->map(function ($transactions) {
-                $totalQuantity = 0;
-                foreach ($transactions as $t) {
-                    $totalQuantity += ($t->type === 'buy' ? 1 : -1) * $t->quantity;
-                }
+                $totalQuantity = $transactions->sum('quantity');
 
                 if ($totalQuantity > 0) {
                     $currentPrice = $transactions->first()->stock->getCurrentPrice() ?? 0;
@@ -91,12 +88,16 @@ class StockService
             });
         }
 
-        $totalBought = $filtered->count();
-        if ($totalBought <= 0) {
+        $totalQuantity = $filtered->sum('quantity');
+        $totalCost = $filtered->sum(function ($t) {
+            return $t->quantity * ($t->price_at_buy ?? 0);
+        });
+
+        if ($totalQuantity <= 0) {
             return 0;
         }
 
-        return $filtered->sum('price_at_buy') / $totalBought;
+        return $totalCost / $totalQuantity;
     }
 
     /**
@@ -185,6 +186,7 @@ class StockService
         return $user->transactions
             ->where('type', 'buy')
             ->where('stock_id', $stockID)
+            ->where('quantity', '>', 0) // Only include transactions with remaining quantity
             ->sortBy('created_at')
             ->values();
     }

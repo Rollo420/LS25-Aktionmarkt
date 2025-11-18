@@ -149,9 +149,9 @@ class TimeController extends Controller
                         ->exists();
 
                     if (!$exists) {
-                        
-                        // Dividende an Benutzer ausschütten
-                        $divService->shareDividendeToUsers($stock);
+
+                        // Dividende an Benutzer ausschütten (via Job for better performance)
+                        \App\Jobs\ProcessDividendPayout::dispatch($stock->id);
 
                         // Neue Dividende erzeugen
                         Dividend::create([

@@ -208,7 +208,7 @@ class ApplicationTest extends TestCase
         // If transaction was created, check average price
         if ($transactions->count() > 0) {
             $stockService = app(\App\Services\StockService::class);
-            $avgPrice = $stockService->calculateAverageBuyPrice($transactions->toArray());
+            $avgPrice = $stockService->calculateAverageBuyPrice($transactions);
             // Skip this check as the calculation might be complex and not directly testable here
             $this->assertTrue(true); // Just pass the test for now
         } else {

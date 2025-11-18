@@ -28,7 +28,7 @@ class GameTime extends Model
         return $this->hasMany(Transaction::class);
     }
 
-    public static function getCurrentGameTime()
+    public static function getCurrentGameTime(): ?GameTime
     {
         // Aktuellsten Price-Eintrag holen
         $currentPrice = Price::latest('game_time_id')->first();

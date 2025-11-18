@@ -60,7 +60,7 @@ class DepotTest extends TestCase
         $response = $this->actingAs($user)->get(route('depot.buyDetails', $stock->id));
 
         $response->assertStatus(200);
-        $response->assertSee('Durchschn. Einkaufpreis');
+        $response->assertSee('Durchschnittlicher Einkaufspreis');
         $response->assertSee('Kaufen/Verkaufen');
     }
 }
