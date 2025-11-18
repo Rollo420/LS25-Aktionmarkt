@@ -20,7 +20,7 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        $transaktionen = Transaction::where('user_id', auth()->id())
+        $transactions = Transaction::where('user_id', auth()->id())
             ->with(['stock', 'gameTime']) // Eager load relations
             ->orderBy('created_at', 'desc')
             ->get()
@@ -35,7 +35,7 @@ class PaymentController extends Controller
             ->get();
         //dd($transaktionen, $orders);
         return view('payment.index', [
-            'transaktionens' => $transaktionen,
+            'transactions' => $transactions,
             'orders' => $orders,
         ]);
     }
@@ -169,14 +169,14 @@ class PaymentController extends Controller
 
     public function transaction()
     {
-        $transaktionen = Transaction::where('user_id', auth()->id())
+        $transactions = Transaction::where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($transaction) {
                 return $transaction;
             });
         return view('payment.index', [
-            'transaktionens' => $transaktionen,
+            'transactions' => $transactions,
         ]);
     }
 

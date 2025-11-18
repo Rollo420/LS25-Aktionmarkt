@@ -20,11 +20,18 @@ class StockService
      */
     public function getTotalPortfolioValue(): float
     {
+        return $this->getTotalStockValue() + (Auth::user()->bank?->balance ?? 0);
+    }
+
+    /**
+     * Gesamtwert der Aktien im Depot (ohne Bankguthaben)
+     */
+    public function getTotalStockValue(): float
+    {
         $user = Auth::user();
-        $bankBalance = $user->bank?->balance ?? 0;
 
         // Optimierte Berechnung mit einer einzigen Query statt mehreren N+1 Queries
-        $stockValues = Transaction::where('user_id', $user->id)
+        return Transaction::where('user_id', $user->id)
             ->whereIn('type', ['buy', 'sell'])
             ->with(['stock:id,name']) // Eager Loading
             ->get()
@@ -43,8 +50,6 @@ class StockService
                 return 0;
             })
             ->sum();
-
-        return $stockValues + $bankBalance;
     }
 
     /**
@@ -115,7 +120,7 @@ class StockService
         $totalQuantity = $stock->getCurrentQuantity($user); // Use consistent quantity calculation
         $buyPrice = $this->calculateAverageBuyPrice($transactions);
         $firstBuyDate = $stock->getFirstBuyTransactionDateForStock();
-        $lastBuyDate = max(array_map(fn($t) => $t->getLastBuyTransactionDate(), $transactions));
+        $lastBuyDate = $stock->getLastBuyTransactionDateForStock();
         $currentPrice = $stock->getCurrentPrice();
         $profitLoss = ($currentPrice - $buyPrice) * $totalQuantity; // Fix profit calculation
         $profitLossPercent = $buyPrice > 0 ? ($currentPrice - $buyPrice) / $buyPrice * 100 : 0;

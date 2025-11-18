@@ -1,7 +1,7 @@
-- [ ] Rename transaktion() to transaction() in PaymentController.php
-- [ ] Remove unused payment.buy and payment.sell routes from routes/web.php
-- [ ] Fix the transfer div in resources/views/payment/index.blade.php to remove action attribute
-- [ ] Test the payment routes to ensure they work correctly
-wenn timeskip refresh clinets 
-dividende als kauf statt verkauf 
-dividendte debuggen 
+- [x] Rename transaktion() to transaction() in PaymentController.php
+- [x] Remove unused payment.buy and payment.sell routes from routes/web.php - No such routes found
+- [x] Fix the transfer div in resources/views/payment/index.blade.php to remove action attribute
+- [x] Test the payment routes to ensure they work correctly - All payment tests pass
+- [x] wenn timeskip refresh clinets - Added broadcasting to refresh all connected clients after timeskip
+- [x] dividende als kauf statt verkauf - Transaction type is already 'dividend' as confirmed
+- [x] dividendte debuggen - Added logging to DividendeService::shareDividendeToUsers

@@ -43,7 +43,7 @@
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Abgeschlossene Transaktionen</p>
-                                <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ $transaktionens->where('status', false)->count() }}</p>
+                                <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ $transactions->where('status', false)->count() }}</p>
                             </div>
                         </div>
                     </div>
@@ -102,7 +102,7 @@
                         <h1>Alle Transaktionen</h1>
                     </div>
                     <template x-if="open === 'transaction'">
-                        <x-transaction-list :transaktionens="$transaktionens ?? collect([])" />
+                        <x-transaction-list :transactions="$transactions ?? collect([])" />
                     </template>
                 </div>
                 <!-- Offene Orders -->

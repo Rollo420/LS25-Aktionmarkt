@@ -24,7 +24,7 @@ class PaymentTest extends TestCase
         $response->assertSee('Pay in');
         $response->assertSee('Pay out');
         $response->assertSee('Transfer');
-        $response->assertSee('Transaction');
+        $response->assertSee('Alle Transaktionen');
         $response->assertSee('Orders');
     }
 

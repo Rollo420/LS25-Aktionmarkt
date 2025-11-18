@@ -1,4 +1,5 @@
 import './bootstrap';
+import './timeskip-listener';
 
 import Alpine from 'alpinejs';
 

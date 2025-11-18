@@ -46,6 +46,9 @@ class DepositTransactionController extends Controller
         // Alle Transaktionen des Users für diese Aktie
         $stockTransactionsHistory = $this->getUserStockTransactions($id)->get();
 
+        // Buy-Transaktionen für die Historie
+        $stockBuyHistory = $this->getUserStockTransactions($id)->where('type', 'buy')->get();
+
         // Aggregierte Kennzahlen berechnen - wenn keine Transaktionen vorhanden, Stock-Objekt verwenden
         if ($stockTransactionsHistory->isEmpty()) {
             $stockData = $stockService->getStockStatistiks($stock, $user);
@@ -54,7 +57,7 @@ class DepositTransactionController extends Controller
         }
         #dd($stockData);
         // View mit allen Daten zurückgeben
-        return view('depot.depotStockDetails', compact('stock', 'stockData', 'stockTransactionsHistory'));
+        return view('depot.depotStockDetails', compact('stock', 'stockData', 'stockTransactionsHistory', 'stockBuyHistory'));
     }
 
     public function getUserStockTransactions($stockId)

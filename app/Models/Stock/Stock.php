@@ -96,8 +96,13 @@ class Stock extends Model
 
     public function getLastBuyTransactionDateForStock()
     {
-        return $this->transactions()->where('type', 'buy')->first()
-            ->getLastBuyTransactionDate();
+        $lastTransaction = $this->transactions()
+            ->where('type', 'buy')
+            ->orderBy('game_time_id', 'desc')
+            ->with('gameTime')
+            ->first();
+
+        return $lastTransaction?->gameTime?->name;
     }
 
     public function getFirstBuyTransactionDateForStock()

@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <form method="POST" action="{{route("payment.transfer")}}" class="mt-4 flex flex-col gap-2">
+    <form method="POST" class="mt-4 flex flex-col gap-2">
         @csrf
         <label class="text-gray-200">To Account</label>
         <input type="string" name="to_account" class="rounded p-2 bg-gray-900 text-white" value="DE61 12345678 2848820727" placeholder="DE61 12345678 2848820727" required>

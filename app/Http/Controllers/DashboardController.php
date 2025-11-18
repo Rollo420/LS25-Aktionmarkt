@@ -68,6 +68,30 @@ class DashboardController extends Controller
             'avg_dividend_percent_total' => round($depotInfo['nextDividends']->avg('percent'), 2),     // Durchschnittliche Dividendenrendite (%)
         ];
 
+        // Calculate total annual dividend income
+        $depotInfo['totalAnnualDividends'] = $stocks->sum(function ($stockItem) {
+            $stock = $stockItem->stock;
+            if (!$stock) return 0;
+            $quantity = $stockItem->quantity ?? 0;
+            $latestDividend = $stock->getLatestDividend();
+            return $latestDividend ? ($latestDividend->amount_per_share ?? 0) * $quantity : 0;
+        });
+
+        // Calculate detailed portfolio statistics
+        $allPositions = collect($stocks);
+        $totalCurrentValue = $allPositions->sum(function ($stockItem) {
+            $stock = $stockItem->stock;
+            if (!$stock) return 0;
+            $quantity = $stockItem->quantity ?? 0;
+            return $quantity * $stock->getCurrentPrice();
+        });
+        $depotInfo['portfolioStats'] = [
+            'totalUniqueStocks' => $allPositions->unique(fn($item) => $item->stock->id ?? null)->count(),
+            'totalQuantity' => $allPositions->sum('quantity'),
+            'totalCurrentValue' => $totalCurrentValue,
+            'totalDividendAmount' => $depotInfo['totalAnnualDividends'] ?? 0,
+        ];
+
 
         // Nur die Top 5 nächsten Dividenden anzeigen
         $depotInfo['nextDividends'] = $depotInfo['nextDividends']->take(5)->toArray();

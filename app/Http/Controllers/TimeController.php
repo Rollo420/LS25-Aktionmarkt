@@ -12,6 +12,7 @@ use App\Models\Dividend;
 
 use App\Services\GameTimeService;
 use \App\Services\DividendeService;
+use App\Events\TimeskipCompleted;
 
 
 class TimeController extends Controller
@@ -67,6 +68,10 @@ class TimeController extends Controller
         $selectedMonth = $request->input('choose');
         $this->skipTime($selectedMonth);
         session(['selectedMonth' => $selectedMonth]);
+
+        // Broadcast timeskip completion to refresh all connected clients
+        broadcast(new TimeskipCompleted('Timeskip to ' . $selectedMonth . ' completed successfully'))->toOthers();
+
         return redirect()->route('time.index');
     }
 

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Responses\Dividende;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 use App\Services\GameTimeService;
 
@@ -68,20 +69,31 @@ class DividendeService
 
     public function shareDividendeToUsers(Stock $stock)
     {
-        
+        Log::info("Starting dividend payout for stock: {$stock->name} (ID: {$stock->id})");
+
         $gt = new GameTime();
         $userAccounts = $stock->getUserAccount();
-        $userAccounts->map(function ($user) use ($stock, $gt) {
+        $totalUsers = $userAccounts->count();
+        $totalPayout = 0;
+
+        Log::info("Found {$totalUsers} users with holdings for stock {$stock->name}");
+
+        $userAccounts->map(function ($user) use ($stock, $gt, &$totalPayout) {
 
             $quantity = $stock->getCurrentQuantity($user);
             if ($quantity <= 0) {
+                Log::debug("User {$user->id} has no holdings for stock {$stock->id}, skipping dividend");
                 return; // Keine Dividende, wenn keine Aktien vorhanden
             }
 
             $dividend_per_share = $stock->getCurrentDividendAmount();
             $total_dividend = $quantity * $dividend_per_share;
+
+            Log::info("User {$user->id}: quantity={$quantity}, dividend_per_share={$dividend_per_share}, total_dividend={$total_dividend}");
+
             if ($total_dividend > 0) {
                 $user->addBankAccountBalance($total_dividend);
+                $totalPayout += $total_dividend;
             }
 
             $user->transactions()->create([
@@ -93,6 +105,7 @@ class DividendeService
                 'game_time_id' => $gt->getCurrentGameTime()->id,
             ]);
         });
-        
+
+        Log::info("Dividend payout completed for stock {$stock->name}. Total payout: {$totalPayout} to {$totalUsers} users");
     }
 }

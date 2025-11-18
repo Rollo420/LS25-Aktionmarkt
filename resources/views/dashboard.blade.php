@@ -319,49 +319,47 @@ $buyQty = $depotInfo['purchasing_power']['can_buy_quantity'] ?? 0;
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-base">
 
                         @php
-$allPositions = collect($depotInfo['tops']['topThreeUp'] ?? [])->merge(collect($depotInfo['tops']['topThreeDown'] ?? []));
-$allDividends = collect($depotInfo['nextDividends'] ?? []);
-
-$totalUniqueStocks = $allPositions->unique(fn($item) => $item->stock->id ?? null)->count();
-$totalQuantity = $allPositions->sum('quantity');
-$totalCurrentValue = $depotInfo['totalPortfolioValue'] ?? 0;
-$totalDividendAmount = $allDividends->sum('dividend');
+$portfolioStats = $depotInfo['portfolioStats'] ?? [];
+$totalUniqueStocks = $portfolioStats['totalUniqueStocks'] ?? 0;
+$totalQuantity = $portfolioStats['totalQuantity'] ?? 0;
+$totalCurrentValue = $portfolioStats['totalCurrentValue'] ?? 0;
+$totalDividendAmount = $portfolioStats['totalDividendAmount'] ?? 0;
                         @endphp
 
-                        <div class="flex flex-col border-l-4 border-indigo-500 pl-4">
+                        <div class="flex flex-col pl-4" style="border-left: 4px solid #6366f1 !important;">
                             <span class="text-gray-500 dark:text-gray-400 font-medium">Unique Aktienarten</span>
                             <span
                                 class="font-bold text-2xl text-gray-900 dark:text-gray-100">{{ $totalUniqueStocks }}</span>
                         </div>
 
-                        <div class="flex flex-col border-l-4 border-indigo-500 pl-4">
+                        <div class="flex flex-col pl-4" style="border-left: 4px solid #6366f1 !important;">
                             <span class="text-gray-500 dark:text-gray-400 font-medium">Gesamt gehaltene Menge</span>
                             <span
                                 class="font-bold text-2xl text-gray-900 dark:text-gray-100">{{ $totalQuantity }}</span>
                         </div>
 
-                        <div class="flex flex-col border-l-4 border-yellow-500 pl-4">
-                            <span class="text-gray-500 dark:text-gray-400 font-medium">Gesamt-Dividenden (p.P.)</span>
+                        <div class="flex flex-col pl-4" style="border-left: 4px solid #eab308 !important;">
+                            <span class="text-gray-500 dark:text-gray-400 font-medium" title="Jährliche Dividenden-Einnahmen">Gesamt-Dividenden (p.P.)</span>
                             <span
-                                class="font-bold text-2xl text-yellow-600 dark:text-yellow-400 !important">{{ number_format($totalDividendAmount, 2, ',', '.') }}
+                                class="font-bold text-2xl" style="color: #d97706 !important;">{{ number_format($totalDividendAmount, 2, ',', '.') }}
                                 €</span>
                         </div>
 
-                        <div class="flex flex-col border-l-4 border-indigo-500 pl-4">
+                        <div class="flex flex-col pl-4" style="border-left: 4px solid #6366f1 !important;">
                             <span class="text-gray-500 dark:text-gray-400 font-medium">Aktueller Wert (Bestand)</span>
                             <span
                                 class="font-bold text-2xl text-gray-900 dark:text-gray-100">{{ number_format($totalCurrentValue, 2, ',', '.') }}
                                 €</span>
                         </div>
 
-                        <div class="flex flex-col border-l-4 border-gray-500 pl-4">
+                        <div class="flex flex-col pl-4" style="border-left: 4px solid #6b7280 !important;">
                             <span class="text-gray-500 dark:text-gray-400 font-medium">Avg. Kaufpreis/Aktie</span>
                             <span
                                 class="font-bold text-2xl text-gray-900 dark:text-gray-100">{{ number_format($depotInfo['averages']['avg_stock_price_eur'] ?? 0, 2, ',', '.') }}
                                 €</span>
                         </div>
 
-                        <div class="flex flex-col border-l-4 border-gray-500 pl-4">
+                        <div class="flex flex-col pl-4" style="border-left: 4px solid #6b7280 !important;">
                             <span class="text-gray-500 dark:text-gray-400 font-medium">Avg. Dividende/Aktie</span>
                             <span
                                 class="font-bold text-2xl text-gray-900 dark:text-gray-100">{{ number_format($depotInfo['averages']['avg_dividend_amount_eur'] ?? 0, 2, ',', '.') }}
@@ -381,7 +379,7 @@ $lastTransactions = collect($depotInfo['lastTransactions'] ?? [])->take(5);
                     @endphp
 
                     @if($lastTransactions->count() > 0)
-                        <x-transaction-list :transaktionens="$lastTransactions" />
+                        <x-transaction-list :transactions="$lastTransactions" />
                     @else
                         <p class="text-gray-500 dark:text-gray-400 text-sm">Keine aktuellen Transaktionen vorhanden.</p>
                     @endif
