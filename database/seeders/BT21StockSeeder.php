@@ -12,7 +12,7 @@ class BT21StockSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): ?Collection // Der Typ wird auf Ramsey\Collection\Collection aufgelöst.
+    public function run(): ?Collection 
     {
 
         // Erstellung der Models und Speicherung in einer Variablen
