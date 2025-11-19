@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Bank;
+use App\Models\GameTime;
 
 class AdminAccountSeeder extends Seeder
 {
@@ -40,7 +41,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => true, // closed -> true (sofort ausgeführt)
                     'type' => 'buy',
                     'quantity' => 15,
-                    'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
+                    'game_time_id' => (new GameTime()->getCurrentGameTime())->id,
                     'price_at_buy' => \App\Models\Stock\Stock::find(2)?->getCurrentPrice() ?? 37.54, // Aktueller Preis der Aktie
                 ],
                 [
@@ -49,7 +50,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => true, // closed -> true (sofort ausgeführt)
                     'type' => 'sell',
                     'quantity' => 30,
-                    'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
+                    'game_time_id' => (new GameTime()->getCurrentGameTime())->id,
                     'price_at_buy' => null, // Sell-Transaktionen brauchen keinen price_at_buy
                 ],
             ];

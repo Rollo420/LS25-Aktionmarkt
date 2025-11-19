@@ -46,7 +46,7 @@ class StockSeeder extends Seeder
             $currentDate = $currentDate->addMonth();
         }
         
-        foreach ($bt21Stocks as $stock) {
+        foreach ($allStocks as $stock) {
             $lastPrice = 100.0; // Initialer Preis
             
             foreach ($gameTimes as $gt) {
