@@ -1,8 +1,6 @@
-- [x] Rename transaktion() to transaction() in PaymentController.php
-- [x] Remove unused payment.buy and payment.sell routes from routes/web.php - No such routes found
-- [x] Fix the transfer div in resources/views/payment/index.blade.php to remove action attribute
-- [x] Test the payment routes to ensure they work correctly - All payment tests pass
-- [x] wenn timeskip refresh clinets - Added broadcasting to refresh all connected clients after timeskip
-- [x] dividende als kauf statt verkauf - Transaction type is already 'dividend' as confirmed
-- [x] dividendte debuggen - Added logging to DividendeService::shareDividendeToUsers
-- [x] Dividenden-Auszahlung und Timeskip-Refresh beheben: Job synchron ausgeführt statt dispatch, '->toOthers()' aus Broadcast entfernt, Logging hinzugefügt. Tests durchführen.
+# TODO: Combine BT21 Stocks with StockSeeder
+
+## Tasks
+- [x] Modify StockSeeder.php to call BT21StockSeeder, get the BT21 stocks collection, create its own stocks, and return a combined collection.
+- [x] Update the return type of StockSeeder::run() to Collection.
+- [x] Test the combined seeder to ensure both BT21 and other stocks are created.

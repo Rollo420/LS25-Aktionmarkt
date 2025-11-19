@@ -503,7 +503,7 @@
             // Get form data
             const formData = new FormData(this);
             const configData = {
-                id: Date.now(), // Simple ID generation
+             //   id: Date.now(), // Simple ID generation
                 name: formData.get('name'),
                 description: formData.get('description'),
                 volatility_range: parseFloat(formData.get('volatility_range')),
