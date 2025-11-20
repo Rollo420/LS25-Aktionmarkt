@@ -79,7 +79,7 @@ class TimeController extends Controller
 
     public function skipTime($selectedMonth)
     {
-        $stocks = Stock::all();
+        $stocks = Stock::with('configs')->get();
         $gameTime = new GameTime();
         $gtService = new GameTimeService();
         $divService = new DividendeService();
@@ -122,8 +122,11 @@ class TimeController extends Controller
                     $lastPrice = 100.0; // Fallback, wenn kein Preis vorhanden
                 }
 
-                // Neuen Preis berechnen mit generatePrice
-                $newPriceValue = $this->generatePrice($lastPrice, $monthIndex);
+                // Stock-spezifische Config laden (oder Default verwenden)
+                $stockConfig = $stock->configs()->first();
+
+                // Neuen Preis berechnen mit generatePrice und der Stock-Config
+                $newPriceValue = $this->generatePrice($lastPrice, $monthIndex, $stockConfig);
 
                 // Preis-Eintrag für diesen Monat erzeugen (manuell)
                 Price::create([
@@ -174,20 +177,23 @@ class TimeController extends Controller
     // =========================
     // Preisgenerierung modular
     // =========================
-    public function generatePrice(float $lastPrice, int $monthIndex): float
+    public function generatePrice(float $lastPrice, int $monthIndex, $stockConfig = null): float
     {
+        // Nutze Stock-Config wenn vorhanden, sonst Default-Config
+        $config = $this->getConfigFromModel($stockConfig);
+
         $price = $lastPrice;
 
-        if ($this->config['useExcelRandom']) {
-            $price = $this->applyExcelRandom($price, $this->config['excelRandomRange']);
+        if ($config['useExcelRandom']) {
+            $price = $this->applyExcelRandom($price, $config['excelRandomRange']);
         }
 
-        if ($this->config['useCrashRally']) {
-            $price = $this->applyCrashRally($price);
+        if ($config['useCrashRally']) {
+            $price = $this->applyCrashRally($price, $config['crashProbability'], $config['rallyProbability']);
         }
 
-        if ($this->config['useSeasonalEffect']) {
-            $price = $this->applySeasonalEffect($price, $monthIndex, $this->config['seasonalEffectRange']);
+        if ($config['useSeasonalEffect']) {
+            $price = $this->applySeasonalEffect($price, $monthIndex, $config['seasonalEffectRange']);
         }
 
         // Mindestpreis
@@ -195,6 +201,27 @@ class TimeController extends Controller
             $price = max(0.1, abs($lastPrice * 0.9));
 
         return round($price, 2);
+    }
+
+    // =========================
+    // Config aus Model extrahieren
+    // =========================
+    protected function getConfigFromModel($stockConfig = null): array
+    {
+        if ($stockConfig) {
+            return [
+                'useExcelRandom' => true,
+                'excelRandomRange' => $stockConfig->volatility_range ?? 0.04,
+                'useSeasonalEffect' => true,
+                'seasonalEffectRange' => $stockConfig->seasonal_effect_strength ?? 0.026,
+                'useCrashRally' => true,
+                'crashProbability' => 1 / ($stockConfig->crash_interval_months ?? 240),
+                'rallyProbability' => 1 / ($stockConfig->rally_interval_months ?? 360),
+            ];
+        }
+
+        // Fallback auf Default-Config
+        return $this->config;
     } 
 
     // =========================
@@ -209,12 +236,15 @@ class TimeController extends Controller
     // =========================
     // Crash/Rallye Simulation
     // =========================
-    protected function applyCrashRally(float $price): float
+    protected function applyCrashRally(float $price, float $crashProb = null, float $rallyProb = null): float
     {
+        $crashProb = $crashProb ?? $this->config['crashProbability'];
+        $rallyProb = $rallyProb ?? $this->config['rallyProbability'];
+
         $rand = mt_rand() / mt_getrandmax();
-        if ($rand < $this->config['crashProbability']) {
+        if ($rand < $crashProb) {
             $price *= 1 - mt_rand(20, 50) / 100; // Crash -20% bis -50%
-        } elseif ($rand < $this->config['crashProbability'] + $this->config['rallyProbability']) {
+        } elseif ($rand < $crashProb + $rallyProb) {
             $price *= 1 + mt_rand(20, 50) / 100; // Rally +20% bis +50%
         }
         return $price;
