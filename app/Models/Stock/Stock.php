@@ -73,6 +73,47 @@ class Stock extends Model
         return (float) ($this->getLatestDividend()->amount_per_share ?? 0);
     }
 
+    public function getPriceAtGameTime($gameTime): float
+    {
+        if (!$gameTime) {
+            return $this->getCurrentPrice();
+        }
+
+        $price = $this->prices()
+            ->where('game_time_id', $gameTime->id)
+            ->first();
+
+        return $price ? (float) $price->name : $this->getCurrentPrice();
+    }
+
+    public function getDividendAtGameTime($gameTime): ?Dividend
+    {
+        if (!$gameTime) {
+            return $this->getLatestDividend();
+        }
+
+        return $this->dividends()
+            ->where('game_time_id', $gameTime->id)
+            ->orderBy('game_time_id', 'DESC')
+            ->first();
+    }
+
+    public function calculateNextDividendDateAtGameTime($gameTime): ?Carbon
+    {
+        if (!$gameTime) {
+            return $this->calculateNextDividendDate();
+        }
+
+        $latestDividend = $this->getDividendAtGameTime($gameTime);
+        if (!$latestDividend) {
+            return null;
+        }
+
+        $baseDate = Carbon::parse($latestDividend->gameTime->name);
+        $monthsBetween = $this->dividend_frequency > 0 ? 12 / $this->dividend_frequency : 12;
+        return $baseDate->copy()->addMonths($monthsBetween);
+    }
+
     public function calculateNextDividendDate($date = null): ?Carbon
     {
         // 1️⃣ Basisdatum bestimmen

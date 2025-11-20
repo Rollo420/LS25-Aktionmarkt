@@ -103,7 +103,7 @@ class StockService
     /**
      * Aggregierte Kennzahlen pro Aktie
      */
-    public function getStockStatistiks( $transactions, $user, int $currentMonth = null)
+    public function getStockStatistiks( $transactions, $user, int $currentMonth = null, $gameTime = null)
     {
         if ($transactions instanceof Collection && $transactions->first() instanceof Stock) {
             $transactions = $transactions->all();
@@ -194,16 +194,18 @@ class StockService
     /**
      * Anteil der Aktie am Depot basierend auf aktuellem Wert (nicht investiertem Kapital)
      */
-    public function getDepositShareInPercent($user, $stock)
+    public function getDepositShareInPercent($user, $stock, $gameTime = null)
     {
         // Aktueller Wert dieser Aktie im Depot
-        $currentStockValue = $stock->getCurrentQuantity($user) * $stock->getCurrentPrice();
+        $currentPrice = $gameTime ? $stock->getPriceAtGameTime($gameTime) : $stock->getCurrentPrice();
+        $currentStockValue = $stock->getCurrentQuantity($user) * $currentPrice;
 
         // Gesamtwert aller Aktien im Depot (nur Aktien mit positiver Menge)
         $totalPortfolioValue = $this->getUserStocks($user)
             ->filter(fn($s) => $s->getCurrentQuantity($user) > 0)
-            ->sum(function ($s) use ($user) {
-                return $s->getCurrentQuantity($user) * $s->getCurrentPrice();
+            ->sum(function ($s) use ($user, $gameTime) {
+                $price = $gameTime ? $s->getPriceAtGameTime($gameTime) : $s->getCurrentPrice();
+                return $s->getCurrentQuantity($user) * $price;
             });
 
         if ($totalPortfolioValue == 0) {

@@ -30,13 +30,16 @@ class DividendeService
             return new Dividende();
         }
 
-        $dividend = $stock->getLatestDividend();
+        // get current game time (if available) so we can query historical/dividend data at that time
+        $gameTime = (new GameTime()->getCurrentGameTime());
+
+        $dividend = $gameTime ? $stock->getDividendAtGameTime($gameTime) : $stock->getLatestDividend();
 
         if (!$dividend) {
             return new Dividende();
         }
 
-        $price = $stock->getLatestPrice();
+        $price = $gameTime ? $stock->getPriceAtGameTime($gameTime) : $stock->getLatestPrice();
         $amount = $dividend->amount_per_share;
         $percent = $price > 0 ? ($amount / $price) * 100 : 0; // Dividendenrendite in %
 
@@ -55,8 +58,8 @@ class DividendeService
 
         $dividende->dividendPerShare = round($amount, 2);
         $dividende->dividendPercent = round($percent, 2); // Prozentwert
-        $dividende->next_date = $stock->calculateNextDividendDate() ? $stock->calculateNextDividendDate()->format('d.m.Y') : null;
-        $dividende->next_amount = $stock->getLatestDividend()->amount_per_share ?? 0;
+        $dividende->next_date = $stock->calculateNextDividendDateAtGameTime($gameTime) ? $stock->calculateNextDividendDateAtGameTime($gameTime)->format('d.m.Y') : null;
+        $dividende->next_amount = $dividend->amount_per_share ?? 0;
         $dividende->last_date = Carbon::parse($dividend->gameTime->name)->format('d.m.Y');
         $dividende->last_amount = $dividend->amount_per_share;
         $dividende->frequency_per_year = $stock->dividend_frequency ?? 0;

@@ -15,6 +15,8 @@ class AdminAccountSeeder extends Seeder
      */
     public function run(): void
     {
+
+        $currentGameTimeID = (new GameTime()->getCurrentGameTime())->id;
         // Erstelle einen Administrator-Account
         //Jan Account
         if (!User::where('email', 'woodly@gmail.com')->exists()) {
@@ -41,7 +43,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => true, // closed -> true (sofort ausgeführt)
                     'type' => 'buy',
                     'quantity' => 15,
-                    'game_time_id' => (new GameTime()->getCurrentGameTime())->id,
+                    'game_time_id' => $currentGameTimeID,
                     'price_at_buy' => \App\Models\Stock\Stock::find(2)?->getCurrentPrice() ?? 37.54, // Aktueller Preis der Aktie
                 ],
                 [
@@ -50,7 +52,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => true, // closed -> true (sofort ausgeführt)
                     'type' => 'sell',
                     'quantity' => 30,
-                    'game_time_id' => (new GameTime()->getCurrentGameTime())->id,
+                    'game_time_id' => $currentGameTimeID,
                     'price_at_buy' => null, // Sell-Transaktionen brauchen keinen price_at_buy
                 ],
             ];
@@ -83,7 +85,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => true, // closed -> true (sofort ausgeführt)
                     'type' => 'buy',
                         'quantity' => 10,
-                        'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
+                        'game_time_id' => $currentGameTimeID,
                         'price_at_buy' => \App\Models\Stock\Stock::find(1)?->getCurrentPrice() ?? 25.00, // Aktueller Preis der Aktie
                 ],
                 [
@@ -92,7 +94,7 @@ class AdminAccountSeeder extends Seeder
                     'status' => true, // closed -> true (sofort ausgeführt)
                     'type' => 'sell',
                         'quantity' => 20,
-                        'game_time_id' => (new \App\Services\GameTimeService())->getOrCreate(\Carbon\Carbon::create((int)date('Y'), (int)date('m'), 1))->id,
+                        'game_time_id' => $currentGameTimeID,
                         'price_at_buy' => null, // Sell-Transaktionen brauchen keinen price_at_buy
                 ],
             ];

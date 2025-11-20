@@ -19,8 +19,9 @@ class DashboardController extends Controller
     public function index(StockService $stockService, DividendeService $dividendeService)
     {
         $user = Auth::user();
+        $currentGameTime = GameTime::getCurrentGameTime();
 
-        $stocks = $stockService->getUserStocksWithStatistiks($user);
+        $stocks = $stockService->getUserStocksWithStatistiks($user, null, $currentGameTime);
 
         $depotInfo['totalPortfolioValue'] = $stockService->getTotalPortfolioValue();
 
@@ -92,11 +93,11 @@ class DashboardController extends Controller
         ];
 
         // Calculate total annual dividend income
-        $depotInfo['totalAnnualDividends'] = $stocks->sum(function ($stockItem) {
+        $depotInfo['totalAnnualDividends'] = $stocks->sum(function ($stockItem) use ($currentGameTime) {
             $stock = $stockItem->stock;
             if (!$stock) return 0;
             $quantity = $stockItem->quantity ?? 0;
-            $latestDividend = $stock->getLatestDividend();
+            $latestDividend = $stock->getDividendAtGameTime($currentGameTime);
             return $latestDividend ? ($latestDividend->amount_per_share ?? 0) * $quantity : 0;
         });
 
@@ -124,13 +125,13 @@ class DashboardController extends Controller
         $depotInfo["monthly_performance"] = $this->calculatePortfolioPerformance($stocks, $user);
 
         // Risiko-Metriken (Cash-Anteil, Beta-Wert)
-        $depotInfo["risk_metrics"] = $this->calculateRiskMetrics($user, $depotInfo['totalPortfolioValue']);
+        $depotInfo["risk_metrics"] = $this->calculateRiskMetrics($user, $depotInfo['totalPortfolioValue'], $currentGameTime);
 
         // Daten für den Dividenden-Chart
         $depotInfo["dividend_chart"] = 0;
 
         // Kaufkraft-Metrik
-        $depotInfo["purchasing_power"] = $this->calculatePurchasingPower($stocks);
+        $depotInfo["purchasing_power"] = $this->calculatePurchasingPower($stocks, $currentGameTime);
 
 
 
@@ -335,7 +336,7 @@ class DashboardController extends Controller
     /**
      * Berechnet Risiko-Kennzahlen: Cash, Investitionsquote, Beta.
      */
-    private function calculateRiskMetrics($user, $totalPortfolioValue)
+    private function calculateRiskMetrics($user, $totalPortfolioValue, $gameTime = null)
     {
         $cashBalance = $user->bank?->balance ?? 0;
         $totalCapital = $totalPortfolioValue;
@@ -351,14 +352,14 @@ class DashboardController extends Controller
     /**
      * Berechnet Kaufkraft basierend auf jährlichen Dividenden und Beispiel-Aktie (Apple).
      */
-    private function calculatePurchasingPower($stocks)
+    private function calculatePurchasingPower($stocks, $gameTime = null)
     {
         $annualDividends = 0.0;
         foreach ($stocks as $stockItem) {
             $stock = $stockItem->stock;
             if (!$stock) continue;
             $quantity = $stockItem->quantity ?? 0;
-            $latestDividend = $stock->getLatestDividend();
+            $latestDividend = $stock->getDividendAtGameTime($gameTime);
             if ($latestDividend) {
                 $annualDividends += ($latestDividend->amount_per_share ?? 0) * $quantity;
             }
@@ -370,7 +371,7 @@ class DashboardController extends Controller
             $exampleStock = Stock::first();
         }
         $stockName = $exampleStock ? $exampleStock->name : 'N/A';
-        $stockPrice = $exampleStock ? $exampleStock->getCurrentPrice() : 0;
+        $stockPrice = $exampleStock ? $exampleStock->getPriceAtGameTime($gameTime) : 0;
         $canBuyQuantity = $stockPrice > 0 ? $annualDividends / $stockPrice : 0;
 
         return [
@@ -391,11 +392,10 @@ class DashboardController extends Controller
         // determine stock ids from provided $stocks collection (structure from StockService)
         $stockIds = collect($stocks)->map(fn($item) => data_get($item, 'stock.id'))->filter()->unique()->all();
 
-        // Prefer the latest GameTime present in DB (created by time-skip). This ensures charts end at the
-        // current ingame month (we orient exclusively on in-game time for the dashboard).
+        // Use current GameTime for all calculations
         $gtService = new GameTimeService();
-        $latestGameTime = GameTime::orderBy('created_at', 'desc')->first();
-        if (!$latestGameTime) {
+        $currentGameTime = GameTime::getCurrentGameTime();
+        if (!$currentGameTime) {
             // Fallback if no GameTime exists
             return [
                 'labels' => [],
@@ -414,20 +414,15 @@ class DashboardController extends Controller
             ];
         }
 
-        $endMonth = $gtService->toDate($latestGameTime)->startOfMonth();
+        $endMonth = $gtService->toDate($currentGameTime)->startOfMonth();
 
-        // Also determine the earliest GameTime we have so we can avoid building months before game start
-        $firstGameTime = GameTime::orderBy('created_at', 'asc')->first();
-        $firstGameTimeMonth = $firstGameTime ? $gtService->toDate($firstGameTime)->startOfMonth() : null;
-
-        // Build simulated months ending at $endMonth (ascending). Stop early if we reach the first known GameTime.
-        // Only use GameTime months, not calendar months
+        // Build simulated months ending at $endMonth (ascending). Only use GameTime months
         $allGameTimes = GameTime::orderBy('created_at', 'asc')->get()->map(fn($gt) => $gtService->toDate($gt)->startOfMonth());
 
         // Filter to get the most recent $months GameTime months
         $simulatedMonths = $allGameTimes->reverse()->take($months)->reverse()->values();
 
-        // labels use month name + two-digit year
+        // labels use month name + two-digit year (Ingame-Monate)
         $labels = $simulatedMonths->map(fn($d) => $d->format('F y'))->all();
 
         $portfolioValues = $this->getHistoricalPortfolioValues($user, $simulatedMonths);
