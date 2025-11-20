@@ -107,7 +107,7 @@ class DividendeService
                         'stock_id' => $stock->id,
                         'quantity' => $quantity,
                         'price_at_buy' => $dividend_per_share,
-                        'status' => true,
+                        'status' => false, // closed - sofort ausgezahlt
                         'game_time_id' => $gt->getCurrentGameTime()->id,
                     ]);
 
