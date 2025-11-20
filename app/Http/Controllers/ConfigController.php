@@ -61,4 +61,30 @@ class ConfigController extends Controller
             ->with('success', 'Config aktualisiert');
     }
 
+    public function show(Config $config)
+    {
+        return view('admin.configs.show', compact('config'));
+    }
+
+    public function edit(Config $config)
+    {
+        return view('admin.configs.edit', compact('config'));
+    }
+
+    public function destroy(Config $config)
+    {
+        try {
+            $configName = $config->name;
+            $config->delete();
+
+            // Cache invalidieren
+            \Illuminate\Support\Facades\Cache::forget('app.config.all');
+
+            return redirect()->route('admin.configs.index')
+                ->with('success', __('Config "') . $configName . __('" wurde gelöscht'));
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', __('Fehler beim Löschen: ') . $e->getMessage());
+        }
+    }
 }

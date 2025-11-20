@@ -9,6 +9,7 @@ use App\Models\Stock\Stock;
 use App\Models\Stock\Price;
 use App\Services\GameTimeService;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Log;
 use App\Models\GameTime;
 
 class AdminController extends Controller
@@ -102,8 +103,7 @@ class AdminController extends Controller
             'net_income' => 'nullable|numeric',
             'dividend_frequency' => 'nullable|integer|min:0|max:12',
             'start_price' => 'nullable|numeric|min:0',
-            'dividend_amount' => 'nullable|numeric|min:0',
-            'next_dividend_date' => 'nullable|date|after:now',
+            'dividend_amount' => 'required|numeric|min:0',
             'generate_missing' => 'nullable|boolean',
         ]);
 
@@ -139,7 +139,11 @@ class AdminController extends Controller
         $stockData['dividend_frequency'] = $request->dividend_frequency ?? rand(0, 4);
 
         $stock = Stock::create($stockData);
-        $stock->configs()->attach(1);
+        // Attach a default config if one exists to maintain previous behaviour when configs were used.
+        $defaultConfig = \App\Models\Config::first();
+        if ($defaultConfig) {
+            $stock->configs()->attach($defaultConfig->id);
+        }
 
         // Create initial price for current game time
         $currentGameTime = GameTime::getCurrentGameTime();
@@ -151,24 +155,252 @@ class AdminController extends Controller
             'name' => $startPrice,
         ]);
 
-        // Create initial dividend if frequency > 0 or if dividend_amount is provided
-        if ($stock->dividend_frequency > 0 || $request->filled('dividend_amount')) {
-            $dividendAmount = $request->dividend_amount ?: fake()->randomFloat(2, 0.5, 2.5);
+        // Always create an initial dividend for the stock using the provided amount (or a fallback)
+        $dividendAmount = $request->dividend_amount ?: fake()->randomFloat(2, 0.5, 2.5);
 
-            // Use provided date or current game time
-            $dividendGameTime = $currentGameTime;
-            if ($request->filled('next_dividend_date')) {
-                $dividendGameTime = $gameTimeService->getOrCreate(\Carbon\Carbon::parse($request->next_dividend_date));
-            }
-
-            \App\Models\Dividend::create([
-                'stock_id' => $stock->id,
-                'game_time_id' => $dividendGameTime->id,
-                'amount_per_share' => $dividendAmount,
-            ]);
+        // Use current game time if available, otherwise create a fallback GameTime for today
+        $dividendGameTime = $currentGameTime ?? \App\Models\GameTime::latest('id')->first();
+        if (!$dividendGameTime) {
+            $dividendGameTime = \App\Models\GameTime::create(['name' => now()->format('Y-m-d')]);
         }
 
+        \App\Models\Dividend::create([
+            'stock_id' => $stock->id,
+            'game_time_id' => $dividendGameTime->id,
+            'amount_per_share' => $dividendAmount,
+        ]);
+
         $message = $generateMissing ? 'Stock mit generierten Daten erfolgreich erstellt!' : 'Stock erfolgreich erstellt!';
-        return Redirect::route('admin')->with('success', $message);
+        return Redirect::route('admin.stocks.index')->with('success', $message);
+    }
+
+    // ===== USER MANAGEMENT =====
+    public function usersIndex()
+    {
+        $users = User::all();
+        return view('admin.users.index', compact('users'));
+    }
+
+    public function usersShow(User $user)
+    {
+        return view('admin.users.show', compact('user'));
+    }
+
+    public function usersEdit(User $user)
+    {
+        $roles = \App\Models\Role::all();
+        return view('admin.users.edit', compact('user', 'roles'));
+    }
+
+    public function usersUpdate(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        // Handle role assignment separately (many-to-many relation)
+        $roleId = $request->input('role_id');
+        if ($roleId !== null && $roleId !== '') {
+            $request->validate(['role_id' => 'nullable|exists:roles,id']);
+        } else {
+            $roleId = null;
+        }
+
+        // Update user attributes (excluding role)
+        $dataToUpdate = $validated;
+        // Ensure we don't accidentally try to update a role_id column
+        unset($dataToUpdate['role_id']);
+
+        $user->update($dataToUpdate);
+
+        // Sync roles: single-select behavior -> replace existing roles with the selected one (or none)
+        if ($roleId) {
+            $user->roles()->sync([(int)$roleId]);
+        } else {
+            $user->roles()->sync([]);
+        }
+
+        return redirect()->route('admin.users.index')
+            ->with('success', __('User aktualisiert'));
+    }
+
+    public function usersDestroy(User $user)
+    {
+        try {
+            $userName = $user->name;
+            $user->delete();
+
+            return redirect()->route('admin.users.index')
+                ->with('success', __('User "') . $userName . __('" wurde gelöscht'));
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', __('Fehler beim Löschen: ') . $e->getMessage());
+        }
+    }
+
+    // ===== STOCK MANAGEMENT =====
+    public function stocksIndex()
+    {
+        $stocks = Stock::all();
+        return view('admin.stocks.index', compact('stocks'));
+    }
+
+    public function stocksShow(Stock $stock)
+    {
+        return view('admin.stocks.show', compact('stock'));
+    }
+
+    public function stocksEdit(Stock $stock)
+    {
+        $sectors = ['Technology', 'Healthcare', 'Finance', 'Energy', 'Consumer Goods', 'Industrials', 'Materials', 'Utilities', 'Real Estate', 'Telecommunications'];
+        $countries = ['Germany', 'USA', 'UK', 'France', 'Japan', 'China', 'India', 'Canada', 'Australia', 'Brazil'];
+        $productTypes = \App\Models\ProductType::all();
+
+        // Load available configs so admin can assign configs to a stock
+        $configs = \App\Models\Config::all();
+        $stock->load('configs');
+
+        return view('admin.stocks.edit', compact('stock', 'sectors', 'countries', 'productTypes', 'configs'));
+    }
+
+    public function stocksUpdate(Request $request, Stock $stock)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'firma' => 'required|string|max:255',
+            'sektor' => 'required|string',
+            'land' => 'required|string',
+            'description' => 'nullable|string',
+            'product_type_id' => 'required|exists:product_types,id',
+            'config_id' => 'nullable|integer|exists:configs,id',
+        ]);
+
+        // Separate config_id from stock attributes
+        $configId = $validated['config_id'] ?? null;
+        unset($validated['config_id']);
+
+        // Update stock attributes first
+        $stock->update($validated);
+
+        // Sync single config (or detach all if null)
+        try {
+            if ($configId) {
+                $stock->configs()->sync([$configId]);
+            } else {
+                $stock->configs()->sync([]);
+            }
+        } catch (\Exception $e) {
+            // Log and return a friendly error
+            Log::error('Failed to sync config for stock '. $stock->id .': '. $e->getMessage());
+            return redirect()->route('admin.stocks.index')
+                ->with('error', __('Fehler beim Anwenden der Konfiguration: ') . $e->getMessage());
+        }
+
+        return redirect()->route('admin.stocks.index')->with('success', __('Stock aktualisiert'));
+    }
+
+    public function stocksDestroy(Stock $stock)
+    {
+        try {
+            $stockName = $stock->name;
+            $stock->delete();
+
+            return redirect()->route('admin.stocks.index')
+                ->with('success', __('Stock "') . $stockName . __('" wurde gelöscht'));
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', __('Fehler beim Löschen: ') . $e->getMessage());
+        }
+    }
+
+    // ===== GAME TIME MANAGEMENT =====
+    public function gameTimesIndex()
+    {
+        $gameTimes = GameTime::all();
+        return view('admin.game-times.index', compact('gameTimes'));
+    }
+
+    public function gameTimesShow(GameTime $gameTime)
+    {
+        return view('admin.game-times.show', compact('gameTime'));
+    }
+
+    public function gameTimesEdit(GameTime $gameTime)
+    {
+        return view('admin.game-times.edit', compact('gameTime'));
+    }
+
+    public function gameTimesUpdate(Request $request, GameTime $gameTime)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $gameTime->update($validated);
+
+        return redirect()->route('admin.game-times.index')
+            ->with('success', __('GameTime aktualisiert'));
+    }
+
+    public function gameTimesDestroy(GameTime $gameTime)
+    {
+        try {
+            $gameTimeName = $gameTime->name;
+            $gameTime->delete();
+
+            return redirect()->route('admin.game-times.index')
+                ->with('success', __('GameTime "') . $gameTimeName . __('" wurde gelöscht'));
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', __('Fehler beim Löschen: ') . $e->getMessage());
+        }
+    }
+
+    // ===== DIVIDEND MANAGEMENT =====
+    public function dividendsIndex()
+    {
+        $dividends = \App\Models\Dividend::with(['stock', 'gameTime'])->get();
+        return view('admin.dividends.index', compact('dividends'));
+    }
+
+    public function dividendsShow(\App\Models\Dividend $dividend)
+    {
+        return view('admin.dividends.show', compact('dividend'));
+    }
+
+    public function dividendsEdit(\App\Models\Dividend $dividend)
+    {
+        $stocks = Stock::all();
+        $gameTimes = GameTime::all();
+
+        return view('admin.dividends.edit', compact('dividend', 'stocks', 'gameTimes'));
+    }
+
+    public function dividendsUpdate(Request $request, \App\Models\Dividend $dividend)
+    {
+        $validated = $request->validate([
+            'stock_id' => 'required|exists:stocks,id',
+            'game_time_id' => 'required|exists:game_times,id',
+            'amount_per_share' => 'required|numeric|min:0',
+        ]);
+
+        $dividend->update($validated);
+
+        return redirect()->route('admin.dividends.index')
+            ->with('success', __('Dividend aktualisiert'));
+    }
+
+    public function dividendsDestroy(\App\Models\Dividend $dividend)
+    {
+        try {
+            $dividend->delete();
+
+            return redirect()->route('admin.dividends.index')
+                ->with('success', __('Dividend wurde gelöscht'));
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', __('Fehler beim Löschen: ') . $e->getMessage());
+        }
     }
 }

@@ -56,11 +56,11 @@
                                             {{ $config['rally_probability_monthly'] * 100 }}%
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('admin.configs.edit', $config['id']) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">Bearbeiten</a>
-                                            <form method="POST" action="#" class="inline" onsubmit="return confirm('Sind Sie sicher, dass Sie diese Config löschen möchten?')">
+                                            <a href="{{ route('admin.configs.edit', $config->id) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">{{ __('Bearbeiten') }}</a>
+                                            <form method="POST" action="{{ route('admin.configs.destroy', $config->id) }}" class="inline" onsubmit="return confirm('Sind Sie sicher?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Löschen</button>
+                                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">{{ __('Löschen') }}</button>
                                             </form>
                                         </td>
                                     </tr>

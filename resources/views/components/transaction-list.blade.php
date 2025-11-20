@@ -96,7 +96,11 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     @if($transaction->type === 'dividend')
-                        {{ number_format(abs($transaction->quantity), 0, ',', '.') }} Aktien x {{ number_format($transaction->price_at_buy, 2, ',', '.') }} €
+                        @if(isset($transaction->stock) && $transaction->stock)
+                            {{ number_format(abs($transaction->quantity), 0, ',', '.') }}x {{ $transaction->stock->name }} x {{ number_format($transaction->price_at_buy, 2, ',', '.') }} €
+                        @else
+                            {{ number_format(abs($transaction->quantity), 0, ',', '.') }} Aktien x {{ number_format($transaction->price_at_buy, 2, ',', '.') }} €
+                        @endif
                     @elseif(in_array($transaction->type, ['buy', 'sell']))
                         {{ number_format(abs($transaction->quantity), 0, ',', '.') }} Aktien
                         @if(isset($transaction->stock) && $transaction->stock)
