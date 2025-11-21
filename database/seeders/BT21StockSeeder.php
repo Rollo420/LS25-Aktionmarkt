@@ -31,7 +31,7 @@ class BT21StockSeeder extends Seeder
 
             'net_income' => 1255000,
 
-            'dividend_frequency' => 2//einer von 1, 2, 4, wann es im jahr dividendne gibt 
+            'dividend_frequency' => 0//einer von 1, 2, 4, wann es im jahr dividendne gibt 
 
         ],
 
@@ -91,7 +91,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 51000000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -109,7 +109,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 3200000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -127,7 +127,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 4200000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -145,7 +145,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 2900000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -163,7 +163,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 3750000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -181,7 +181,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 1850000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -199,7 +199,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 200000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -217,7 +217,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 2250000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -235,7 +235,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 1100000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -505,7 +505,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 0,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -523,7 +523,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 500000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -559,7 +559,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 800000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -577,7 +577,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 950000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
@@ -595,7 +595,7 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
 
         'net_income' => 700000,
 
-        'dividend_frequency' => 0
+        'dividend_frequency' => 1,
 
     ],
 
