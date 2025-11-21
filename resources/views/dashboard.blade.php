@@ -339,7 +339,7 @@ $totalDividendAmount = $portfolioStats['totalDividendAmount'] ?? 0;
                         </div>
 
                         <div class="flex flex-col pl-4" style="border-left: 4px solid #eab308 !important;">
-                            <span class="text-gray-500 dark:text-gray-400 font-medium" title="Jährliche Dividenden-Einnahmen">Gesamt-Dividenden (p.P.)</span>
+                            <span class="text-gray-500 dark:text-gray-400 font-medium" title="Jährliche Dividenden-Einnahmen">Gesamt-Dividenden (p.M.)</span>
                             <span
                                 class="font-bold text-2xl" style="color: #d97706 !important;">{{ number_format($totalDividendAmount, 2, ',', '.') }}
                                 €</span>

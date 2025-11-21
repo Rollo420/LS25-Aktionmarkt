@@ -15,15 +15,13 @@ class DividendController extends Controller
     // ===== DIVIDEND MANAGEMENT =====
     public function index()
     {
-        $currentGameTime = GameTime::getCurrentGameTime();
-
         // Get dividends for current game time, grouped by stock (unique)
-        $dividends = Dividend::where('game_time_id', $currentGameTime->id)
-            ->with(['stock', 'gameTime'])
-            ->get()
-            ->unique('stock_id');
+        $dividends = Dividend::query() // oder einfach Dividend::
+            ->with(['stock', 'gameTime']) // Wenden Sie 'with' auf den Query Builder an
+            ->get() // Holen Sie die Collection aus der Datenbank
+            ->unique('stock_id'); // Wenden Sie 'unique' auf die Collection an
 
-        return view('admin.dividends.index', compact('dividends', 'currentGameTime'));
+        return view('admin.dividends.index', compact('dividends'));
     }
 
     public function show(Dividend $dividend)
