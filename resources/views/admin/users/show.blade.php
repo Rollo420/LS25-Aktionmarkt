@@ -2,6 +2,13 @@
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('User') }} - {{ $user->name }}
+            <div class="mt-2 flex flex-wrap gap-2">
+                @forelse($user->roles as $role)
+                    <span class="inline-block bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full border border-indigo-300">{{ $role->name }}</span>
+                @empty
+                    <span class="inline-block bg-gray-200 text-gray-600 text-xs px-2 py-1 rounded-full">Keine Rolle</span>
+                @endforelse
+            </div>
         </h2>
     </x-slot>
 

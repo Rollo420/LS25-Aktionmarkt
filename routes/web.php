@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ConfigController;
+use App\Http\Controllers\DividendController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -100,11 +101,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/admin/game-times/{gameTime}', [AdminController::class, 'gameTimesDestroy'])->name('admin.game-times.destroy');
 
     // Dividend management routes
-    Route::get('/admin/dividends', [AdminController::class, 'dividendsIndex'])->name('admin.dividends.index');
-    Route::get('/admin/dividends/{dividend}', [AdminController::class, 'dividendsShow'])->name('admin.dividends.show');
-    Route::get('/admin/dividends/{dividend}/edit', [AdminController::class, 'dividendsEdit'])->name('admin.dividends.edit');
-    Route::put('/admin/dividends/{dividend}', [AdminController::class, 'dividendsUpdate'])->name('admin.dividends.update');
-    Route::delete('/admin/dividends/{dividend}', [AdminController::class, 'dividendsDestroy'])->name('admin.dividends.destroy');
+    Route::get('/admin/dividends', [DividendController::class, 'index'])->name('admin.dividends.index');
+    Route::get('/admin/dividends/{dividend}', [DividendController::class, 'show'])->name('admin.dividends.show');
+    Route::get('/admin/dividends/{dividend}/edit', [DividendController::class, 'edit'])->name('admin.dividends.edit');
+    Route::put('/admin/dividends/{dividend}', [DividendController::class, 'update'])->name('admin.dividends.update');
+    Route::delete('/admin/dividends/{dividend}', [DividendController::class, 'destroy'])->name('admin.dividends.destroy');
 
     // Config routes
     Route::get('/admin/configs', [ConfigController::class, 'index'])->name('admin.configs.index');

@@ -4,9 +4,6 @@
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Users verwalten') }}
             </h2>
-            <a href="{{ route('admin.users.index') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                {{ __('Zurück') }}
-            </a>
         </div>
     </x-slot>
 

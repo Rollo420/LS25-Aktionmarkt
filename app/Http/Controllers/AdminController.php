@@ -188,8 +188,9 @@ class AdminController extends Controller
 
     public function usersEdit(User $user)
     {
+        $userRole = $user->roles()->get()->first()->name;
         $roles = \App\Models\Role::all();
-        return view('admin.users.edit', compact('user', 'roles'));
+        return view('admin.users.edit', compact('user', 'roles', 'userRole'));
     }
 
     public function usersUpdate(Request $request, User $user)
@@ -200,26 +201,25 @@ class AdminController extends Controller
         ]);
 
         // Handle role assignment separately (many-to-many relation)
-        $roleId = $request->input('role_id');
-        if ($roleId !== null && $roleId !== '') {
-            $request->validate(['role_id' => 'nullable|exists:roles,id']);
-        } else {
-            $roleId = null;
+        $roleIds = $request->input('role_ids', []);
+        $request->validate(['role_ids' => 'nullable|array', 'role_ids.*' => 'exists:roles,id']);
+
+        // If no roles selected, assign default user role
+        if (empty($roleIds)) {
+            $defaultRole = \App\Models\Role::where('name', 'default user')->first();
+            if ($defaultRole) {
+                $roleIds = [$defaultRole->id];
+            }
         }
 
-        // Update user attributes (excluding role)
+        // Update user attributes (excluding roles)
         $dataToUpdate = $validated;
-        // Ensure we don't accidentally try to update a role_id column
-        unset($dataToUpdate['role_id']);
+        unset($dataToUpdate['role_ids']);
 
         $user->update($dataToUpdate);
 
-        // Sync roles: single-select behavior -> replace existing roles with the selected one (or none)
-        if ($roleId) {
-            $user->roles()->sync([(int)$roleId]);
-        } else {
-            $user->roles()->sync([]);
-        }
+        // Sync roles: replace existing roles with the selected ones
+        $user->roles()->sync($roleIds);
 
         return redirect()->route('admin.users.index')
             ->with('success', __('User aktualisiert'));
@@ -357,50 +357,4 @@ class AdminController extends Controller
         }
     }
 
-    // ===== DIVIDEND MANAGEMENT =====
-    public function dividendsIndex()
-    {
-        $dividends = \App\Models\Dividend::with(['stock', 'gameTime'])->get();
-        return view('admin.dividends.index', compact('dividends'));
-    }
-
-    public function dividendsShow(\App\Models\Dividend $dividend)
-    {
-        return view('admin.dividends.show', compact('dividend'));
-    }
-
-    public function dividendsEdit(\App\Models\Dividend $dividend)
-    {
-        $stocks = Stock::all();
-        $gameTimes = GameTime::all();
-
-        return view('admin.dividends.edit', compact('dividend', 'stocks', 'gameTimes'));
-    }
-
-    public function dividendsUpdate(Request $request, \App\Models\Dividend $dividend)
-    {
-        $validated = $request->validate([
-            'stock_id' => 'required|exists:stocks,id',
-            'game_time_id' => 'required|exists:game_times,id',
-            'amount_per_share' => 'required|numeric|min:0',
-        ]);
-
-        $dividend->update($validated);
-
-        return redirect()->route('admin.dividends.index')
-            ->with('success', __('Dividend aktualisiert'));
-    }
-
-    public function dividendsDestroy(\App\Models\Dividend $dividend)
-    {
-        try {
-            $dividend->delete();
-
-            return redirect()->route('admin.dividends.index')
-                ->with('success', __('Dividend wurde gelöscht'));
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', __('Fehler beim Löschen: ') . $e->getMessage());
-        }
-    }
-}
+ }
