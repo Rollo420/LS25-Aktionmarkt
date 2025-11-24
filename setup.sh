@@ -1,14 +1,38 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-# Variablen
-sail="./vendor/bin/sail"
+# Defaults and environment
+# Use current user/group ids as defaults so Dockerfiles that expect WWWUSER/WWWGROUP
+# don't fail when the variables are missing.
+export WWWUSER="${WWWUSER:-$(id -u)}"
+export WWWGROUP="${WWWGROUP:-$(id -g)}"
+
+# Detect available docker-compose command
+if docker compose version >/dev/null 2>&1; then
+    COMPOSE_CMD="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+    COMPOSE_CMD="docker-compose"
+else
+    echo "⚠️  Kein 'docker compose' oder 'docker-compose' gefunden. Bitte installiere Docker Compose." >&2
+    exit 1
+fi
+
+# Prefer local Sail binary if present, otherwise fall back to system 'sail' or use docker compose as last resort
+if [ -x ./vendor/bin/sail ]; then
+    sail="./vendor/bin/sail"
+elif command -v sail >/dev/null 2>&1; then
+    sail="sail"
+else
+    # Fall back to using docker compose commands directly for basic operations
+    sail=""
+fi
 
 echo "🚀 Starte Setup für LS25-Aktionmarkt..."
+echo "ℹ Using COMPOSE_CMD=${COMPOSE_CMD}, WWWUSER=${WWWUSER}, WWWGROUP=${WWWGROUP}"
 
 # 1️⃣ Builden und vorbereiten des Setup-Containers
 echo "🔨 Baue Setup-Container..."
-docker compose -f docker-compose-setup.yml up --build --remove-orphans
+$COMPOSE_CMD -f docker-compose-setup.yml up --build --remove-orphans
 
 # 2️⃣ Sicherstellen, dass das DB-Init-Script ausführbar ist
 if [ -f ./docker/mysql/create-testing-database.sh ]; then
@@ -21,30 +45,50 @@ fi
 # 3️⃣ Entschlüsseln der .env-Datei falls nicht vorhanden
 if [ ! -f .env ]; then
     echo "🔑 Entschlüssele .env-Datei..."
-    docker compose run --rm --no-deps --user root --entrypoint "" laravel.test php artisan env:decrypt --key="base64:tuVKEBcQpMuBo6bcttk0LaPLNjZB4NV1cy7yKFO2JR0"
+    $COMPOSE_CMD run --rm --no-deps --user root --entrypoint "" laravel.test php artisan env:decrypt --key="base64:tuVKEBcQpMuBo6bcttk0LaPLNjZB4NV1cy7yKFO2JR0"
 else
     echo "ℹ .env-Datei existiert bereits, überspringe Entschlüsselung."
 fi
 
 # 4️⃣ Laravel-Container starten
 echo "🚀 Starte Laravel-Container..."
-$sail up -d --remove-orphans
+if [ -n "${sail}" ]; then
+    $sail up -d --remove-orphans
+else
+    $COMPOSE_CMD up -d --remove-orphans
+fi
 
 # 5️⃣ Rechte im Laravel-Container korrigieren
 echo "🔧 Setze Rechte für Laravel..."
-$sail exec laravel.test chown -R $(id -u):$(id -g) /var/www/html
-$sail exec laravel.test chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-$sail exec laravel.test chmod 664 /var/www/html/.env
+if [ -n "${sail}" ]; then
+    $sail exec laravel.test chown -R $(id -u):$(id -g) /var/www/html
+    $sail exec laravel.test chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+    $sail exec laravel.test chmod 664 /var/www/html/.env
+else
+    $COMPOSE_CMD exec laravel.test chown -R $(id -u):$(id -g) /var/www/html
+    $COMPOSE_CMD exec laravel.test chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+    $COMPOSE_CMD exec laravel.test chmod 664 /var/www/html/.env
+fi
 
 # 6️⃣ Laravel Artisan Befehle ausführen
 echo "🛠 Konfiguration und DB vorbereiten..."
-$sail artisan config:clear
-$sail artisan key:generate
-$sail artisan migrate:fresh --seed
+if [ -n "${sail}" ]; then
+    $sail artisan config:clear
+    $sail artisan key:generate
+    $sail artisan migrate:fresh --seed
+else
+    $COMPOSE_CMD exec laravel.test php artisan config:clear
+    $COMPOSE_CMD exec laravel.test php artisan key:generate
+    $COMPOSE_CMD exec laravel.test php artisan migrate:fresh --seed
+fi
 
 # 7️⃣ Node/Vite vorbereiten (optional)
 echo "📦 Bereite Node/Vite vor..."
-$sail exec -T laravel.test bash -c "mkdir -p /app/node_modules"
+if [ -n "${sail}" ]; then
+    $sail exec -T laravel.test bash -c "mkdir -p /app/node_modules"
+else
+    $COMPOSE_CMD exec -T laravel.test bash -c "mkdir -p /app/node_modules"
+fi
 
 # --- Permanenter Sail-Alias nur auf Linux ---
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
