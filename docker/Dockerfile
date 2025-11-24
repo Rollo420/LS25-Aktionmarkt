@@ -1,4 +1,19 @@
-FROM composer:latest as composer
+FROM php:8.4-cli as composer
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends \
+	   git curl unzip zip libzip-dev libpng-dev libjpeg-dev libfreetype6-dev \
+	   libicu-dev libonig-dev libxml2-dev libcurl4-openssl-dev pkg-config ca-certificates \
+	&& rm -rf /var/lib/apt/lists/*
+
+# Install common PHP extensions required by Laravel and dependencies
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+	&& docker-php-ext-install -j"$(nproc)" gd mbstring xml zip bcmath pcntl sockets curl intl
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+	&& composer --version
+
 RUN git config --global --add safe.directory /var/www/html
 
 RUN mkdir /var/www/html -p 
@@ -6,11 +21,19 @@ RUN mkdir /var/www/html -p
 COPY ../ /var/www/html/
 
 WORKDIR /var/www/html
+<<<<<<< HEAD
 RUN composer install
 RUN composer update
 
 RUN composer require mistic100/randomcolor
 RUN composer require tightenco/parental
+=======
+# Run composer install within a PHP 8.4 environment so lockfile platform checks pass
+ENV COMPOSER_ALLOW_SUPERUSER=1
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer require mistic100/randomcolor --no-interaction --with-all-dependencies || true
+RUN composer require tightenco/parental --no-interaction --with-all-dependencies || true
+>>>>>>> main
 
 FROM node:latest as node
 
