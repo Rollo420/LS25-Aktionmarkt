@@ -21,19 +21,11 @@ RUN mkdir /var/www/html -p
 COPY ../ /var/www/html/
 
 WORKDIR /var/www/html
-<<<<<<< HEAD
-RUN composer install
-RUN composer update
-
-RUN composer require mistic100/randomcolor
-RUN composer require tightenco/parental
-=======
 # Run composer install within a PHP 8.4 environment so lockfile platform checks pass
 ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 RUN composer require mistic100/randomcolor --no-interaction --with-all-dependencies || true
 RUN composer require tightenco/parental --no-interaction --with-all-dependencies || true
->>>>>>> main
 
 FROM node:latest as node
 
