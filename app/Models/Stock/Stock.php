@@ -92,6 +92,8 @@ class Stock extends Model
             return $this->getLatestDividend();
         }
 
+        #dd($this->dividends()->get());
+
         return $this->dividends()
             ->where('game_time_id', $gameTime->id)
             ->orderBy('game_time_id', 'DESC')

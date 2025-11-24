@@ -23,13 +23,13 @@ class StockSeeder extends Seeder
     public function run(): \Illuminate\Database\Eloquent\Collection
     {
         // Call BT21StockSeeder to get BT21 stocks
-        $bt21Seeder = new BT21StockSeeder();
+        $bt21Seeder = new \Database\Seeders\BT21StockSeeder();
         $bt21Stocks = $bt21Seeder->run();
 
         // Create other stocks
-        $otherStocks = Stock::factory(3)->create();
+        $otherStocks = Stock::factory()->count(3)->create();
+        
         // Combine the collections
-
         $allStocks = $bt21Stocks->merge($otherStocks);
         
         // Now, proceed with the rest of the logic for prices and dividends
@@ -37,7 +37,8 @@ class StockSeeder extends Seeder
         $gt = new GameTime();
         $gtService = new GameTimeService();
         $timeController = new TimeController();
-        $config = Config::factory()->create(['name' => 'Default Config', 'description' => 'Dieses ist die standart Einstellungen'])->get()->first();
+        
+        $config = Config::factory()->create(['name' => 'Default Config', 'description' => 'Dieses ist die standart Einstellungen'])->first();
         
         // Erstelle 132 GameTimes von 2000-01-01 bis 2010-12-01
         $currentDate = Carbon::parse('2000-01-01');
@@ -62,12 +63,12 @@ class StockSeeder extends Seeder
 
                 $lastPrice = $newPrice;
                 
-                // Dividende für den ersten GameTime erstellen
-                Dividend::factory()->create([
-                    'stock_id' => $stock->id,
-                    'game_time_id' => $gt->id,
-                    'amount_per_share' => $faker->randomFloat(2, 0.1, 5.0),
-                ]);
+// Dividenden für jeden GameTime erstellen (nicht nur den ersten)
+Dividend::factory()->create([
+    'stock_id' => $stock->id,
+    'game_time_id' => $gt->id,
+    'amount_per_share' => $faker->randomFloat(2, 0.1, 5.0),
+]);
             }
 
             $stock->configs()->attach($config->id);

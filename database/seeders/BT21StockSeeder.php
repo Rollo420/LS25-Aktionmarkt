@@ -31,7 +31,7 @@ class BT21StockSeeder extends Seeder
 
             'net_income' => 1255000,
 
-            'dividend_frequency' => 0//einer von 1, 2, 4, wann es im jahr dividendne gibt 
+            'dividend_frequency' => 1 // fixed from 0 to 1 as minimum valid value
 
         ],
 

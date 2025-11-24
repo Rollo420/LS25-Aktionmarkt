@@ -53,6 +53,11 @@ class DashboardController extends Controller
                 $stock = $item->stock;
                 $divData = $dividendeService->getDividendStatisticsForStock($stock);
 
+                \Log::debug('DashboardController - Stock Dividend Data:', [
+                    'stock_id' => $stock->id,
+                    'divData' => $divData,
+                ]);
+
                 return [
                     'name' => $stock->name,
                     'next_dividend' => $divData->next_date,

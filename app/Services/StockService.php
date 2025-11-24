@@ -130,6 +130,11 @@ class StockService
         $dividendService = new DividendeService();
         $dividends = $dividendService->getDividendStatisticsForStock($stock, $user);
 
+        \Log::debug('StockService@getStockStatistiks - dividend data for stock', [
+            'stock_id' => $stock->id,
+            'dividende' => $dividends,
+        ]);
+
         return (object) [
             'stock' => $stock,
             'current_price' => $currentPrice,

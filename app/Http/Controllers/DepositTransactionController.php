@@ -55,7 +55,9 @@ class DepositTransactionController extends Controller
         } else {
             $stockData = $stockService->getStockStatistiks($stockTransactionsHistory, $user);
         }
-        #dd($stockData);
+
+        \Log::debug('Dividend data in depotStockDetails:', ['dividende' => $stockData->dividende]);
+
         // View mit allen Daten zurückgeben
         return view('depot.depotStockDetails', compact('stock', 'stockData', 'stockTransactionsHistory', 'stockBuyHistory'));
     }
