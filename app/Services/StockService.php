@@ -6,10 +6,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
+use App\Events\TimeskipCompleted;
+
+use Illuminate\Support\Facades\Log;
 
 use App\Services\DividendeService;
 
 use App\Models\Stock\Stock;
+use App\Models\Stock\Price;
+use App\Models\Config;
+use App\Models\Dividend;
 use App\Models\Stock\Transaction;
 use App\Models\BuyTransaction;
 
@@ -103,7 +109,7 @@ class StockService
     /**
      * Aggregierte Kennzahlen pro Aktie
      */
-    public function getStockStatistiks( $transactions, $user, int $currentMonth = null, $gameTime = null)
+    public function getStockStatistiks($transactions, $user, int $currentMonth = null, $gameTime = null)
     {
         if ($transactions instanceof Collection && $transactions->first() instanceof Stock) {
             $transactions = $transactions->all();
@@ -164,8 +170,8 @@ class StockService
             #->select('id', 'name', 'firma', 'sektor', 'land') // Nur benötigte Felder
             ->with(['prices' => function ($query) {
                 $query->select('id', 'stock_id', 'name', 'game_time_id')
-                      ->orderBy('game_time_id', 'desc')
-                      ->take(1); // Nur der neueste Preis
+                    ->orderBy('game_time_id', 'desc')
+                    ->take(1); // Nur der neueste Preis
             }])
             ->get();
     }
@@ -228,7 +234,7 @@ class StockService
         return $user->transactions
             ->where('type', 'buy')
             ->groupBy('stock_id')
-            ->map(function($group) {
+            ->map(function ($group) {
                 $stock = $group[0]->stock;
                 $quantity = $stock->getCurrentQuantity();
                 return [
@@ -241,4 +247,79 @@ class StockService
             ->toArray();
     }
 
+    public static function processNewTimeSteps($newGameTimes, $stocks)
+    {
+        $priceService = new PriceService();
+        $gtService = new GameTimeService();
+
+        // Für jede neue GameTime, für jede Stock Preise und Dividenden berechnen
+        foreach ($newGameTimes as $newGameTime) {
+            $monthIndex = (int) date('m', strtotime($newGameTime->name)) - 1; // 0-based für generatePrice
+
+            foreach ($stocks as $stock) {
+                // Letzten Preis holen
+                $lastPrice = $stock->getLatestPrice();
+                if (!$lastPrice) {
+                    $lastPrice = 100.0; // Fallback, wenn kein Preis vorhanden
+                }
+                $lastDividend = $stock->getLatestDividend();
+                if (is_null($lastDividend)) {
+                    $lastDividendDate = $stock->calculateNextDividendDate($newGameTime->name);
+                    $lastDividendGT = Dividend::factory()->create([
+                        'stock_id' => $stock->id,
+                        'game_time_id' => $gtService->getOrCreate($lastDividendDate)->id,
+                        'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0),
+                    ]);
+                    \Log::info("Created initial dividend for stock {$stock->id} at game time {$lastDividendGT->game_time_id}");
+                } else {
+                    $lastDividendGT = $lastDividend->gameTime;
+                }
+
+                // Stock-spezifische Config laden (oder Default verwenden)
+                $stockConfig = $stock->getLastConfig();
+
+                // Neuen Preis berechnen mit generatePrice und der Stock-Config
+                $newPriceValue = $priceService->generatePrice($lastPrice, $monthIndex, $stockConfig);
+
+                // Preis-Eintrag für diesen Monat erzeugen (manuell)
+                Price::create([
+                    'stock_id' => $stock->id,
+                    'game_time_id' => $newGameTime->id,
+                    'name' => $newPriceValue,
+                ]);
+
+                // Prüfen, ob Dividende fällig ist (Datum <= aktuelle GameTime)
+                if (Carbon::parse($lastDividendGT->name)->lte($newGameTime->name)) {
+                    
+                    // Verhindere doppelte Dividenden im selben Monat
+                    $exists = $stock->dividends()
+                        ->where('game_time_id', $newGameTime->id)
+                        ->exists();
+
+                    if (!$exists) {
+
+                        // Job dispatchen für asynchrone Ausführung
+                        \App\Jobs\ProcessDividendPayout::dispatch($stock->id);
+
+                        \Log::info("Dividend payout job dispatched for stock {$stock->id}");
+
+                        // Nächste Dividenden-Spielzeit für das Datum holen
+                        $nextDividendDate = $stock->calculateNextDividendDate($newGameTime->name);
+                        $nextDividendGT = $gtService->getOrCreate($nextDividendDate);
+
+                        // Neue Dividende erzeugen
+                        Dividend::create([
+                            'stock_id' => $stock->id,
+                            'game_time_id' => $nextDividendGT->id,
+                            'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0),
+                        ]);
+
+                        \Log::info("Dividend due for stock {$stock->id} at game time {$newGameTime->name}");
+                    } else {
+                        \Log::debug("Dividend already exists for stock {$stock->id} at game time {$newGameTime->name}, skipping");
+                    }
+                }
+            }
+        }
+    }
 }

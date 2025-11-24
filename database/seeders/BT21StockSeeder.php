@@ -21,9 +21,9 @@ class BT21StockSeeder extends Seeder
 
             'name' => 'Aktien Name',
 
-            'firma' => 'Frirmen namen',
+            'firma' => 'Firmen namen',
 
-            'sektor' => 'sektor(MIlch, Hanf)',
+            'sektor' => 'sektor(Milch, Hanf)',
 
             'land' => 'land',
 
@@ -31,7 +31,7 @@ class BT21StockSeeder extends Seeder
 
             'net_income' => 1255000,
 
-            'dividend_frequency' => 1 // fixed from 0 to 1 as minimum valid value
+            'dividend_frequency' => 3
 
         ],
 

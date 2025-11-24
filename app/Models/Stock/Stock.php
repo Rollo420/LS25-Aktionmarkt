@@ -11,6 +11,7 @@ use App\Models\Stock\Price;
 use App\Models\Stock\Transaction;
 use \App\Models\StockConfig;
 use \App\Models\Config;
+use App\Models\GameTime;
 
 class Stock extends Model
 {
@@ -42,6 +43,21 @@ class Stock extends Model
     {
         return $this->hasMany(Dividend::class);
     }
+
+    public function configs()
+    {
+        return $this->belongsToMany(Config::class, 'config_stocks')
+            ->withPivot('applied_at')
+            ->withTimestamps();
+    }
+
+    public function getLastConfig()
+    {
+        return $this->configs()
+            ->orderByDesc('pivot_applied_at')
+            ->first();
+    }
+
 
     /** Helper-Methoden **/
     public function getLatestPrice(): float
@@ -86,16 +102,17 @@ class Stock extends Model
         return $price ? (float) $price->name : $this->getCurrentPrice();
     }
 
-    public function getDividendAtGameTime($gameTime): ?Dividend
+    public function getDividendAtGameTime(GameTime $gameTime): ?Dividend
     {
         if (!$gameTime) {
-            return $this->getLatestDividend();
+            $gt = $this->getLatestDividend();
+        }
+        else {
+            $gt = $gameTime;
         }
 
-        #dd($this->dividends()->get());
-
         return $this->dividends()
-            ->where('game_time_id', $gameTime->id)
+            ->where('game_time_id', '<=',$gt->id)
             ->orderBy('game_time_id', 'DESC')
             ->first();
     }
@@ -187,12 +204,6 @@ class Stock extends Model
         })->unique();
     }
 
-  public function configs()
-{
-    return $this->belongsToMany(Config::class, 'config_stocks')
-        ->withPivot('applied_at')
-        ->withTimestamps();
-}
 
 
 }

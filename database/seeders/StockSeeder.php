@@ -28,18 +28,19 @@ class StockSeeder extends Seeder
 
         // Create other stocks
         $otherStocks = Stock::factory()->count(3)->create();
-        
+
         // Combine the collections
         $allStocks = $bt21Stocks->merge($otherStocks);
-        
+
         // Now, proceed with the rest of the logic for prices and dividends
         $faker = Faker::create();
         $gt = new GameTime();
         $gtService = new GameTimeService();
         $timeController = new TimeController();
-        
+        $stockService = new \App\Services\StockService();
+
         $config = Config::factory()->create(['name' => 'Default Config', 'description' => 'Dieses ist die standart Einstellungen'])->first();
-        
+
         // Erstelle 132 GameTimes von 2000-01-01 bis 2010-12-01
         $currentDate = Carbon::parse('2000-01-01');
         $gameTimes = [];
@@ -48,31 +49,14 @@ class StockSeeder extends Seeder
             $currentDate = $currentDate->addMonth();
         }
         
-        foreach ($allStocks as $stock) {
-            $lastPrice = 100.0; // Initialer Preis
+        $allStocks->map(function ($stock) use ($config) {
+            return $stock->configs()->attach($config->id);
+        });
+
+        $stockService::processNewTimeSteps($gameTimes, $allStocks);
+
             
-            foreach ($gameTimes as $gt) {
-                $monthIndex = (int) date('m', strtotime($gt->name)) - 1; // 0-based
-                $newPrice = $timeController->generatePrice($lastPrice, $monthIndex);
-                
-                Price::create([
-                    'stock_id' => $stock->id,
-                    'game_time_id' => $gt->id,
-                    'name' => $newPrice,
-                ]);
-
-                $lastPrice = $newPrice;
-                
-// Dividenden für jeden GameTime erstellen (nicht nur den ersten)
-Dividend::factory()->create([
-    'stock_id' => $stock->id,
-    'game_time_id' => $gt->id,
-    'amount_per_share' => $faker->randomFloat(2, 0.1, 5.0),
-]);
-            }
-
-            $stock->configs()->attach($config->id);
-        }
+        
 
         return $allStocks;
     }

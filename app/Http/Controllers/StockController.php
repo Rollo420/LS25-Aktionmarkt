@@ -26,9 +26,7 @@ class StockController extends Controller
         }])->get();
 
         $stocks = $allStocks->map(function ($stock) {
-            $dividendeService = new DividendeService();
-            $dividendData = $dividendeService->getDividendeForStockID($stock->id);
-
+            
             return [
                 'id' => $stock->id,
                 'name' => $stock->name,
@@ -36,8 +34,8 @@ class StockController extends Controller
                 'sektor' => $stock->sektor,
                 'land' => $stock->land,
                 'price' => $stock->getCurrentPrice(),
-                'dividend_amount' => $dividendData ? $dividendData->next_amount : null,
-                'next_dividend_date' => $dividendData ? $dividendData->next_date : null,
+                'dividend_amount' => $stock->getCurrentDividendAmount(),
+                'next_dividend_date' => $stock->calculateNextDividendDate()->toDateString(),
             ];
         });
 
@@ -77,8 +75,8 @@ class StockController extends Controller
         $details['eps'] = $stock->net_income != 0
             ? $stock->net_income / $totalShares
             : 0;
+            
 
-        //dividend distribution
         $details['payoutRatio'] = ($details['eps'] > 0 && $details['currentPrice'] > 0)
             ? ($details['eps'] / $details['currentPrice']) * 100
             : 0;

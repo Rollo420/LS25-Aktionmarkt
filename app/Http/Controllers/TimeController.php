@@ -13,42 +13,14 @@ use App\Models\Dividend;
 
 use App\Services\GameTimeService;
 use \App\Services\DividendeService;
+use \App\Services\StockService;
+
 use App\Events\TimeskipCompleted;
 
 
 class TimeController extends Controller
 {
     public $monthArray = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-    // =========================
-    // Konfiguration (flexibel)
-    // =========================
-    protected $config = [
-        // ==============================
-        // Excel-artige Zufallsbewegung (Tägliche/Monatliche Volatilität)
-        // ==============================
-        'useExcelRandom' => true,      // Tägliche kleine Schwankung beibehalten (wichtig für Leben)
-        'excelRandomRange' => 0.04,    // Erhöht auf ±4% pro Monat/Periode. Simuliert die normale marktbreite Volatilität.
-
-        // ==============================
-        // Saisonaler Effekt
-        // ==============================
-        'useSeasonalEffect' => true,   // Saisonalität beibehalten (z.B. "Sell in May")
-        'seasonalEffectRange' => 0.026, // Etwas reduziert, um nicht zu dominant zu sein.
-
-        // ==============================
-        // Crash / Rallye Simulation
-        // ==============================
-        'useCrashRally' => true,       // Crashs und Rallyes beibehalten
-
-        // Crash-Wahrscheinlichkeit: Alle 20 Jahre
-        'crashProbability' => 1 / 240, // 1 Ereignis in 240 Monaten (20 Jahre)
-
-        // Rallye-Wahrscheinlichkeit: Alle 30 Jahre. Rallyes sind seltener und oft weniger extrem als Crashs.
-        'rallyProbability' => 1 / 360, // 1 Ereignis in 360 Monaten (30 Jahre) 
-    ];
-
-
 
     public function index()
     {
@@ -111,153 +83,14 @@ class TimeController extends Controller
             $newGameTimes[] = $newGameTime;
         }
 
-        // Für jede neue GameTime, für jede Stock Preise und Dividenden berechnen
-        foreach ($newGameTimes as $newGameTime) {
-            $monthIndex = (int) date('m', strtotime($newGameTime->name)) - 1; // 0-based für generatePrice
+        StockService::processNewTimeSteps($newGameTimes, $stocks);
 
-            foreach ($stocks as $stock) {
-                // Letzten Preis holen
-                $lastPrice = $stock->getLatestPrice();
-                if ($lastPrice <= 0) {
-                    $lastPrice = 100.0; // Fallback, wenn kein Preis vorhanden
-                }
-
-                // Stock-spezifische Config laden (oder Default verwenden)
-                $stockConfig = $stock->configs()->first();
-
-                // Neuen Preis berechnen mit generatePrice und der Stock-Config
-                $newPriceValue = $this->generatePrice($lastPrice, $monthIndex, $stockConfig);
-
-                // Preis-Eintrag für diesen Monat erzeugen (manuell)
-                Price::create([
-                    'stock_id' => $stock->id,
-                    'game_time_id' => $newGameTime->id,
-                    'name' => $newPriceValue,
-                ]);
-
-                // Nächsten geplanten Dividendenzeitpunkt berechnen
-                $nextDividendDate = $stock->calculateNextDividendDate();
-                if (!$nextDividendDate) {
-                    // Keine Dividende geplant → nächste Aktie
-                    continue;
-                }
-
-                // Prüfen, ob Dividende fällig ist (Datum <= aktuelle GameTime)
-                if ($nextDividendDate->lte(Carbon::parse($newGameTime->name))) {
-
-                    // Verhindere doppelte Dividenden im selben Monat
-                    $exists = $stock->dividends()
-                        ->where('game_time_id', $newGameTime->id)
-                        ->exists();
-
-                    if (!$exists) {
-                        \Log::info("Dividend due for stock {$stock->id} at game time {$newGameTime->name}");
-
-                        // Neue Dividende erzeugen
-                        Dividend::create([
-                            'stock_id' => $stock->id,
-                            'game_time_id' => $newGameTime->id,
-                            'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0),
-                        ]);
-
-                        // Job dispatchen für asynchrone Ausführung
-                        \App\Jobs\ProcessDividendPayout::dispatch($stock->id);
-                        \Log::info("Dividend payout job dispatched for stock {$stock->id}");
-
-                    } else {
-                        \Log::debug("Dividend already exists for stock {$stock->id} at game time {$newGameTime->name}, skipping");
-                    }
-                }
-            }
-        }
+        
     }
 
 
 
-    // =========================
-    // Preisgenerierung modular
-    // =========================
-    public function generatePrice(float $lastPrice, int $monthIndex, $stockConfig = null): float
-    {
-        // Nutze Stock-Config wenn vorhanden, sonst Default-Config
-        $config = $this->getConfigFromModel($stockConfig);
-
-        $price = $lastPrice;
-
-        if ($config['useExcelRandom']) {
-            $price = $this->applyExcelRandom($price, $config['excelRandomRange']);
-        }
-
-        if ($config['useCrashRally']) {
-            $price = $this->applyCrashRally($price, $config['crashProbability'], $config['rallyProbability']);
-        }
-
-        if ($config['useSeasonalEffect']) {
-            $price = $this->applySeasonalEffect($price, $monthIndex, $config['seasonalEffectRange']);
-        }
-
-        // Mindestpreis
-        if ($price <= 0)
-            $price = max(0.1, abs($lastPrice * 0.9));
-
-        return round($price, 2);
-    }
-
-    // =========================
-    // Config aus Model extrahieren
-    // =========================
-    protected function getConfigFromModel($stockConfig = null): array
-    {
-        if ($stockConfig) {
-            return [
-                'useExcelRandom' => true,
-                'excelRandomRange' => $stockConfig->volatility_range ?? 0.04,
-                'useSeasonalEffect' => true,
-                'seasonalEffectRange' => $stockConfig->seasonal_effect_strength ?? 0.026,
-                'useCrashRally' => true,
-                'crashProbability' => 1 / ($stockConfig->crash_interval_months ?? 240),
-                'rallyProbability' => 1 / ($stockConfig->rally_interval_months ?? 360),
-            ];
-        }
-
-        // Fallback auf Default-Config
-        return $this->config;
-    } 
-
-    // =========================
-    // Excel-artige Zufallsbewegung
-    // =========================
-    protected function applyExcelRandom(float $price, float $range): float
-    {
-        $randomFactor = (mt_rand() / mt_getrandmax() - 0.5) * 2 * $range; // [-range, +range]
-        return $price * (1 + $randomFactor);
-    }
-
-    // =========================
-    // Crash/Rallye Simulation
-    // =========================
-    protected function applyCrashRally(float $price, float $crashProb = null, float $rallyProb = null): float
-    {
-        $crashProb = $crashProb ?? $this->config['crashProbability'];
-        $rallyProb = $rallyProb ?? $this->config['rallyProbability'];
-
-        $rand = mt_rand() / mt_getrandmax();
-        if ($rand < $crashProb) {
-            $price *= 1 - mt_rand(20, 50) / 100; // Crash -20% bis -50%
-        } elseif ($rand < $crashProb + $rallyProb) {
-            $price *= 1 + mt_rand(20, 50) / 100; // Rally +20% bis +50%
-        }
-        return $price;
-    }
-
-    // =========================
-    // Saisonaler Effekt
-    // =========================
-    protected function applySeasonalEffect(float $price, int $monthIndex, float $range): float
-    {
-        $effect = sin(($monthIndex / 12) * 2 * M_PI) * $range; // ±range
-        return $price * (1 + $effect);
-    }
+    
 
     
 }

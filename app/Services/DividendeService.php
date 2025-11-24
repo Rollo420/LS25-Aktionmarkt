@@ -26,7 +26,7 @@ class DividendeService
 
     public function getDividendStatisticsForStock(Stock $stock, $user = null): Dividende
     {
-        if (!$stock) {
+        if (!$stock) {            
             return new Dividende();
         }
 
@@ -36,7 +36,8 @@ class DividendeService
 
         \Log::debug("DividendeService - Stock ID: {$stock->id}, dividend_frequency: " . ($stock->dividend_frequency ?? 'null'));
 
-        $dividend = $gameTime ? $stock->getDividendAtGameTime($gameTime) : $stock->getLatestDividend();
+        $dividend = $stock->getDividendAtGameTime($gameTime);
+        
         if (!$dividend) {
             \Log::warning("DividendeService - No dividend found for stock ID: {$stock->id}");
             return new Dividende();
@@ -71,7 +72,7 @@ class DividendeService
         $dividende->total_received = $total_dividends;
         $dividende->expected_next_12m = $dividende->last_amount * ($stock->dividend_frequency ?? 0) * $stock->getCurrentQuantity($user);
         $dividende->yield_percent = $dividende->dividendPercent;
-
+        
         return $dividende;
     }
 
@@ -133,4 +134,6 @@ class DividendeService
 
         \Log::info("Dividend payout completed for stock {$stock->name}. Total payout: {$totalPayout} to {$successfulPayouts}/{$totalUsers} users");
     }
+
+    
 }
