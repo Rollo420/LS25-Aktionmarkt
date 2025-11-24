@@ -9,10 +9,10 @@ export default defineConfig({
         }),
     ],
     server: {
-        host: '10.45.1.228',
+        host: '172.20.10.2',
         port: 5173,
         hmr: {
-            host: '10.45.1.228',
+            host: '172.20.10.2',
         },
         watch: {
             usePolling: true,
