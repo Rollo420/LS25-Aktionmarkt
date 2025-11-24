@@ -51,7 +51,7 @@ class Stock extends Model
             ->withTimestamps();
     }
 
-    public function getLastConfig()
+    public function getCurrentConfig()
     {
         return $this->configs()
             ->orderByDesc('pivot_applied_at')
@@ -207,4 +207,3 @@ class Stock extends Model
 
 
 }
-

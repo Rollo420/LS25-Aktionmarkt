@@ -59,14 +59,6 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(class: AdminAccountSeeder::class);
-        
-        //Stock::factory(5)->create();
-        //Transaction::factory(5)->create();
-  
-        //User::factory()->create([
-        //    'name' => 'Woodly',
-        //    'email' => 'woodly@gmail.com',
-        //    'password' => bcrypt('password'), // Passwort verschlüsseln
-        //]);
+
     }
 }

@@ -276,7 +276,7 @@ class StockService
                 }
 
                 // Stock-spezifische Config laden (oder Default verwenden)
-                $stockConfig = $stock->getLastConfig();
+                $stockConfig = $stock->getCurrentConfig();
 
                 // Neuen Preis berechnen mit generatePrice und der Stock-Config
                 $newPriceValue = $priceService->generatePrice($lastPrice, $monthIndex, $stockConfig);

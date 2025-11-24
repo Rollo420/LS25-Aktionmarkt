@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\ConfigRequest;
 
 use App\Models\Config;
+use Illuminate\Support\Facades\Cache;
 
 class ConfigController extends Controller
 {
@@ -50,12 +51,12 @@ class ConfigController extends Controller
             ->with('success', 'Config gespeichert (bestehend oder neu erstellt)');
     }
 
-    public function update(ConfigRequest $request, $id = 1)
+    public function update(ConfigRequest $request, Config $config)
     {
-        $config = Config::findOrFail($id);
-
         $data = $request->validated();
         $config->update($data);
+
+        Cache::forget('app.config.all');
 
         return redirect()->route('admin.configs.index')
             ->with('success', 'Config aktualisiert');
@@ -77,8 +78,7 @@ class ConfigController extends Controller
             $configName = $config->name;
             $config->delete();
 
-            // Cache invalidieren
-            \Illuminate\Support\Facades\Cache::forget('app.config.all');
+            Cache::forget('app.config.all');
 
             return redirect()->route('admin.configs.index')
                 ->with('success', __('Config "') . $configName . __('" wurde gelöscht'));
