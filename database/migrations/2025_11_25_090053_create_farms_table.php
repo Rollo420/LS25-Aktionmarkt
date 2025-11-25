@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('farm_user', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained('users')->cadeOnDelete();
-            $table->foreignId('farm_id')->constrained('farms')->cadeOnDelete();
-            $table->timestamps();
-        });
-
         Schema::create('farms', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('farm_user', function (Blueprint $table) {
+            $table->foreignId('user_id')->constrained('users')->cadeOnDelete();
+            $table->foreignId('farm_id')->constrained('farms')->cadeOnDelete();
             $table->timestamps();
         });
     }
