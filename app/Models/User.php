@@ -54,6 +54,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'users_roles');
     }
 
+    public function farms()
+    {
+        return $this->belongsToMany(Farm::class, 'farm_user', 'user_id', 'farm_id')->withTimestamps();
+    }
+
     public function isAdministrator()
     {
         return $this->roles()->where('name', 'admin')->exists();

@@ -14,6 +14,7 @@ use App\Http\Controllers\PaymentAuthorizationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\DepositTransactionController;
+use App\Http\Controllers\FarmCOntroller;
 
 Route::get('/', function () {
     return view('welcome');
@@ -115,6 +116,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/configs/{config}/edit', [ConfigController::class, 'edit'])->name('admin.configs.edit');
     Route::put('/admin/configs/{config}', [ConfigController::class, 'update'])->name('admin.configs.update');
     Route::delete('/admin/configs/{config}', [ConfigController::class, 'destroy'])->name('admin.configs.destroy');
+});
+
+Route::middleware(['auth'])->group(function (){
+    Route::get('/farm', [FarmController::class, 'index'])->name('farm.index');
 });
 
 Route::middleware('auth')->group(function () {

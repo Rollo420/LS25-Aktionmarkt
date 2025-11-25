@@ -92,6 +92,10 @@
                             {{ __('Payment') }}
                         </x-dropdown-link>
 
+                        <x-dropdown-link :href="route('farm.index')">
+                            {{ __('Farms') }}
+                        </x-dropdown-link>
+
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
