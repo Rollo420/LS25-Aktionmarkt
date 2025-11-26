@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Parental\HasChildren;
 
 //My Models
 use App\Models\Stock\Transaction;
@@ -24,6 +25,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'type',
     ];
 
     /**
@@ -34,6 +36,12 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'type',
+    ];
+
+    protected $childTypes = [
+        'user' => User::class,
+        'farm' => Farm::class,
     ];
 
     /**
@@ -46,6 +54,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'type' => 'string',
         ];
     }
 
@@ -53,10 +62,19 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'users_roles');
     }
+    
+    public function bank(){
+        return $this->hasOne(Bank::class);
+    }
+    
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 
     public function farms()
     {
-        return $this->belongsToMany(Farm::class, 'farm_user', 'user_id', 'farm_id')->withTimestamps();
+        return $this->belongsToMany(User::class, 'farm_user', 'user_id', 'farm_id')->withTimestamps();
     }
 
     public function isAdministrator()
@@ -64,13 +82,9 @@ class User extends Authenticatable
         return $this->roles()->where('name', 'admin')->exists();
     }
 
-    public function bank(){
-        return $this->hasOne(Bank::class);
-    }
-
-    public function transactions()
+    public function isFarm(): bool
     {
-        return $this->hasMany(Transaction::class);
+        return $this->type === 'farm';
     }
 
     public function getBankAccountBalance(): float
@@ -92,7 +106,7 @@ class User extends Authenticatable
     {
         return $this->getBankAccountBalance();
     }
-
+    
     public function getStockQuantity()
     {
         $this->transactions();

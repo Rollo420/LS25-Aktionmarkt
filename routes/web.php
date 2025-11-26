@@ -118,9 +118,27 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/admin/configs/{config}', [ConfigController::class, 'destroy'])->name('admin.configs.destroy');
 });
 
-Route::middleware(['auth'])->group(function (){
-    Route::get('/farm', [FarmController::class, 'index'])->name('farm.index');
+
+//Farm Routes
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/farm', function () {
+        return view('farm.index');
+    })->name('farm.index');
+
+    Route::post('/farm/send', function () {
+        return back();
+    })->name('farm.send');
+
+    Route::post('/farm/{id}/accept', function () {
+        return back();
+    })->name('farm.accept');
+
+    Route::post('/farm/{id}/decline', function () {
+        return back();
+    })->name('farm.decline');
 });
+
 
 Route::middleware('auth')->group(function () {
     Route::post('/update-month', [SessionController::class, 'setTimeLineMonth'])->name('update.monthTimeline');

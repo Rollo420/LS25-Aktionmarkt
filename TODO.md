@@ -1,4 +1,7 @@
-- [ ] DividendController index: Ändere, um Dividenden für zukünftige GameTimes zu laden (statt aktueller).
-- [ ] index.blade.php: Ändere Anzeige von gameTime->name zu gameTime->toDate() für das Ausschüttungsdatum.
-- [ ] DividendController edit: Verwende getFutureGameTimes() statt all().
-- [ ] Testen der Änderungen.
+# TODO: Farm Einladungen Seite erstellen
+
+## Schritte:
+- [ ] Neue Route für Farm Einladungen in routes/web.php hinzufügen
+- [ ] Neue View resources/views/farm/invitations.blade.php erstellen
+- [ ] Navigation in resources/views/layouts/navigation.blade.php aktualisieren
+- [ ] Laravel Sail starten und Seite testen
