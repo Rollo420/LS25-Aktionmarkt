@@ -13,8 +13,7 @@ class FarmController extends Controller
      */
     public function index()
     {
-        
-        retrun view();
+        return view('farm.index');
     }
 
     /**

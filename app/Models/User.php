@@ -6,15 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Parental\HasChildren;
+use Laravel\Scout\Searchable;
 
 //My Models
 use App\Models\Stock\Transaction;
-use App\Models\Bank; // Importiere das Bank-Modell
+use App\Models\Bank;
+use App\Models\Farm;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasChildren, Searchable;
+    
+    protected $table='users';
 
     /**
      * The attributes that are mass assignable.
@@ -28,6 +32,7 @@ class User extends Authenticatable
         'type',
     ];
 
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -39,10 +44,13 @@ class User extends Authenticatable
         'type',
     ];
 
+
     protected $childTypes = [
-        'user' => User::class,
         'farm' => Farm::class,
+        'user' => User::class,
     ];
+
+    private $enableFarmMode = false;
 
     /**
      * Get the attributes that should be cast.
@@ -74,17 +82,14 @@ class User extends Authenticatable
 
     public function farms()
     {
-        return $this->belongsToMany(User::class, 'farm_user', 'user_id', 'farm_id')->withTimestamps();
+        return $this->belongsToMany(Farm::class, 'farm_user', 'user_id', 'farm_id')
+            ->pivot('invite_acception')
+            ->withTimestamps();
     }
 
     public function isAdministrator()
     {
         return $this->roles()->where('name', 'admin')->exists();
-    }
-
-    public function isFarm(): bool
-    {
-        return $this->type === 'farm';
     }
 
     public function getBankAccountBalance(): float
@@ -110,5 +115,14 @@ class User extends Authenticatable
     public function getStockQuantity()
     {
         $this->transactions();
+    }
+
+    public function getFarmMode(): bool
+    {
+        return $this->enableFarmMode;
+    }
+    public function setFarmMode(bool $mode): void
+    {
+        $this->enableFarmMode = $mode;
     }
 }

@@ -53,6 +53,9 @@
                             <a href="{{ route('admin.configs.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 {{ request()->routeIs('admin.configs.*') ? 'bg-gray-100 dark:bg-gray-600' : '' }}">
                                 {{ __('Configs verwalten') }}
                             </a>
+                            <a href="{{route('admin.farm.create')}}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 {{ request()->routeIs('admin.configs.*') ? 'bg-gray-100 dark:bg-gray-600' : '' }}">
+                                {{ __('Farm verwalten') }}
+                            </a>
                             <hr class="border-gray-200 dark:border-gray-600 my-1">
                             <a href="{{ route('payment.auth') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">
                                 {{ __('Payment Auth') }}

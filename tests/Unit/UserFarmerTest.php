@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Farm;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,9 +20,9 @@ class UserFarmerTest extends TestCase
         //run command: sail artisan test --filter UserFarmerTest 
 
         $this->seed();
-        
 
-        $userFarms = User::factory()->createMany([
+
+        $userFarms = Farm::factory()->createMany([
             [
                 'name' => 'farmer01',
                 'email' => 'farmer01@gmail.com',
@@ -40,45 +41,53 @@ class UserFarmerTest extends TestCase
         ]);
 
         
-        $user = User::factory()->create([
-            'name' => 'user01',
-            'email' => 'user01@gmail.com',
-            'type' => 'user',
+        $users = User::factory()->createMany([
+            [
+                'name' => 'user01',
+                'email' => 'user01@gmail.com',
+                'type' => 'user',
+            ],
+            [
+                'name' => 'user02',
+                'email' => 'user02@gmail.com',
+                'type' => 'user',
+            ],
         ]);
-        //$user->farms()->attach($userFarms->pluck('id'));
-
-        dd( $user->farms()->get());
         
-        if($user->isFarm()){
-            $this->assertTrue(true);
-            $famerTrans = Transaction::factory()->create([
-                'user_id' => $user->farms(), //Mein Gedanke ist, das die Relation so sein müsste: $user->farm()->id. Wie würde man das in Parantal erstellen?
-                'stock_id' => 1,
-                'quantity' => 10,
-                'price_at_buy' => 100.0,
-                'type' => 'buy',
-            ]);
+        // Im Test-File (UserFarmerTest.php):
+        $secondFarm = $userFarms->get(1);
 
-            $this->assertDatabaseHas('transactions', [
-                'id' => $famerTrans->id,
-            ]);
-        }
-        else 
-        {
-            $this->assertFalse(false, 'User is not recognized as Farm type');
+        // WICHTIGE KORREKTUR: Erzwinge die Hydration als Farm-Klasse
+        $secondFarmId = $secondFarm->id;
+        $secondFarm = User::find($secondFarmId); // Zwingt Parental, die korrekte Farm-Klasse zu verwenden
 
-            $userTrans = Transaction::factory()->create([
-                'user_id' => $user->id,
-                'stock_id' => 1,
-                'quantity' => 10,
-                'price_at_buy' => 100.0,
-                'type' => 'buy',
-            ]);
-
-            $this->assertDatabaseHas('transactions', [
-                'id' => $userTrans->id,
-            ]);
+        $firstUser = $users->get(0);
+        
+        
+        if($firstUser->getFarmMode() == false){
+            $firstUser->setFarmMode(true);
         }
 
+        //invite user to farm
+        // Statt:
+        // $inviteUser = $secondFarm->users()->attach($firstUser->id, ['invite_acception' => false]);
+        // Machen Sie nur den Aufruf und prüfen Sie das Ergebnis:
+
+        $secondFarm->users()->attach($firstUser->id, ['invite_acception' => false]);
+
+        // Prüfen, ob der Eintrag in der Pivot-Tabelle existiert
+        $this->assertDatabaseHas('farm_user', [
+            'farm_id' => $secondFarm->id,
+            'user_id' => $firstUser->id,
+            'invite_acception' => false, // Optional: Prüfen Sie die Pivot-Daten
+        ]);
+
+        // Oder prüfen Sie, ob die Beziehung korrekt geladen wird:
+        $this->assertTrue(
+            $secondFarm->users()->where('user_id', $firstUser->id)->exists()
+        );
+        
+
+      
     }
 }
