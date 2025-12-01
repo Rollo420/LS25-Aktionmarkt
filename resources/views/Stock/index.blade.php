@@ -10,7 +10,7 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
-                    <!-- Suchfeld -->
+                    <!-- Suchfeld 
                     <div class="mb-6">
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -21,7 +21,13 @@
                             <input type="text" id="searchInput" placeholder="Aktien suchen..."
                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md leading-5 bg-white dark:bg-gray-900 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
-                    </div>
+                    </div>-->
+
+                    <x-search-input
+                        id="searchInput"
+                        api="{{ route('api.search.stocks') }}"
+                        placeholder="Aktien suchen..."
+                        display="name" />
 
                     <!-- Aktien-Tabelle -->
                     <div class="overflow-x-auto">
@@ -92,23 +98,23 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                                         @if($stock['dividend_amount'] ?? false)
-                                            <div class="font-semibold text-green-600 dark:text-green-400">
-                                                {{ number_format($stock['dividend_amount'], 2, ',', '.') }} €
-                                            </div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400">
-                                                {{ $stock['next_dividend_date'] ? \Carbon\Carbon::parse($stock['next_dividend_date'])->format('d.m.Y') : 'Kein Datum' }}
-                                            </div>
+                                        <div class="font-semibold text-green-600 dark:text-green-400">
+                                            {{ number_format($stock['dividend_amount'], 2, ',', '.') }} €
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $stock['next_dividend_date'] ? \Carbon\Carbon::parse($stock['next_dividend_date'])->format('d.m.Y') : 'Kein Datum' }}
+                                        </div>
                                         @else
-                                            <span class="text-gray-400 dark:text-gray-500">-</span>
+                                        <span class="text-gray-400 dark:text-gray-500">-</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                                         @if($stock['price'] > 0 && ($stock['dividend_amount'] ?? 0) > 0)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                                {{ number_format(($stock['dividend_amount'] / $stock['price']) * 100, 2, ',', '.') }} %
-                                            </span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                            {{ number_format(($stock['dividend_amount'] / $stock['price']) * 100, 2, ',', '.') }} %
+                                        </span>
                                         @else
-                                            <span class="text-gray-400 dark:text-gray-500">-</span>
+                                        <span class="text-gray-400 dark:text-gray-500">-</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -118,13 +124,13 @@
                     </div>
 
                     @if($stocks->isEmpty())
-                        <div class="text-center py-12">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">Keine Aktien gefunden</h3>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Es wurden noch keine Aktien erstellt.</p>
-                        </div>
+                    <div class="text-center py-12">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">Keine Aktien gefunden</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Es wurden noch keine Aktien erstellt.</p>
+                    </div>
                     @endif
 
                 </div>

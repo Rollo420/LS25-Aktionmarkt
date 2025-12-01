@@ -19,7 +19,9 @@ services:
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
             - '.:/var/www/html'
-
+            - './certs/Https-TSBW.crt:/etc/ssl/certs/Https-TSBW.crt'
+            - './certs/Https-TSBW.crt:/usr/local/share/ca-certificates/Https-TSBW.crt'
+            - './docker/php.ini:/etc/php/8.4/cli/conf.d/999-Https-TSBW.ini'
         networks:
             - sail
         depends_on:

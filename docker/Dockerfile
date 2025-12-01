@@ -26,6 +26,9 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 RUN composer require mistic100/randomcolor --no-interaction --with-all-dependencies || true
 RUN composer require tightenco/parental --no-interaction --with-all-dependencies || true
+RUN composer require laravel/scout --no-interaction --with-all-dependencies || true
+RUN composer require meilisearch/meilisearch-php --no-interaction --with-all-dependencies || true
+RUN composer require spatie/laravel-permission --no-interaction --with-all-dependencies
 
 FROM node:latest as node
 
