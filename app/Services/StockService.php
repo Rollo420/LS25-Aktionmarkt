@@ -36,23 +36,15 @@ class StockService
     {
         $user = Auth::user();
 
-        // Optimierte Berechnung mit einer einzigen Query statt mehreren N+1 Queries
-        return Transaction::where('user_id', $user->id)
-            ->where('type', 'buy')
-            ->with(['stock:id,name']) // Eager Loading
-            ->get()
-            ->groupBy('stock_id')
-            ->map(function ($transactions) {
-                $totalQuantity = $transactions->sum('quantity');
+        // Use the same statistic objects as the depot overview so profit/loss is
+        // calculated consistently across views. This ensures the stock detail
+        // page shows the same G/V as the depot listing.
+        $stats = $this->getUserStocksWithStatistiks($user);
 
-                if ($totalQuantity > 0) {
-                    $currentPrice = $transactions->first()->stock->getCurrentPrice() ?? 0;
-                    return $totalQuantity * $currentPrice;
-                }
-
-                return 0;
-            })
-            ->sum();
+        return (float) $stats->sum(function ($stat) {
+            // each $stat is an object created by getStockStatistiks
+            return ($stat->quantity ?? 0) * ($stat->current_price ?? 0);
+        });
     }
 
     /**
@@ -194,12 +186,74 @@ class StockService
      */
     public function getUserBuyTransactionsForStock($user, $stockID)
     {
-        return $user->transactions
+        // Only consider buy transactions since the last time the user's holding dropped to zero
+        $relevant = $this->getTransactionsSinceLastZero($user, $stockID);
+
+        $filtered = $relevant
             ->where('type', 'buy')
+            ->where('quantity', '>', 0);
+
+        // Sort by GameTime when available, otherwise by created_at.
+        $sorted = $filtered->sort(function ($a, $b) {
+            $aKey = $a->game_time_id ?? 0;
+            $bKey = $b->game_time_id ?? 0;
+            if ($aKey === $bKey) {
+                return strtotime($a->created_at) <=> strtotime($b->created_at);
+            }
+            return $aKey <=> $bKey;
+        });
+
+        return $sorted->values();
+    }
+
+    /**
+     * Liefert alle Transaktionen für eine Aktie des Users, aber nur die
+     * Transaktionen, die nach dem letzten Zeitpunkt kommen, an dem die
+     * Holding für diese Aktie null war. So werden alte Käufe/Verkäufe
+     * ignoriert, wenn die Aktie vollständig verkauft und später neu gekauft wurde.
+     *
+     * @param $user
+     * @param int $stockID
+     * @return \Illuminate\Support\Collection
+     */
+    public function getTransactionsSinceLastZero($user, int $stockID)
+    {
+        // Hol alle Transaktionen (buy und sell) sortiert primär nach GameTime, dann nach created_at
+        // Ignoriere andere Transaktionstypen wie Dividenden für die Zero-Berechnung
+        $txns = Transaction::where('user_id', $user->id)
             ->where('stock_id', $stockID)
-            ->where('quantity', '>', 0) // Only include transactions with remaining quantity
-            ->sortBy('created_at')
-            ->values();
+            ->whereIn('type', ['buy', 'sell'])
+            ->orderBy('game_time_id')
+            ->orderBy('created_at')
+            ->get();
+
+        if ($txns->isEmpty()) {
+            return $txns;
+        }
+
+        $cumulative = 0;
+        $lastZeroIndex = null;
+
+        foreach ($txns->values() as $i => $t) {
+            // Normalisierung: buys add, sells subtract
+            if (($t->type ?? '') === 'buy') {
+                $cumulative += ($t->quantity ?? 0);
+            } elseif (($t->type ?? '') === 'sell') {
+                $cumulative -= ($t->quantity ?? 0);
+            }
+
+            // When cumulative is exactly zero, mark this index as reset point
+            if ($cumulative === 0) {
+                $lastZeroIndex = $i;
+            }
+        }
+
+        if (is_null($lastZeroIndex)) {
+            return $txns;
+        }
+
+        // Return all transactions after the last index where cumulative was zero
+        return $txns->slice($lastZeroIndex + 1)->values();
     }
 
     /**

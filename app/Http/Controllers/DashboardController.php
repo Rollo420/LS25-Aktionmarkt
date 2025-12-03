@@ -36,13 +36,22 @@ class DashboardController extends Controller
             'topThreeDown' => $topThreeDown->values(),
         ];
 
-        // Letzte 5 Transaktionen - Eager Loading für bessere Performance
+        // Letzte 5 Transaktionen (nur Kauf/Verkauf) - Dividenden werden hier bewusst ausgeblendet
         $depotInfo['lastTransactions'] = Transaction::where('user_id', $user->id)
-            ->with(['stock:id,name', 'gameTime:id,name']) // Nur benötigte Felder laden
-            ->latest()
+            ->whereNotIn('type', ['dividend'])
+            ->with(['stock:id,name', 'gameTime:id,name'])
+            ->orderByDesc('game_time_id')
+            ->orderByDesc('created_at')
             ->take(5)
             ->get();
 
+        // Letzte 5 Transaktionen (alle Typen) - für vollständige Transaktionsansicht
+        $depotInfo['lastAllTransactions'] = Transaction::where('user_id', $user->id)
+            ->with(['stock:id,name', 'gameTime:id,name'])
+            ->orderByDesc('game_time_id')
+            ->orderByDesc('created_at')
+            ->take(5)
+            ->get();
 
         $dividendeService = new DividendeService();
 
@@ -132,8 +141,38 @@ class DashboardController extends Controller
         // Risiko-Metriken (Cash-Anteil, Beta-Wert)
         $depotInfo["risk_metrics"] = $this->calculateRiskMetrics($user, $depotInfo['totalPortfolioValue'], $currentGameTime);
 
-        // Daten für den Dividenden-Chart
-        $depotInfo["dividend_chart"] = 0;
+        // Daten für den Dividenden-Chart: aggregiere erhaltene Dividenden pro GameTime-Monat
+        $gtService = new GameTimeService();
+        $dividendTx = Transaction::where('user_id', $user->id)
+            ->where('type', 'dividend')
+            ->with('gameTime')
+            ->orderBy('game_time_id', 'asc')
+            ->get();
+
+        $grouped = $dividendTx->groupBy('game_time_id');
+        $labels = [];
+        $data = [];
+
+        foreach ($grouped as $gtId => $group) {
+            $gt = $group->first()->gameTime;
+            if ($gt) {
+                $label = $gtService->toDate($gt)->format('m.Y');
+            } else {
+                $label = 'Unbekannt';
+            }
+
+            $total = $group->sum(function ($t) {
+                return ($t->quantity ?? 0) * ($t->price_at_buy ?? 0);
+            });
+
+            $labels[] = $label;
+            $data[] = round($total, 2);
+        }
+
+        $depotInfo["dividend_chart"] = [
+            'labels' => $labels,
+            'data' => $data,
+        ];
 
         // Kaufkraft-Metrik
         $depotInfo["purchasing_power"] = $this->calculatePurchasingPower($stocks, $currentGameTime);
@@ -237,6 +276,7 @@ class DashboardController extends Controller
         // load all buy/sell transactions for the user
         $transactions = Transaction::where('user_id', $user->id)
             ->whereIn('type', ['buy', 'sell'])
+            ->orderBy('game_time_id')
             ->orderBy('created_at')
             ->get();
 
@@ -248,7 +288,7 @@ class DashboardController extends Controller
 
         // load prices grouped by stock
         $pricesByStock = Price::whereIn('stock_id', $stockIds)
-            ->orderBy('created_at', 'asc')
+            ->orderBy('game_time_id', 'asc')
             ->get()
             ->groupBy('stock_id');
 

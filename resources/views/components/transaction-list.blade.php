@@ -148,7 +148,13 @@
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {{ isset($transaction->created_at) ? \Carbon\Carbon::parse($transaction->created_at)->format('d.m.Y H:i') : 'Unbekannt' }}
+                    @if(isset($transaction->gameTime) && $transaction->gameTime)
+                        {{ \Carbon\Carbon::parse($transaction->gameTime->name)->format('d.m.Y') }}
+                    @elseif(isset($transaction->created_at))
+                        {{ \Carbon\Carbon::parse($transaction->created_at)->format('d.m.Y H:i') }}
+                    @else
+                        Unbekannt
+                    @endif
                 </td>
             </tr>
             @endforeach

@@ -43,13 +43,18 @@ class DepositTransactionController extends Controller
         // Aktie anhand der ID laden
         $stock = Stock::findOrFail($id);
 
-        // Alle Transaktionen des Users für diese Aktie
-        $stockTransactionsHistory = $this->getUserStockTransactions($id)->get();
+        // Wenn der Benutzer aktuell 0 Aktien dieser Aktie hält, weiterleiten zur Depot-Übersicht
+        if ($stock->getCurrentQuantity($user) <= 0) {
+            return redirect()->action([self::class, 'index']);
+        }
 
-        // Buy-Transaktionen für die Historie
-        $stockBuyHistory = $this->getUserStockTransactions($id)->where('type', 'buy')->get();
+        // Alle Transaktionen des Users für diese Aktie (nur die relevanten nach letztem Zero-Event)
+        $stockTransactionsHistory = $stockService->getTransactionsSinceLastZero($user, $id);
 
-        // Aggregierte Kennzahlen berechnen - wenn keine Transaktionen vorhanden, Stock-Objekt verwenden
+        // Buy-Transaktionen für die Historie (ebenfalls seit dem letzten Zero)
+        $stockBuyHistory = $stockTransactionsHistory->where('type', 'buy')->values();
+
+        // Aggregierte Kennzahlen berechnen - wenn keine relevanten Transaktionen vorhanden, Stock-Objekt verwenden
         if ($stockTransactionsHistory->isEmpty()) {
             $stockData = $stockService->getStockStatistiks($stock, $user);
         } else {
