@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Parental\HasChildren;
-//use Laravel\Scout\Searchable;
+use Laravel\Scout\Searchable;
 
 //My Models
 use App\Models\Stock\Transaction;
@@ -16,7 +16,7 @@ use App\Models\Farm;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasChildren;//, Searchable;
+    use HasFactory, Notifiable, HasChildren, Searchable;
     
     protected $table='users';
 
@@ -124,5 +124,14 @@ class User extends Authenticatable
     public function setFarmMode(bool $mode): void
     {
         $this->enableFarmMode = $mode;
+    }
+
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+        ];
     }
 }

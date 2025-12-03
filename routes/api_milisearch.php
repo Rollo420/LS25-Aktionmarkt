@@ -18,3 +18,19 @@ Route::get('/search/stocks', function () {
         ->take(10)
         ->get(['id', 'name', 'symbol']);
 })->name('api.search.stocks');
+
+Route::get('/search/product-types', function () {
+    $q = request('q');
+
+    return \App\Models\ProductType::search($q)
+        ->take(10)
+        ->get(['id', 'name']);
+})->name('api.search.product-types');
+
+Route::get('/search/farms', function () {
+    $q = request('q');
+
+    return \App\Models\Farm::search($q)
+        ->take(10)
+        ->get(['id', 'name', 'email']);
+})->name('api.search.farms');

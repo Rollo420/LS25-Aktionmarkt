@@ -4,6 +4,7 @@ namespace App\Models\Stock;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Scout\Searchable;
 use \Carbon\Carbon;
 
 use App\Models\Dividend;
@@ -15,7 +16,7 @@ use App\Models\GameTime;
 
 class Stock extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $fillable = [
         'product_type_id',

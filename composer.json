@@ -11,8 +11,10 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^11.31",
+        "laravel/scout": "^10.22",
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.6",
+        "meilisearch/meilisearch-php": "^1.16",
         "mistic100/randomcolor": "^1.1",
         "tightenco/parental": "^1.4"
     },
