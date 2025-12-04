@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Parental\HasChildren;
-use Laravel\Scout\Searchable;
 
 //My Models
 use App\Models\Stock\Transaction;
@@ -16,7 +15,7 @@ use App\Models\Farm;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasChildren, Searchable;
+    use HasFactory, Notifiable, HasChildren;
     
     protected $table='users';
 

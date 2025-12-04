@@ -1,5 +1,3 @@
-import Echo from 'laravel-echo';
-
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof window.Echo !== 'undefined') {
         window.Echo.channel('timeskip')

@@ -4,7 +4,6 @@ namespace App\Models\Stock;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Laravel\Scout\Searchable;
 use \Carbon\Carbon;
 
 use App\Models\Dividend;
@@ -13,6 +12,10 @@ use App\Models\Stock\Transaction;
 use \App\Models\StockConfig;
 use \App\Models\Config;
 use App\Models\GameTime;
+use App\Models\ProductType;
+
+use Laravel\Scout\Searchable;
+
 
 class Stock extends Model
 {
@@ -45,11 +48,33 @@ class Stock extends Model
         return $this->hasMany(Dividend::class);
     }
 
+    public function productType()
+    {
+        return $this->belongsTo(ProductType::class);
+    }
+
     public function configs()
     {
         return $this->belongsToMany(Config::class, 'config_stocks')
             ->withPivot('applied_at')
             ->withTimestamps();
+    }
+
+    public function toSearchableArray(): array
+    {
+	    // All model attributes are made searchable
+        $array = $this->toArray();
+
+		// Then we add some additional fields
+        $array['name'] = $this->name;
+        $array['product_type_name'] = $this->productType->name;
+        $array['firma'] = $this->firma;
+        $array['sektor'] = $this->sektor;
+        $array['land'] = $this->land;
+        $array['price'] = $this->getCurrentPrice();
+        $array['dividend_amount'] = $this->getCurrentDividendAmount();
+
+        return $array;
     }
 
     public function getCurrentConfig()

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductType extends Model
 {
-    use HasFactory, Searchable;
+    use HasFactory;
 
     protected $fillable = ['name'];
 

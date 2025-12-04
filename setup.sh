@@ -75,10 +75,12 @@ echo "🛠 Konfiguration und DB vorbereiten..."
 if [ -n "${sail}" ]; then
     $sail artisan config:clear
     $sail artisan key:generate
+    $sail artisan vendor:publish --provider="LaravelScoutScoutServiceProvider"
     $sail artisan migrate:fresh --seed
 else
     $COMPOSE_CMD exec laravel.test php artisan config:clear
     $COMPOSE_CMD exec laravel.test php artisan key:generate
+    $COMPOSE_CMD exec laravle.test php artisan vendor:publish --provider="LaravelScoutScoutServiceProvider"
     $COMPOSE_CMD exec laravel.test php artisan migrate:fresh --seed
 fi
 
@@ -86,24 +88,17 @@ fi
 echo "📦 Bereite Node/Vite vor..."
 if [ -n "${sail}" ]; then
     $sail exec -T laravel.test bash -c "mkdir -p /app/node_modules"
+    $sail npm run build
 else
     $COMPOSE_CMD exec -T laravel.test bash -c "mkdir -p /app/node_modules"
+    $COMPOSE_CMD exec -T laravel.test bash -c "npm run build"
 fi
 
 # --- Permanenter Sail-Alias nur auf Linux ---
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    SHELL_RC="$HOME/.bashrc"
-    ALIAS_CMD="alias sail='[ -f \$PWD/vendor/bin/sail ] && \$PWD/vendor/bin/sail || echo \"Sail nicht gefunden\"'"
+    echo "alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'" >> ~/.bashrc
+    source ~/.bashrc
 
-    if ! grep -Fxq "$ALIAS_CMD" "$SHELL_RC"; then
-        echo "🔧 Füge permanenten Sail-Alias zu $SHELL_RC hinzu..."
-        echo "" >> "$SHELL_RC"
-        echo "# Permanenter Sail-Alias für Laravel Sail" >> "$SHELL_RC"
-        echo "$ALIAS_CMD" >> "$SHELL_RC"
-        echo "✅ Alias hinzugefügt! Lade die Shell neu mit: source $SHELL_RC"
-    else
-        echo "ℹ Sail-Alias existiert bereits in $SHELL_RC, überspringe."
-    fi
 fi
 
 echo "🎉 Setup abgeschlossen! Du kannst nun 'sail' verwenden."

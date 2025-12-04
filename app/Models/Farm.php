@@ -6,14 +6,12 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Parental\HasParent;
-use Laravel\Scout\Searchable;
 
 class Farm extends User
 {
     /** @use HasFactory<\Database\Factories\FarmFactory> */
     use HasFactory;
     use HasParent;
-    use Searchable;
 
 
     protected $table='users';
