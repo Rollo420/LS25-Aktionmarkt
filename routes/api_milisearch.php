@@ -13,10 +13,11 @@ Route::get('/search/users', function () {
 
 Route::get('/search/stocks', function () {
     $q = request('q');
+    $searchQuery = str_replace(',', '.', $q);
 
     return \App\Models\Stock\Stock::search($q)
         ->take(10)
-        ->get(['id', 'name', 'symbol']);
+        ->get(['id', 'name', 'symbol', 'price']);
 })->name('api.search.stocks');
 
 Route::get('/search/product-types', function () {

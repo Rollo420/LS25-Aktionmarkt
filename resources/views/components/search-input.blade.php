@@ -33,38 +33,7 @@
                    text-lg tracking-wide font-medium">
     </div>
 
-    <!-- Dropdown Results -->
-    <template x-if="results.length > 0 && query.length > 1">
-        <ul class="absolute left-0 right-0 mt-4 bg-white dark:!bg-gray-800 
-                   !shadow-2xl !rounded-3xl z-50 max-h-64 overflow-y-auto py-3 
-                   custom-scrollbar border border-gray-100 dark:!border-gray-700
-                   transition-opacity duration-300 ease-out"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 transform scale-95"
-            x-transition:enter-end="opacity-100 transform scale-100">
 
-            <template x-for="item in results" :key="item.id">
-                <li
-                    class="px-6 py-3 mx-2 my-1 hover:!bg-indigo-50 dark:hover:!bg-gray-700 
-                           cursor-pointer transition duration-150 !rounded-2xl group"
-                    @click="select(item)">
-                    <div class="flex flex-col">
-                        <span class="font-semibold text-gray-900 dark:!text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
-                            x-text="item[display]"></span>
-
-                        <span class="text-sm text-gray-500 dark:!text-gray-400"
-                            x-show="item.email"
-                            x-text="item.email"></span>
-                    </div>
-                </li>
-            </template>
-
-            <li x-if="results.length === 0" class="px-6 py-3 text-gray-500 dark:!text-gray-400 text-center">
-                Keine Ergebnisse gefunden.
-            </li>
-
-        </ul>
-    </template>
 </div>
 
 <!-- Das Alpine.js Skript (Logik bleibt unverändert) -->
@@ -78,6 +47,7 @@
             async search() {
                 if (this.query.length < 2) {
                     this.results = [];
+                    this.filterStocks();
                     return;
                 }
 
@@ -85,8 +55,11 @@
                     // ECHTER API CALL: Nutzt den übergebenen 'api'-Prop
                     const res = await fetch(api + "?q=" + encodeURIComponent(this.query));
                     this.results = await res.json();
+                    this.filterStocks();
                 } catch (e) {
                     console.error("Search API Error:", e);
+                    this.results = [];
+                    this.filterStocks();
                 }
             },
 
@@ -97,6 +70,16 @@
                 // Sendet das 'search-selected' Event
                 window.dispatchEvent(new CustomEvent('search-selected', {
                     detail: item
+                }));
+            },
+
+            filterStocks() {
+                // Sendet das 'search-filter' Event mit Query und Ergebnissen
+                window.dispatchEvent(new CustomEvent('search-filter', {
+                    detail: {
+                        query: this.query,
+                        results: this.results
+                    }
                 }));
             }
         }))

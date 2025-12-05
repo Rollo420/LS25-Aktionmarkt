@@ -4,10 +4,11 @@ namespace App\Models\Stock;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Scout\Searchable;
 
 class Price extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     /**
      * Die Attribute, die massenweise zuweisbar sind.
@@ -33,5 +34,17 @@ class Price extends Model
     public function stock()
     {
         return $this->belongsTo(Stock::class);
-    } 
+    }
+    
+    public function toSearchableArray()
+    {
+        $array = $this->toArray();
+
+        // Fügen Sie benutzerdefinierte Felder hinzu oder entfernen Sie nicht durchsuchbare Felder
+        $array['stock_id'] = $this->stock_id;
+        $array['date'] = $this->date;
+        $array['price'] = $this->name; // assuming 'name' holds the price value
+
+        return $array;
+    }
 }

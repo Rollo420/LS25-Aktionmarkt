@@ -23,11 +23,16 @@
                         </div>
                     </div>-->
 
-                    <x-search-input
-                        id="searchInput"
-                        api="{{ route('api.search.stocks') }}"
-                        placeholder="Aktien suchen..."
-                        display="name" />
+                 <x-search-input
+                    id="searchInput"
+                    api="{{ route('api.search.stocks') }}"
+                    placeholder="Aktien suchen..."
+                    display="name" 
+                    class="mb-6"
+                />
+
+                <span class="text-sm text-gray-500 dark:text-gray-400 mb-4 block m-5">
+
 
                     <!-- Aktien-Tabelle -->
                     <div class="overflow-x-auto">
@@ -57,6 +62,7 @@
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 @foreach($stocks as $stock)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-150 stock-row"
+                                    data-stock-id="{{ $stock['id'] }}"
                                     onclick="window.location='{{ route('stock.store', $stock['id']) }}'">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
@@ -139,17 +145,30 @@
     </div>
 
     <script>
-        // Suchfunktion
-        document.getElementById('searchInput').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
+        // Suchfunktion mit Meilisearch Ergebnissen
+        window.addEventListener('search-filter', function(event) {
+            const { query, results } = event.detail;
             const rows = document.querySelectorAll('.stock-row');
 
-            rows.forEach(row => {
-                const stockName = row.querySelector('.text-sm.font-medium').textContent.toLowerCase();
-                const company = row.querySelector('td:nth-child(2) .text-sm').textContent.toLowerCase();
-                const sector = row.querySelector('td:nth-child(3) span').textContent.toLowerCase();
+            console.log('Search filter event:', { query, results });
 
-                if (stockName.includes(searchTerm) || company.includes(searchTerm) || sector.includes(searchTerm)) {
+            if (query.length < 2 || results.length === 0) {
+                // Zeige alle Aktien wenn keine Suche oder keine Ergebnisse
+                rows.forEach(row => {
+                    row.style.display = '';
+                });
+                return;
+            }
+
+            // Sammle die IDs der gefundenen Aktien
+            const foundStockIds = results.map(stock => stock.id);
+            console.log('Found stock IDs:', foundStockIds);
+
+            rows.forEach(row => {
+                const stockId = row.getAttribute('data-stock-id');
+                console.log('Row stock ID:', stockId);
+
+                if (stockId && foundStockIds.includes(parseInt(stockId))) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
