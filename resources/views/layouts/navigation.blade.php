@@ -68,7 +68,7 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <div class="account-balance">
+                <div class="account-balance text-white:500 space-y-0 me-4 text-end">
                     <h6>Balance: {{ number_format(Auth::user()->bank->balance, 2, ',', '.') }} €</h6>
                     <h6>IBAN: {{ Auth::user()->bank->iban }}</h6>
                 </div>

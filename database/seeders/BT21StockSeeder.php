@@ -15,15 +15,7 @@ class BT21StockSeeder extends Seeder
     public function run(): ?Collection 
     {
 
-        $stocks = Stock::factory()->createMany([[
-           'name' => 'Aktien Name',
-           'firma' => 'Frirmen namen',
-           'sektor' => 'sektor(MIlch, Hanf)',
-           'land' => 'land',
-           'description' => 'beschreibung ja dui weißt',
-           'net_income' => 1255000,
-           'dividend_frequency' => 2//einer von 1, 2, 4, wann es im jahr dividendne gibt
-       ],
+        $stocks = Stock::factory()->createMany([
        ['name' => 'Back To 21 AG',
            'firma' => 'Back To 21 Holding AG',
            'sektor' => 'Multiunternehmen',

@@ -300,7 +300,7 @@
                         plugins: {
                             legend: { display: false }
                         },
-                        scales: {
+                        scales: { 
                             y: { beginAtZero: false }
                         }
                     }

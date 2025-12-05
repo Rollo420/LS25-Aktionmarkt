@@ -22,7 +22,7 @@ class PriceService
         // Nutze Stock-Config wenn vorhanden, sonst Default-Config
         $config = $this->getConfigFromModel($stockConfig);
 
-        $price = $lastPrice;
+        $price = $lastPrice * 1.00; // Starte mit dem letzten Preis
 
         if ($config['useExcelRandom']) {
             $price = $this->applyExcelRandom($price, $config['excelRandomRange']);

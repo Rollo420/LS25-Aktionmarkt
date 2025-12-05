@@ -531,16 +531,16 @@ class DashboardController extends Controller
                     'pointRadius' => 3,
                     'borderWidth' => 2,
                 ],
-                [
-                    'label' => 'Monatliche Investition (Netto)',
-                    'data' => $monthlyInvest,
-                    'borderColor' => '#F59E0B',
-                    'backgroundColor' => 'rgba(245,158,11,0.08)',
-                    'tension' => 0.2,
-                    'fill' => false,
-                    'pointRadius' => 3,
-                    'borderWidth' => 2,
-                ],
+                //[
+                //    'label' => 'Monatliche Investition (Netto)',
+                //    'data' => $monthlyInvest,
+                //    'borderColor' => '#F59E0B',
+                //    'backgroundColor' => 'rgba(245,158,11,0.08)',
+                //    'tension' => 0.2,
+                //    'fill' => false,
+                //    'pointRadius' => 3,
+                //    'borderWidth' => 2,
+                //],
             ],
         ];
     }
