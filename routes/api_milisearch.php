@@ -12,12 +12,22 @@ Route::get('/search/users', function () {
 })->name('api.search.users');
 
 Route::get('/search/stocks', function () {
-    $q = request('q');
-    $searchQuery = str_replace(',', '.', $q);
+$q = request('q');
 
-    return \App\Models\Stock\Stock::search($q)
-        ->take(10)
-        ->get(['id', 'name', 'symbol', 'price']);
+// Komma durch Punkt ersetzen, damit 226,42 -> 226.42
+$searchQuery = str_replace(',', '.', $q);
+
+// Suche nach Name, Symbol oder Preis als String
+$results = \App\Models\Stock\Stock::search($searchQuery, function ($meilisearch, $query, $options) {
+    $options['attributesToHighlight'] = ['name', 'symbol', 'price_string'];
+    $options['filter'] = ''; // optional: Filter hier
+    return $meilisearch->search($query, $options);
+})
+->take(10)
+->get(['id', 'name', 'symbol', 'price']);
+
+return $results;
+
 })->name('api.search.stocks');
 
 Route::get('/search/product-types', function () {

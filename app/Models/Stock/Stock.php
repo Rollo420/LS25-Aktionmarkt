@@ -62,19 +62,21 @@ class Stock extends Model
 
     public function toSearchableArray(): array
     {
-	    // All model attributes are made searchable
         $array = $this->toArray();
 
-		// Then we add some additional fields
         $array['name'] = $this->name;
-        $array['product_type_name'] = $this->productType->name;
+        $array['product_type_name'] = $this->productType->name ?? null;
         $array['firma'] = $this->firma;
         $array['sektor'] = $this->sektor;
         $array['land'] = $this->land;
-        $array['price'] = $this->getCurrentPrice();
+
+        $price = $this->getCurrentPrice();
+        $array['price'] = $price;                  // numerisch
+        $array['price_string'] = (string) $price;  // für Teilstring-Suche
         $array['dividend_amount'] = $this->getCurrentDividendAmount();
 
         return $array;
+
     }
 
     public function getCurrentConfig()
