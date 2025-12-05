@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Depot-Übersicht | Dashboard</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Chart.js for graphs -->
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Depot-Übersicht | Dashboard') }}
+        </h2>
+    </x-slot>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
     <style>
         /* Custom scrollbar for better look in dark mode */
         body {
@@ -26,18 +24,8 @@
             width: 100%;
         }
     </style>
-</head>
-<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
 
-    <div class="min-h-screen">
-        <!-- Header (Simulated x-slot name="header") -->
-        <header class="bg-white dark:bg-gray-800 shadow sticky top-0 z-10">
-            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    Depot-Dashboard
-                </h2>
-            </div>
-        </header>
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300!">
 
         <!-- Main Content (Simulated py-12) -->
         <main class="py-12">
@@ -239,75 +227,25 @@
 
     <script>
         const MOCK_DEPOT_INFO = {
-            totalPortfolioValue: 154567.89,
-            monthly_performance: {
-                '3_month': { amount: 16400, percent: 12.56 },
-                '6_month': { amount: -7000, percent: -4.33 },
-                benchmark_ytd_percent: 8.75,
-                benchmark_name: 'MSCI World Index'
-            },
+            totalPortfolioValue: {{ $depotInfo['totalPortfolioValue'] }},
+            monthly_performance: @json($depotInfo['monthly_performance']),
+
             averages: {
-                avg_dividend_percent_total: 3.15,
-                avg_stock_price_eur: 55.40,
-                avg_dividend_amount_eur: 1.25
+                avg_dividend_percent_total: @json($depotInfo['averages']['avg_dividend_percent_total']),
+                avg_stock_price_eur: @json($depotInfo['averages']['avg_stock_price_eur']),
+                avg_dividend_amount_eur: @json($depotInfo['averages']['avg_dividend_amount_eur']),
             },
-            chartData: {
-                labels: ["Jan '24", "Feb '24", "Mar '24", "Apr '24", "May '24", "Jun '24"],
-                datasets: [{
-                    label: "Depotwert (€)",
-                    data: [120000, 125000, 130000, 140000, 145000, 154567.89],
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            risk_metrics: {
-                cash_balance: 14567.89,
-                total_capital: 154567.89,
-                portfolio_beta: 1.15
-            },
+            chartData: @json($depotInfo['chartData']),
+            risk_metrics: @json($depotInfo['risk_metrics']),
             dividend_chart: {
                 labels: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
                 data: [150, 220, 0, 310, 180, 0, 450, 110, 0, 290, 160, 0]
             },
-            purchasing_power: {
-                annual_gross_dividend: 5000.00,
-                stock_name: 'Apple Inc. (AAPL)',
-                can_buy_quantity: 26.5
-            },
-            tops: {
-                topThreeUp: [
-                    { stock: { name: 'Microsoft Corp' }, profit_loss: 4500.20, profit_loss_percent: 35.10, avg_buy_price: 180.50, quantity: 15 },
-                    { stock: { name: 'Johnson & Johnson' }, profit_loss: 1100.00, profit_loss_percent: 15.50, avg_buy_price: 130.00, quantity: 50 },
-                    { stock: { name: 'Coca-Cola Co' }, profit_loss: 650.75, profit_loss_percent: 12.11, avg_buy_price: 45.00, quantity: 100 },
-                ],
-                topThreeDown: [
-                    { stock: { name: 'Intel Corp' }, profit_loss: -550.00, profit_loss_percent: -18.25, avg_buy_price: 40.00, quantity: 30 },
-                    { stock: { name: 'Bayer AG' }, profit_loss: -300.90, profit_loss_percent: -8.90, avg_buy_price: 60.00, quantity: 20 },
-                    { stock: { name: 'AT&T Inc.' }, profit_loss: -150.00, profit_loss_percent: -5.00, avg_buy_price: 25.00, quantity: 60 },
-                ]
-            },
-            nextDividends: [
-                { name: 'Coca-Cola Co', next_dividend: '2025-01-15', dividend: 50.00, percent: 1.10 },
-                { name: 'Apple Inc.', next_dividend: '2025-02-10', dividend: 75.00, percent: 0.85 },
-                { name: 'Microsoft Corp', next_dividend: '2025-02-18', dividend: 90.00, percent: 0.70 },
-                { name: 'Bayer AG', next_dividend: '2025-03-20', dividend: 30.00, percent: 1.50 },
-                { name: 'AT&T Inc.', next_dividend: '2025-04-05', dividend: 45.00, percent: 1.25 },
-            ],
-            portfolioStats: {
-                totalUniqueStocks: 15,
-                totalQuantity: 500,
-                totalCurrentValue: 140000.00,
-                totalDividendAmount: 416.67
-            },
-            lastTransactions: [
-                { type: 'KAUF', stock: 'MSFT', amount: 900.00, date: '2024-06-01' },
-                { type: 'VERKAUF', stock: 'INTC', amount: 550.00, date: '2024-05-28' },
-                { type: 'DIVIDENDE', stock: 'JNJ', amount: 130.50, date: '2024-05-15' },
-                { type: 'KAUF', stock: 'AAPL', amount: 1200.00, date: '2024-05-01' },
-                { type: 'EINZAHLUNG', stock: 'CASH', amount: 5000.00, date: '2024-04-20' },
-            ]
+            purchasing_power: @json($depotInfo['purchasing_power']),
+            tops: @json($depotInfo['tops']),
+            nextDividends: @json($depotInfo['nextDividends']),
+            portfolioStats: @json($depotInfo['portfolioStats']),
+            lastTransactions: @json($depotInfo['lastTransactions']),
         };
 
         // Utility function to format numbers like PHP's number_format
@@ -594,4 +532,4 @@
         window.onload = initDashboard;
     </script>
 </body>
-</html>
+</x-app-layout>

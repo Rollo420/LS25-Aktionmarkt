@@ -185,7 +185,7 @@ class DashboardController extends Controller
         // Chart-Daten (Ingame-Monate) - Lazy Loading: nur laden wenn explizit angefordert
         $depotInfo['chartData'] = $this->createChartData($stocks, $user);
 
-        return view('dashboard', compact('depotInfo'));
+        return view('dashboard', compact('stocks', 'depotInfo'));
     }
 
     /**
@@ -346,7 +346,7 @@ class DashboardController extends Controller
             return [
                 "3_month" => ["amount" => 0, "percent" => 0],
                 "6_month" => ["amount" => 0, "percent" => 0],
-                "benchmark_ytd_percent" => 5.20,
+                "benchmark_ytd_percent" => 8.5,
                 "benchmark_name" => "MSCI World",
             ];
         }

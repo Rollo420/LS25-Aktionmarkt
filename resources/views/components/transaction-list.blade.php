@@ -10,12 +10,13 @@
             </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            @foreach($transactions as $transaction)
+            @foreach($depotInfo['lastTransactions'] as $transaction)
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            @switch($transaction->type)
+                            @php $type = $transaction->type; @endphp
+                            @switch($type)
                                 @case('buy')
                                     <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
                                         <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,93 +69,52 @@
                         </div>
                         <div class="ml-4">
                             <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                @switch($transaction->type)
-                                    @case('buy')
-                                        Kauf
-                                    @break
-                                    @case('sell')
-                                        Verkauf
-                                    @break
-                                    @case('deposit')
-                                        Einzahlung
-                                    @break
-                                    @case('withdraw')
-                                        Auszahlung
-                                    @break
-                                    @case('transfer')
-                                        Überweisung
-                                    @break
-                                    @case('dividend')
-                                        Dividende
-                                    @break
-                                    @default
-                                        {{ $transaction->type ?? 'Unbekannt' }}
+                                @switch($type)
+                                    @case('buy') Kauf @break
+                                    @case('sell') Verkauf @break
+                                    @case('deposit') Einzahlung @break
+                                    @case('withdraw') Auszahlung @break
+                                    @case('transfer') Überweisung @break
+                                    @case('dividend') Dividende @break
+                                    @default {{ $type ?? 'Unbekannt' }}
                                 @endswitch
                             </div>
                         </div>
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    @if($transaction->type === 'dividend')
-                        @if(isset($transaction->stock) && $transaction->stock)
-                            {{ number_format(abs($transaction->quantity), 0, ',', '.') }}x {{ $transaction->stock->name }} x {{ number_format($transaction->price_at_buy, 2, ',', '.') }} €
-                        @else
-                            {{ number_format(abs($transaction->quantity), 0, ',', '.') }} Aktien x {{ number_format($transaction->price_at_buy, 2, ',', '.') }} €
-                        @endif
-                    @elseif(in_array($transaction->type, ['buy', 'sell']))
-                        {{ number_format(abs($transaction->quantity), 0, ',', '.') }} Aktien
-                        @if(isset($transaction->stock) && $transaction->stock)
-                            <br><span class="text-xs">{{ $transaction->stock->name }}</span>
-                        @endif
+                    @if($type === 'dividend')
+                        {{ number_format($transaction->quantity, 0, ',', '.') }}x {{ $transaction->stock?->name ?? 'Aktien' }} x {{ number_format($transaction->price_at_buy, 2, ',', '.') }} €
+                    @elseif(in_array($type, ['buy', 'sell']))
+                        {{ number_format($transaction->quantity, 0, ',', '.') }} Aktien <br> <span class="text-xs">{{ $transaction->stock?->name ?? '' }}</span>
                     @else
                         -
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    @if($transaction->type === 'dividend')
-                        <span class="text-green-600 dark:text-green-400">+{{ number_format(abs($transaction->quantity) * $transaction->price_at_buy, 2, ',', '.') }} €</span>
-                    @elseif($transaction->type === 'buy')
-                        <span class="text-red-600 dark:text-red-400">-{{ number_format(abs($transaction->quantity) * ($transaction->price_at_buy ?? $transaction->computeResolvedPriceAtBuy() ?? 0), 2, ',', '.') }} €</span>
-                    @elseif($transaction->type === 'sell')
-                        <span class="text-green-600 dark:text-green-400">+{{ number_format(abs($transaction->quantity) * ($transaction->price_at_buy ?? $transaction->computeResolvedPriceAtBuy() ?? 0), 2, ',', '.') }} €</span>
-                    @elseif($transaction->type === 'deposit')
-                        <span class="text-green-600 dark:text-green-400">+{{ number_format($transaction->quantity, 2, ',', '.') }} €</span>
-                    @elseif($transaction->type === 'withdraw')
-                        <span class="text-red-600 dark:text-red-400">-{{ number_format(abs($transaction->quantity), 2, ',', '.') }} €</span>
-                    @elseif($transaction->type === 'transfer')
-                        <span class="text-red-600 dark:text-red-400">-{{ number_format(abs($transaction->quantity), 2, ',', '.') }} €</span>
+                    @if($type === 'dividend')
+                        <span class="text-green-600 dark:text-green-400">+{{ number_format($transaction->quantity * $transaction->price_at_buy, 2, ',', '.') }} €</span>
+                    @elseif($type === 'buy')
+                        <span class="text-red-600 dark:text-red-400">-{{ number_format($transaction->quantity * $transaction->price_at_buy, 2, ',', '.') }} €</span>
+                    @elseif($type === 'sell')
+                        <span class="text-green-600 dark:text-green-400">+{{ number_format($transaction->quantity * $transaction->price_at_buy, 2, ',', '.') }} €</span>
+                    @elseif(in_array($type, ['deposit', 'withdraw', 'transfer']))
+                        <span class="{{ $type === 'withdraw' || $type === 'transfer' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' }}">
+                            {{ $type === 'withdraw' || $type === 'transfer' ? '-' : '+' }}{{ number_format($transaction->quantity, 2, ',', '.') }} €
+                        </span>
                     @else
                         {{ number_format($transaction->quantity, 2, ',', '.') }} €
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    @if(in_array($transaction->type, ['buy', 'sell']))
-                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                            Abgeschlossen
-                        </span>
-                    @else
-                        @php
-                            $isOpen = $transaction->status ?? false;
-                        @endphp
-                        @if($isOpen)
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                                Offen
-                            </span>
-                        @else
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                Abgeschlossen
-                            </span>
-                        @endif
-                    @endif
+                    @php $isOpen = $transaction->status ?? false; @endphp
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                        {{ $type === 'buy' || $type === 'sell' || !$isOpen ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' }}">
+                        {{ $type === 'buy' || $type === 'sell' || !$isOpen ? 'Abgeschlossen' : 'Offen' }}
+                    </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    @if(isset($transaction->gameTime) && $transaction->gameTime)
-                        {{ \Carbon\Carbon::parse($transaction->gameTime->name)->format('d.m.Y') }}
-                    @elseif(isset($transaction->created_at))
-                        {{ \Carbon\Carbon::parse($transaction->created_at)->format('d.m.Y H:i') }}
-                    @else
-                        Unbekannt
-                    @endif
+                    {{ \Carbon\Carbon::parse($transaction->created_at)->format('d.m.Y H:i') }}
                 </td>
             </tr>
             @endforeach
