@@ -29,6 +29,10 @@ RUN composer require tightenco/parental --no-interaction --with-all-dependencies
 RUN composer require laravel/scout --no-interaction --with-all-dependencies || true
 RUN composer require meilisearch/meilisearch-php http-interop/http-factory-guzzle --no-interaction --with-all-dependencies || true
 RUN composer require spatie/laravel-permission --no-interaction --with-all-dependencies
+RUN composer require blade-ui-kit/blade-icons --no-interaction --with-all-dependencies || true
+RUN composer require blade-ui-kit/blade-heroicons --no-interaction --with-all-dependencies || true
+RUN composer require intervention/image --no-interaction --with-all-dependencies || true
+
 
 FROM node:latest as node
 

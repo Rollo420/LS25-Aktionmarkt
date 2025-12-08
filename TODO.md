@@ -1,29 +1,24 @@
-# TODO: Sprachauswahl im Profil hinzufügen
+# TODO: Fix User Locale Update Issue
 
-## Schritte zur Implementierung
+## Changes Made
+- [x] Added 'locale' to fillable attributes in User model
+- [x] Implemented SetLocale middleware to set locale on every request based on authenticated user's preference
+- [x] Registered SetLocale middleware for web routes in bootstrap/app.php
+- [x] Removed locale setting from AppServiceProvider boot method (now handled by middleware)
+- [x] Added missing English translations to resources/lang/en/messages.php
+- [x] Replaced hardcoded German text in navigation.blade.php with translation keys
 
-1. **Niederländische Sprachdateien erstellen**
-   - `resources/lang/nl/messages.php` mit niederländischen Übersetzungen für alle Schlüssel aus `en/messages.php` und `de/messages.php`
-   - `resources/lang/nl/validation.php` mit niederländischen Validierungsnachrichten
+## Summary
+The issue was that the locale wasn't being updated correctly because:
+1. The 'locale' field wasn't in the User model's fillable attributes, preventing mass assignment
+2. The locale was only set during application bootstrap in AppServiceProvider, not on every request
+3. The SetLocale middleware existed but wasn't registered
+4. Views had hardcoded German text instead of using translation keys
+5. English language file was missing many translation keys
 
-2. **Konfiguration aktualisieren**
-   - `config/app.php` aktualisieren, um 'nl' als unterstützte Sprache hinzuzufügen
+Now the SetLocale middleware runs on every web request and sets the locale based on the authenticated user's preference, defaulting to 'de' if not set or for unauthenticated users. All text in views uses translation keys for proper language switching.
 
-3. **Datenbank-Migration für Benutzer-Locale**
-   - Migration erstellen, um 'locale'-Spalte zur users-Tabelle hinzuzufügen (falls nicht vorhanden)
-
-4. **Middleware für Locale-Setzung**
-   - Neue Middleware erstellen, um die Sprache basierend auf Benutzerpräferenz zu setzen
-
-5. **ProfileController aktualisieren**
-   - `app/Http/Controllers/ProfileController.php` aktualisieren, um Sprachauswahl zu handhaben
-
-6. **Profil-Bearbeitungsformular aktualisieren**
-   - `resources/views/profile/partials/update-profile-information-form.blade.php` aktualisieren, um Sprachauswahl-Dropdown hinzuzufügen
-
-7. **Routes aktualisieren**
-   - Middleware zu relevanten Routes hinzufügen
-
-8. **Testen**
-   - Sprachumschaltung in der UI testen
-   - Alle Übersetzungen auf Vollständigkeit und Korrektheit überprüfen
+## Follow-up Steps
+- [ ] Test locale change functionality by updating user profile and verifying language changes immediately
+- [ ] Verify middleware works for both authenticated and unauthenticated users
+- [ ] Check that default locale 'de' is used when user has no locale set or when not authenticated

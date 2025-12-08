@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Models;
@@ -29,6 +30,7 @@ class User extends Authenticatable
         'email',
         'password',
         'type',
+        'locale',
     ];
 
 

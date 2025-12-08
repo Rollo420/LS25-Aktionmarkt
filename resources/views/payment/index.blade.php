@@ -26,7 +26,7 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Kontostand</p>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('Kontostand') }}</p>
                                 <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ number_format(auth()->user()->bank->balance ?? 0, 2, ',', '.') }} €</p>
                             </div>
                         </div>
@@ -42,7 +42,7 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Abgeschlossene Transaktionen</p>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('Abgeschlossene Transaktionen') }}</p>
                                 <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ $transactions->where('status', false)->count() }}</p>
                             </div>
                         </div>
@@ -58,7 +58,7 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Offene Orders</p>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('Offene Orders') }}</p>
                                 <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ $orders->count() }}</p>
                             </div>
                         </div>
@@ -70,7 +70,7 @@
                 <!-- Pay In -->
                 <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'payin' ? 'active' : '']">
                     <div class="max-w-xl" @click="open === 'payin' ? open = '' : open = 'payin'" style="cursor:pointer;">
-                        <h1>Einzahlen</h1>
+                        <h1>{{ __('Einzahlen') }}</h1>
                     </div>
                     <template x-if="open === 'payin'">
                         <x-pay-in-form />
@@ -79,7 +79,7 @@
                 <!-- Pay Out -->
                 <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'payout' ? 'active' : '']">
                     <div class="max-w-xl" @click="open === 'payout' ? open = '' : open = 'payout'" style="cursor:pointer;">
-                        <h1>Auszahlen</h1>
+                        <h1>{{ __('Auszahlen') }}</h1>
                     </div>
                     <template x-if="open === 'payout'">
                         <x-pay-out-form />
@@ -89,7 +89,7 @@
                 <!-- Transfer -->
                 <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'transfer' ? 'active' : '']">
                     <div class="max-w-xl" @click="open === 'transfer' ? open = '' : open = 'transfer'" style="cursor:pointer;">
-                        <h1>Transfer</h1>
+                        <h1>{{ __('Transfer') }}</h1>
                     </div>
                     <template x-if="open === 'transfer'">
                         @include('components.transfer-form')
@@ -99,7 +99,7 @@
                 <!-- Alle Transaktionen -->
                 <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'transaction' ? 'active' : '']">
                     <div class="max-w-xl" @click="open === 'transaction' ? open = '' : open = 'transaction'" style="cursor:pointer;">
-                        <h1>Alle Transaktionen</h1>
+                        <h1>{{ __('Alle Transaktionen') }}</h1>
                     </div>
                     <template x-if="open === 'transaction'">
                         <x-transaction-list :transactions="$transactions ?? collect([])" />
@@ -108,7 +108,7 @@
                 <!-- Offene Orders -->
                 <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'orders' ? 'active' : '']">
                     <div class="max-w-xl" @click="open === 'orders' ? open = '' : open = 'orders'" style="cursor:pointer;">
-                        <h1>Offene Orders</h1>
+                        <h1>{{ __('Offene Orders') }}</h1>
                     </div>
                     <template x-if="open === 'orders'">
                         <x-orders-list :orders="$orders ?? collect([])" />

@@ -13,24 +13,24 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        Übersicht
+                        {{ __('Dashboard') }}
                     </x-nav-link>
                     <x-nav-link :href="route('stock.index')" :active="request()->routeIs('stock.*')">
-                        Aktien
+                        {{ __('Stocks') }}
                     </x-nav-link>
                     <x-nav-link :href="route('depot.index')" :active="request()->routeIs('depot.index')">
-                        Depot
+                        {{ __('Depot') }}
                     </x-nav-link>
                     @if (Auth::check() && Auth::user()->isAdministrator())
                     <x-nav-link :href="route('admin.time.index')" :active="request()->routeIs('admin.time.*')">
-                        Zeit
+                        {{ __('Time') }}
                     </x-nav-link>
                     @endif
                 </div>
                 @if (Auth::check() && Auth::user()->isAdministrator())
                 <div class="relative hidden sm:flex sm:items-center">
                     <button @click="adminOpen = !adminOpen" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                        <div>Administrator</div>
+                        <div>{{ __('Admin') }}</div>
                         <div class="ms-1">
                             <svg class="fill-current h-4 w-4 transition-transform" :class="{'rotate-180': adminOpen}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -42,19 +42,19 @@
                     <div x-show="adminOpen" @click.away="adminOpen = false" class="absolute left-0 mt-0 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 z-50" style="top: 100%;">
                         <div class="py-1">
                             <a href="{{ route('admin.users.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 {{ request()->routeIs('admin.users.*') ? 'bg-gray-100 dark:bg-gray-600' : '' }}">
-                                Benutzer verwalten
+                                {{ __('Users verwalten') }}
                             </a>
                             <a href="{{ route('admin.stocks.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 {{ request()->routeIs('admin.stocks.*') ? 'bg-gray-100 dark:bg-gray-600' : '' }}">
-                                Aktien verwalten
+                                {{ __('Stocks verwalten') }}
                             </a>
                             <a href="{{ route('admin.dividends.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 {{ request()->routeIs('admin.dividends.*') ? 'bg-gray-100 dark:bg-gray-600' : '' }}">
-                                Dividenden verwalten
+                                {{ __('Dividends verwalten') }}
                             </a>
                             <a href="{{ route('admin.configs.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 {{ request()->routeIs('admin.configs.*') ? 'bg-gray-100 dark:bg-gray-600' : '' }}">
-                                Konfigurationen verwalten
+                                {{ __('Configs verwalten') }}
                             </a>
                             <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 {{ request()->routeIs('admin.configs.*') ? 'bg-gray-100 dark:bg-gray-600' : '' }}">
-                                Farm verwalten
+                                {{ __('Farm verwalten') }}
                             </a>
                             <hr class="border-gray-200 dark:border-gray-600 my-1">
                             <a href="{{ route('payment.auth') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">
@@ -68,9 +68,9 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
-                        <div class="account-balance text-white:500 space-y-0 me-4 text-end">
-                    <h6>Kontostand: {{ number_format(Auth::user()->bank->balance, 2, ',', '.') }} €</h6>
-                    <h6>IBAN: {{ Auth::user()->bank->iban }}</h6>
+                <div class="account-balance text-white:500 space-y-0 me-4 text-end">
+                    <h6>{{ __('Kontostand') }}: {{ number_format(Auth::user()->bank->balance, 2, ',', '.') }} €</h6>
+                    <h6>{{ __('IBAN') }}: {{ Auth::user()->bank->iban }}</h6>
                 </div>
 
                 <x-dropdown align="left" width="48">
@@ -92,7 +92,7 @@
                             {{ __('Profile') }}
                         </x-dropdown-link>
                         <x-dropdown-link :href="route('payment.index')">
-                            Zahlung
+                            {{ __('Payment') }}
                         </x-dropdown-link>
 
                         <x-dropdown-link :href="route('farm.index')">
