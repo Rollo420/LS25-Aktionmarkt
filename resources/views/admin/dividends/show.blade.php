@@ -11,7 +11,7 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Stock</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aktie</label>
                             <p class="text-gray-900 dark:text-gray-100">{{ $dividend->stock->name ?? 'N/A' }}</p>
                         </div>
                         <div>

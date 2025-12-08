@@ -151,6 +151,24 @@
                                 @enderror
                             </div>
 
+                             <!-- Start Price -->
+                            <div>
+                                <label for="start_price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    {{ __('Startpreis (€)') }}
+                                </label>
+                                <div class="flex">
+                                    <input type="number" step="0.01" name="start_price" id="start_price" value="{{ old('start_price') }}" required min="0"
+                                           class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-l-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-900 dark:text-gray-100">
+                                    <button type="button" onclick="generateField('start_price')"
+                                            class="px-3 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        🎲
+                                    </button>
+                                </div>
+                                @error('start_price')
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                             <!-- Config Selection -->
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -248,25 +266,7 @@
                                 @error('dividend_frequency')
                                     <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                                 @enderror
-                            </div>
-
-                            <!-- Start Price -->
-                            <div>
-                                <label for="start_price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    {{ __('Startpreis (€)') }}
-                                </label>
-                                <div class="flex">
-                                    <input type="number" step="0.01" name="start_price" id="start_price" value="{{ old('start_price') }}" required min="0"
-                                           class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-l-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-900 dark:text-gray-100">
-                                    <button type="button" onclick="generateField('start_price')"
-                                            class="px-3 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        🎲
-                                    </button>
-                                </div>
-                                @error('start_price')
-                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                                @enderror
-                            </div>
+                            </div>                           
 
                             <!-- Dividend per Share -->
                             <div>

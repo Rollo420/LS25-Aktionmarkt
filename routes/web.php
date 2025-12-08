@@ -67,26 +67,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/stock/{id}/details', [DepositTransactionController::class, 'depotStockDetails'])->name('depot.buyDetails');
 });
 
-
-//Farm Routes
-Route::middleware(['auth'])->group(function () {
-
-    Route::get('/farm', [FarmController::class, 'index'])->name('farm.index');
-
-    Route::post('/farm/send', function () {
-        return back();
-    })->name('farm.send');
-
-    Route::post('/farm/{id}/accept', function () {
-        return back();
-    })->name('farm.accept');
-
-    Route::post('/farm/{id}/decline', function () {
-        return back();
-    })->name('farm.decline');
-});
-
-
 Route::middleware('auth')->group(function () {
     Route::post('/update-month', [SessionController::class, 'setTimeLineMonth'])->name('update.monthTimeline');
 });
@@ -94,3 +74,4 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';
 require __DIR__.'/api_milisearch.php';
+require __DIR__.'/farm.php';

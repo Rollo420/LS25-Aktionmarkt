@@ -30,7 +30,7 @@
                             <td class="px-2 sm:px-6 py-4">{{ $payment->id }}</td>
                             <td class="px-2 sm:px-6 py-4">{{ $payment->user->name }}</td>
                             <td class="px-2 sm:px-6 py-4">{{ $payment->type }}</td>
-                            <td class="px-2 sm:px-6 py-4">{{ $payment->quantity }}</td>
+                            <td class="px-2 sm:px-6 py-4">{{ number_format($payment->quantity,0, ',', '.') }}</td>
                             <td class="px-2 sm:px-6 py-4">{{ $payment->status ? 'offen' : 'abgeschlossen' }}</td>
                             <td class="px-2 sm:px-6 py-4">{{ $payment->created_at->format('Y-m-d')}}
                                 <br>

@@ -70,7 +70,7 @@
                 <!-- Pay In -->
                 <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'payin' ? 'active' : '']">
                     <div class="max-w-xl" @click="open === 'payin' ? open = '' : open = 'payin'" style="cursor:pointer;">
-                        <h1>Pay in</h1>
+                        <h1>Einzahlen</h1>
                     </div>
                     <template x-if="open === 'payin'">
                         <x-pay-in-form />
@@ -79,7 +79,7 @@
                 <!-- Pay Out -->
                 <div :class="['p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg', open === 'payout' ? 'active' : '']">
                     <div class="max-w-xl" @click="open === 'payout' ? open = '' : open = 'payout'" style="cursor:pointer;">
-                        <h1>Pay out</h1>
+                        <h1>Auszahlen</h1>
                     </div>
                     <template x-if="open === 'payout'">
                         <x-pay-out-form />

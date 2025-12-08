@@ -22,7 +22,7 @@ class PayinRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'payin' => 'required|integer|min:1|max:4294967295',
+            'payin' => 'required|integer|min:1|max:429496729500',
         ];
     }
 
@@ -31,5 +31,12 @@ class PayinRequest extends FormRequest
         return [
             'payin.max' => 'Der Betrag darf maximal 4.294.967.295 betragen.',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'payin' => str_replace([',', '.'], '', $this->payin),
+        ]);
     }
 }

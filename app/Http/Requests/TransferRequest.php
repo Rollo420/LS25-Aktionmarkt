@@ -34,4 +34,11 @@ class TransferRequest extends FormRequest
             'amount.max' => 'Der Betrag darf maximal 4.294.967.295 betragen.',
         ];
     }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'amount' => str_replace([',', '.'], '', $this->amount),
+        ]);
+    }
 }

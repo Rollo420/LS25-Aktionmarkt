@@ -19,12 +19,11 @@ $searchQuery = str_replace(',', '.', $q);
 
 // Suche nach Name, Symbol oder Preis als String
 $results = \App\Models\Stock\Stock::search($searchQuery, function ($meilisearch, $query, $options) {
-    $options['attributesToHighlight'] = ['name', 'symbol', 'price_string'];
-    $options['filter'] = ''; // optional: Filter hier
+    $options['attributesToHighlight'] = ['name', 'firma', 'sektor', 'land', 'product_type_name', 'price_string'];
     return $meilisearch->search($query, $options);
 })
 ->take(10)
-->get(['id', 'name', 'symbol', 'price']);
+->get(['name', 'firma', 'sektor', 'land', 'product_type_name', 'price_string']);
 
 return $results;
 

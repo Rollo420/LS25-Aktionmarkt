@@ -245,7 +245,7 @@
             tops: @json($depotInfo['tops']),
             nextDividends: @json($depotInfo['nextDividends']),
             portfolioStats: @json($depotInfo['portfolioStats']),
-            lastTransactions: @json($depotInfo['lastTransactions']),
+            lastTransactions:@json($depotInfo['lastTransactions']),
         };
 
         // Utility function to format numbers like PHP's number_format
@@ -258,7 +258,7 @@
 
         // Utility function to determine color classes
         const getPerformanceColor = (value) => {
-            return value >= 0 ? 'text-green-500' : 'text-red-500';
+            return value >= 0 ? '!text-green-500' : '!text-red-500';
         };
 
         const initDashboard = () => {
@@ -428,13 +428,13 @@
             renderTopMovers('top-winners-list', info.tops.topThreeUp);
             renderTopMovers('top-losers-list', info.tops.topThreeDown);
 
-
+            console.log();
             // Render Next Dividends
             const nextDivListEl = document.getElementById('next-dividends-list');
             nextDivListEl.innerHTML = '';
             info.nextDividends.sort((a, b) => new Date(a.next_dividend) - new Date(b.next_dividend)).forEach(dividend => {
                 const nextDate = new Date(dividend.next_dividend);
-                const isFuture = nextDate.getTime() > new Date().getTime();
+                const isFuture = nextDate.getTime() > new Date(@json($currentGameTime)['name']).getTime();
                 const dateFormatted = nextDate.toLocaleDateString('de-DE');
                 const statusIcon = isFuture ? '🟢' : '⚪';
                 const statusColor = isFuture ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500';
@@ -496,20 +496,34 @@
 
             const getTransactionTypeClass = (type) => {
                 switch (type) {
-                    case 'KAUF': return 'text-red-500 bg-red-100 dark:bg-red-900';
-                    case 'VERKAUF': return 'text-green-500 bg-green-100 dark:bg-green-900';
-                    case 'DIVIDENDE': return 'text-yellow-500 bg-yellow-100 dark:bg-yellow-900';
-                    case 'EINZAHLUNG': return 'text-indigo-500 bg-indigo-100 dark:bg-indigo-900';
-                    default: return 'text-gray-500 bg-gray-100 dark:bg-gray-700';
+                    case 'buy': 
+                        return '!text-white dark:!text-red-300 !bg-red-100 dark:!bg-red-900';
+
+                    case 'sell': 
+                        return '!text-white dark:!text-green-300 !bg-green-100 dark:!bg-green-900';
+
+                    case 'dividend': 
+                        return '!text-yellow-600 dark:!text-yellow-300 !bg-yellow-100 dark:!bg-yellow-900';
+
+                    case 'deposit': 
+                        return '!text-indigo-600 dark:!text-indigo-300 !bg-indigo-100 dark:!bg-indigo-900';
+
+                    default: 
+                        return '!text-gray-700 dark:!text-gray-300 !bg-gray-100 dark:!bg-gray-700';
                 }
             };
 
+
+
+            
+
             info.lastTransactions.forEach(t => {
-                const date = new Date(t.date).toLocaleDateString('de-DE');
+
+                const date = new Date(t.game_time.name).toLocaleDateString('de-DE');
                 const typeClass = getTransactionTypeClass(t.type);
-                const sign = t.type === 'VERKAUF' || t.type === 'DIVIDENDE' || t.type === 'EINZAHLUNG' ? '+' : '-';
-                const displayAmount = t.type === 'KAUF' ? `-${numberFormat(t.amount)}` : `${sign}${numberFormat(t.amount)}`;
-                const stockName = t.stock === 'CASH' ? 'Konto' : t.stock;
+                const sign = t.type === 'sell' || t.type === 'DIVIDENDE' || t.type === 'EINZAHLUNG' ? '+ ' : '- ';
+                const displayAmount = t.type === 'buy' ? `-${numberFormat(t.price_at_buy)}` : `${sign}${numberFormat(t.price_at_buy)}`;
+                const stockName = t.stock.name;
 
                 const html = `
                     <li class="py-3 flex justify-between items-center group">
