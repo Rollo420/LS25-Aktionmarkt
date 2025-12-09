@@ -45,7 +45,8 @@ fi
 # 3️⃣ Entschlüsseln der .env-Datei falls nicht vorhanden
 if [ ! -f .env ]; then
     echo "🔑 Entschlüssele .env-Datei..."
-    $COMPOSE_CMD run --rm --no-deps --user root --entrypoint "" laravel.test php artisan env:decrypt --key="base64:tuVKEBcQpMuBo6bcttk0LaPLNjZB4NV1cy7yKFO2JR0"
+    $COMPOSE_CMD run --rm --no-deps --user root --entrypoint "" laravel.test php artisan env:decrypt --key="base64:4swmEQ6ibCyYTKqPGN0MkWy0odH1J6W5971Q0whbTu8=
+"
 else
     echo "ℹ .env-Datei existiert bereits, überspringe Entschlüsselung."
 fi
@@ -77,11 +78,16 @@ if [ -n "${sail}" ]; then
     $sail artisan key:generate
     $sail artisan vendor:publish --provider="LaravelScoutScoutServiceProvider"
     $sail artisan migrate:fresh --seed
+    $sail artisan scout:import "App\Models\User"
+    $sail artisan scout:import "App\Models\Stock/Stock"
 else
     $COMPOSE_CMD exec laravel.test php artisan config:clear
     $COMPOSE_CMD exec laravel.test php artisan key:generate
     $COMPOSE_CMD exec laravle.test php artisan vendor:publish --provider="LaravelScoutScoutServiceProvider"
     $COMPOSE_CMD exec laravel.test php artisan migrate:fresh --seed
+
+    $COMPOSE_CMD exec laravel.test php scout:import "App\Models\User"
+    $COMPOSE_CMD exec laravel.test php scout:import "App\Models\Stock/Stock"
 fi
 
 # 7️⃣ Node/Vite vorbereiten und Assets bauen

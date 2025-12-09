@@ -2,24 +2,15 @@
 
 namespace App\Models;
 
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Parental\HasParent;
 
 class Farm extends User
 {
     /** @use HasFactory<\Database\Factories\FarmFactory> */
-    use HasFactory;
-    use HasParent;
+    use HasFactory, HasParent;
 
-
-    protected $table='users';
-
-    protected static function newFactory()
-    {
-        return UserFactory::new();
-    }
+    protected $table = 'users';
 
     public function users()
     {

@@ -9,9 +9,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/farm', [FarmController::class, 'index'])->name('farm.index');
 
-    Route::post('/farm/send', function () {
-        return back();
-    })->name('farm.send');
+    Route::get('/farm/farm-user-invite',[FarmController::class, 'farmUserInvite'])->name('farm.userInvite');
+
+    Route::post('/farm/send-user-invite',[FarmController::class, 'sendUserInvite'])->name('farm.sendUserInvite');
 
     Route::post('/farm/{id}/accept', function () {
         return back();

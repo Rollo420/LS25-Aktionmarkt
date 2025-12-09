@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Farm>
  */
-class FarmFactory extends Factory
+class FarmFactory extends UserFactory
 {
     /**
      * Define the model's default state.
@@ -16,8 +16,9 @@ class FarmFactory extends Factory
      */
     public function definition(): array
     {
-        return [
+        return array_merge(parent::definition(), [
             'name' => fake()->company(),
-        ];
+            'type' => 'farm',
+        ]);
     }
 }
