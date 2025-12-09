@@ -16,15 +16,7 @@ class BT21StockSeeder extends Seeder
     {
 
         $stocks = Stock::factory()->createMany([[
-           'name' => 'Aktien Name',
-           'firma' => 'Frirmen namen',
-           'sektor' => 'sektor(MIlch, Hanf)',
-           'land' => 'land',
-           'description' => 'beschreibung ja dui weißt',
-           'net_income' => 1255000,
-           'dividend_frequency' => 2//einer von 1, 2, 4, wann es im jahr dividendne gibt
-       ],
-       ['name' => 'Back To 21 AG',
+            'name' => 'Back To 21 AG',
            'firma' => 'Back To 21 Holding AG',
            'sektor' => 'Multiunternehmen',
            'land' => 'USA',
@@ -377,7 +369,16 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
        'land' => 'France',
        'description' => '99x Dividente',       
        'dividend_frequency' => 99
-   ]]);
+   ],
+    [
+         'name' => 'MaJaCoin',
+         'firma' => 'n/a',
+         'sektor' => 'Crypto Handelsunternehmen',
+         'land' => 'USA',
+         'description' => 'MaJaCoin ist ein führendes Unternehmen im Bereich des Kryptowährungshandels mit Sitz in den USA. Das Unternehmen bietet eine benutzerfreundliche Plattform für den Kauf, Verkauf und die Verwaltung von Kryptowährungen wie Bitcoin, Ethereum und vielen anderen digitalen Assets. Mit einem Fokus auf Sicherheit, Transparenz und Kundenzufriedenheit setzt MaJaCoin Maßstäbe in der Kryptoindustrie und ermöglicht es seinen Nutzern, von den Chancen des digitalen Finanzmarkts zu profitieren.',
+         'net_income' => 207768000000000,
+         'dividend_frequency' => 0
+    ]]);
 
     return $stocks;
 }
