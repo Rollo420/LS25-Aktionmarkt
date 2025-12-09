@@ -65,15 +65,15 @@ class Stock extends Model
         $array = $this->toArray();
 
         $array['name'] = $this->name;
-        $array['product_type_name'] = $this->productType->name ?? null;
         $array['firma'] = $this->firma;
         $array['sektor'] = $this->sektor;
         $array['land'] = $this->land;
-
-        $price = $this->getCurrentPrice();
-        $array['price'] = $price;                  // numerisch
-        $array['price_string'] = (string) $price;  // für Teilstring-Suche
-        $array['dividend_amount'] = $this->getCurrentDividendAmount();
+        
+        $array['product_type_name'] = $this->productType?->name ?? null;
+        $array['price_string'] = (string) $this->getCurrentPrice();  // für Teilstring-Suche
+        $array['dividend_frequency'] = (string) $this->dividend_frequency;
+        $array['dividend_amount'] = (string) $this->getCurrentDividendAmount();
+        $array['dividend_next_date'] = $this->calculateNextDividendDate()?->format('Y-m-d') ?? null;
 
         return $array;
 

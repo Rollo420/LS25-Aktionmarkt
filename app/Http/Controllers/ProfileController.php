@@ -40,6 +40,14 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
+        // Refresh the authenticated user in session to ensure updated data is used
+        Auth::setUser($request->user());
+
+        // Set the locale for the current session and persist it
+        $locale = $request->user()->locale;
+        app()->setLocale($locale);
+        session(['locale' => $locale]);
+
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 

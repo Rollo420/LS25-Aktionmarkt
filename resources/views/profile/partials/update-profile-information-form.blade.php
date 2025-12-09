@@ -47,6 +47,16 @@
             @endif
         </div>
 
+        <div>
+            <x-input-label for="locale" :value="__('Language')" />
+            <select id="locale" name="locale" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                <option value="de" {{ old('locale', $user->locale) == 'de' ? 'selected' : '' }}>{{ __('language.de') }}</option>
+                <option value="en" {{ old('locale', $user->locale) == 'en' ? 'selected' : '' }}>{{ __('language.en') }}</option>
+                <option value="nl" {{ old('locale', $user->locale) == 'nl' ? 'selected' : '' }}>{{ __('language.nl') }}</option>
+            </select>
+            <x-input-error class="mt-2" :messages="$errors->get('locale')" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 

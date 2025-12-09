@@ -57,10 +57,6 @@ class UserFarmerTest extends TestCase
         // Im Test-File (UserFarmerTest.php):
         $secondFarm = $userFarms->get(1);
 
-        // WICHTIGE KORREKTUR: Erzwinge die Hydration als Farm-Klasse
-        $secondFarmId = $secondFarm->id;
-        $secondFarm = User::find($secondFarmId); // Zwingt Parental, die korrekte Farm-Klasse zu verwenden
-
         $firstUser = $users->get(0);
         
         

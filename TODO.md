@@ -1,7 +1,4 @@
-# TODO: Farm Einladungen Seite erstellen
+# TODO: Configure Xdebug for Laravel Sail Container Debugging
 
-## Schritte:
-- [ ] Neue Route für Farm Einladungen in routes/web.php hinzufügen
-- [ ] Neue View resources/views/farm/invitations.blade.php erstellen
-- [ ] Navigation in resources/views/layouts/navigation.blade.php aktualisieren
-- [ ] Laravel Sail starten und Seite testen
+- [ ] Edit `docker-compose.yml` to change default `XDEBUG_CONFIG` from `client_host=host.docker.internal` to `client_host=localhost`
+- [ ] Create `docker/php/conf.d/xdebug.ini` with Xdebug settings: mode=debug, start_with_request=yes, client_port=9003, client_host=localhost

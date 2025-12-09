@@ -19,6 +19,13 @@
 //@import 'bootstrap/scss/bootstrap';
 
 
+.account-balance h6 {
+    margin: 0;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* font-medium */
+    color: rgb(158, 153, 153); /* text-gray-700 */
+}
+
 
 @tailwind base;
 @tailwind components;

@@ -25,7 +25,7 @@
                 </button>
             </div>
 
-            <form method="POST" action="{{ route('payment.SellBuy', ['id' => $stock->id]) }}">
+            <form method="POST" action="{{ route('payment.SellBuy', ['id' => $stock->id]) }}" id="buy-sell-form">
                 @csrf
 
                 <!-- Stückzahl -->
@@ -33,8 +33,8 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Stückzahl:
                     </label>
-                    <input type="number"
-                           min="1"
+                    <input type="text"
+                           id="quantity-input"
                            name="quantity"
                            x-model="piecesInput"
                            @input="updateFromPieces()"
@@ -72,6 +72,23 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('buy-sell-form');
+    const quantityInput = document.getElementById('quantity-input');
+
+    form.addEventListener('submit', function(e) {
+        let value = quantityInput.value.replace(/[,.]/g, '');
+        if (!/^\d+$/.test(value)) {
+            e.preventDefault();
+            alert('Bitte geben Sie eine gültige Stückzahl ein.');
+            return;
+        }
+        quantityInput.value = value;
+    });
+});
+</script>
 
 <script>
 function stockCalculator(pricePerStock) {

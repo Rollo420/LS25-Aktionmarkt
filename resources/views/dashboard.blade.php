@@ -1,3 +1,4 @@
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -38,9 +39,9 @@
                     <div id="total-value-card"
                         class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6 flex flex-col justify-center items-center transform hover:scale-[1.02] transition duration-150">
                         <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
-                            Gesamtwert Portfolio</div>
+                            {{ __('Gesamtwert Portfolio') }}</div>
                         <div class="text-4xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-2">
-                            Lade...
+                            {{ __('Lade...') }}
                         </div>
                     </div>
 
@@ -48,9 +49,9 @@
                     <div id="perf-3m-card"
                         class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6 flex flex-col justify-center items-center transform hover:scale-[1.02] transition duration-150">
                         <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
-                            Performance (3 Monate)</div>
+                            {{ __('Performance (3 Monate)') }}</div>
                         <div class="text-4xl font-extrabold mt-2">
-                            Lade...
+                            {{ __('Lade...') }}
                         </div>
                     </div>
 
@@ -58,7 +59,7 @@
                     <div id="perf-6m-card"
                         class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6 flex flex-col justify-center items-center transform hover:scale-[1.02] transition duration-150">
                         <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
-                            Performance (6 Monate)</div>
+                            {{ __('Performance (6 Monate)') }}</div>
                         <div class="text-4xl font-extrabold mt-2">
                             Lade...
                         </div>
@@ -67,23 +68,21 @@
                     <!-- Avg. Dividendenrendite -->
                     <div id="avg-dividend-card"
                         class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6 flex flex-col justify-center items-center transform hover:scale-[1.02] transition duration-150">
-                        <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">Avg.
-                            Dividendenrendite</div>
+                        <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">{{ __('Avg. Dividendenrendite') }}</div>
                         <div class="text-4xl font-extrabold text-yellow-600 dark:text-yellow-400 mt-2">
-                            Lade...
+                            {{ __('Lade...') }}
                         </div>
                     </div>
                 </div>
 
                 <!-- 2. Historical Value Chart -->
                 <div class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 border-b pb-2">Historischer
-                        Depotwert</h3>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 border-b pb-2">{{ __('Historischer Depotwert') }}</h3>
                     <div class="chart-container">
                         <canvas id="historicalChart"></canvas>
                     </div>
                     <div class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                        Hinweis: Der dargestellte historische Depotwert basiert ausschließlich auf den gehaltenen Aktien (Kurswert pro Monat) und berücksichtigt kein Cash/Guthaben oder sonstige Kontostände.
+                        {{ __('Hinweis: Der dargestellte historische Depotwert basiert ausschließlich auf den gehaltenen Aktien (Kurswert pro Monat) und berücksichtigt kein Cash/Guthaben oder sonstige Kontostände.') }}
                     </div>
                 </div>
 
@@ -93,7 +92,7 @@
                     <!-- Performance vs. Benchmark -->
                     <div class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6 lg:col-span-1">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                            <span class="text-indigo-500 mr-2">🥇</span> Performance vs. Benchmark
+                            <span class="text-indigo-500 mr-2">🥇</span> {{ __('Performance vs. Benchmark') }}
                         </h3>
                         <div id="benchmark-data" class="space-y-3">
                             <!-- Data will be injected here -->
@@ -122,15 +121,15 @@
                             <!-- Investitionsquote / Cash -->
                             <div id="investment-ratio" class="flex flex-col border-l-4 border-yellow-500 pl-4">
                                 <span class="text-gray-500 dark:text-gray-400 font-medium">Investitionsquote / Cash</span>
-                                <span class="font-bold text-2xl text-indigo-500 dark:text-indigo-400">Lade...</span>
-                                <span class="text-sm text-gray-500 dark:text-gray-400 mt-1">Cash-Anteil: Lade...</span>
+                                <span class="font-bold text-2xl text-indigo-500 dark:text-indigo-400">{{ __('Lade...') }}</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mt-1">Cash-Anteil: {{ __('Lade...') }}</span>
                             </div>
 
                             <!-- Portfolio Beta-Wert -->
                             <div id="portfolio-beta" class="flex flex-col border-l-4 border-red-500 pl-4">
                                 <span class="text-gray-500 dark:text-gray-400 font-medium">Portfolio Beta-Wert</span>
-                                <span class="font-bold text-2xl text-red-500 dark:text-red-400">Lade...</span>
-                                <span class="text-sm text-gray-500 dark:text-gray-400 mt-1">Lade... (vs. Index)</span>
+                                <span class="font-bold text-2xl text-red-500 dark:text-red-400">{{ __('Lade...') }}</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ __('Lade...') }} (vs. Index)</span>
                             </div>
                         </div>
                     </div>
@@ -141,8 +140,7 @@
 
                     <!-- Monatlicher Dividenden-Ertragsplan -->
                     <div class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6 lg:col-span-2">
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 border-b pb-2">Monatlicher
-                            Dividenden-Ertragsplan</h3>
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 border-b pb-2">{{ __('Monatlicher Dividenden-Ertragsplan') }}</h3>
                         <div class="chart-container">
                             <canvas id="dividendChart"></canvas>
                         </div>
@@ -170,7 +168,7 @@
                     <!-- Top 3 Gewinner -->
                     <div class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6 lg:col-span-1">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                            <span class="text-green-500 mr-2">🚀</span> Top 3 Gewinner (Gesamt P/L)
+                            <span class="text-green-500 mr-2">🚀</span> {{ __('Top 3 Gewinner (Gesamt P/L)') }}
                         </h3>
                         <ul id="top-winners-list" class="divide-y divide-gray-200 dark:divide-gray-700">
                             <li class="py-3 text-gray-400">Lade...</li>
@@ -190,7 +188,7 @@
                     <!-- Nächste Dividenden -->
                     <div class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6 lg:col-span-1">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                            <span class="text-yellow-500 mr-2">📅</span> Nächste Dividenden
+                            <span class="text-yellow-500 mr-2">📅</span> {{ __('Nächste Dividenden') }}
                         </h3>
                         <ul id="next-dividends-list" class="divide-y divide-gray-200 dark:divide-gray-700">
                             <li class="py-3 text-gray-400">Lade...</li>
@@ -226,6 +224,11 @@
     </div>
 
     <script>
+        const translations = {
+            loading: '{{ __('Lade...') }}',
+            noData: '{{ __('Keine Daten verfügbar.') }}',
+        };
+
         const MOCK_DEPOT_INFO = {
             totalPortfolioValue: {{ $depotInfo['totalPortfolioValue'] }},
             monthly_performance: @json($depotInfo['monthly_performance']),
@@ -245,7 +248,7 @@
             tops: @json($depotInfo['tops']),
             nextDividends: @json($depotInfo['nextDividends']),
             portfolioStats: @json($depotInfo['portfolioStats']),
-            lastTransactions: @json($depotInfo['lastTransactions']),
+            lastTransactions:@json($depotInfo['lastTransactions']),
         };
 
         // Utility function to format numbers like PHP's number_format
@@ -258,7 +261,7 @@
 
         // Utility function to determine color classes
         const getPerformanceColor = (value) => {
-            return value >= 0 ? 'text-green-500' : 'text-red-500';
+            return value >= 0 ? '!text-green-500' : '!text-red-500';
         };
 
         const initDashboard = () => {
@@ -300,7 +303,7 @@
                         plugins: {
                             legend: { display: false }
                         },
-                        scales: {
+                        scales: { 
                             y: { beginAtZero: false }
                         }
                     }
@@ -428,13 +431,13 @@
             renderTopMovers('top-winners-list', info.tops.topThreeUp);
             renderTopMovers('top-losers-list', info.tops.topThreeDown);
 
-
+            console.log();
             // Render Next Dividends
             const nextDivListEl = document.getElementById('next-dividends-list');
             nextDivListEl.innerHTML = '';
             info.nextDividends.sort((a, b) => new Date(a.next_dividend) - new Date(b.next_dividend)).forEach(dividend => {
                 const nextDate = new Date(dividend.next_dividend);
-                const isFuture = nextDate.getTime() > new Date().getTime();
+                const isFuture = nextDate.getTime() > new Date(@json($currentGameTime)['name']).getTime();
                 const dateFormatted = nextDate.toLocaleDateString('de-DE');
                 const statusIcon = isFuture ? '🟢' : '⚪';
                 const statusColor = isFuture ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500';
@@ -496,20 +499,34 @@
 
             const getTransactionTypeClass = (type) => {
                 switch (type) {
-                    case 'KAUF': return 'text-red-500 bg-red-100 dark:bg-red-900';
-                    case 'VERKAUF': return 'text-green-500 bg-green-100 dark:bg-green-900';
-                    case 'DIVIDENDE': return 'text-yellow-500 bg-yellow-100 dark:bg-yellow-900';
-                    case 'EINZAHLUNG': return 'text-indigo-500 bg-indigo-100 dark:bg-indigo-900';
-                    default: return 'text-gray-500 bg-gray-100 dark:bg-gray-700';
+                    case 'buy': 
+                        return '!text-white dark:!text-red-300 !bg-red-100 dark:!bg-red-900';
+
+                    case 'sell': 
+                        return '!text-white dark:!text-green-300 !bg-green-100 dark:!bg-green-900';
+
+                    case 'dividend': 
+                        return '!text-yellow-600 dark:!text-yellow-300 !bg-yellow-100 dark:!bg-yellow-900';
+
+                    case 'deposit': 
+                        return '!text-indigo-600 dark:!text-indigo-300 !bg-indigo-100 dark:!bg-indigo-900';
+
+                    default: 
+                        return '!text-gray-700 dark:!text-gray-300 !bg-gray-100 dark:!bg-gray-700';
                 }
             };
 
+
+
+            
+
             info.lastTransactions.forEach(t => {
-                const date = new Date(t.date).toLocaleDateString('de-DE');
+
+                const date = new Date(t.game_time.name).toLocaleDateString('de-DE');
                 const typeClass = getTransactionTypeClass(t.type);
-                const sign = t.type === 'VERKAUF' || t.type === 'DIVIDENDE' || t.type === 'EINZAHLUNG' ? '+' : '-';
-                const displayAmount = t.type === 'KAUF' ? `-${numberFormat(t.amount)}` : `${sign}${numberFormat(t.amount)}`;
-                const stockName = t.stock === 'CASH' ? 'Konto' : t.stock;
+                const sign = t.type === 'sell' || t.type === 'DIVIDENDE' || t.type === 'EINZAHLUNG' ? '+ ' : '- ';
+                const displayAmount = t.type === 'buy' ? `-${numberFormat(t.price_at_buy)}` : `${sign}${numberFormat(t.price_at_buy)}`;
+                const stockName = t.stock.name;
 
                 const html = `
                     <li class="py-3 flex justify-between items-center group">

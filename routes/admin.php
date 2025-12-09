@@ -58,12 +58,5 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/admin/configs/{config}', [ConfigController::class, 'update'])->name('admin.configs.update');
     Route::delete('/admin/configs/{config}', [ConfigController::class, 'destroy'])->name('admin.configs.destroy');
 
-    // Farm management routes
-    Route::get('/admin/farm/create', function () {
-        return view('admin.farm.create');
-    })->middleware(['auth'])->name('admin.farm.create');
-
-    Route::post('/admin/farm/store', function () {
-        // Controller später
-    })->middleware(['auth'])->name('admin.farm.store');
+  
 });

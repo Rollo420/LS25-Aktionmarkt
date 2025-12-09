@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Scout\Searchable;
 use Parental\HasChildren;
 
 //My Models
@@ -15,7 +16,7 @@ use App\Models\Farm;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasChildren;
+    use HasFactory, Notifiable, HasChildren, Searchable;
     
     protected $table='users';
 
@@ -29,6 +30,7 @@ class User extends Authenticatable
         'email',
         'password',
         'type',
+        'locale',
     ];
 
 
@@ -45,8 +47,8 @@ class User extends Authenticatable
 
 
     protected $childTypes = [
-        'farm' => Farm::class,
         'user' => User::class,
+        'farm' => Farm::class,
     ];
 
     private $enableFarmMode = false;
@@ -82,7 +84,7 @@ class User extends Authenticatable
     public function farms()
     {
         return $this->belongsToMany(Farm::class, 'farm_user', 'user_id', 'farm_id')
-            ->pivot('invite_acception')
+            ->withPivot('invite_acception')
             ->withTimestamps();
     }
 
@@ -116,10 +118,16 @@ class User extends Authenticatable
         $this->transactions();
     }
 
+    public function isInFarm(): bool
+    {
+        return $this->farms()->wherePivot('invite_acception', true)->exists();
+    }
+
     public function getFarmMode(): bool
     {
         return $this->enableFarmMode;
     }
+
     public function setFarmMode(bool $mode): void
     {
         $this->enableFarmMode = $mode;
@@ -128,7 +136,6 @@ class User extends Authenticatable
     public function toSearchableArray()
     {
         return [
-            'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
         ];

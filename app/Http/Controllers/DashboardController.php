@@ -185,7 +185,7 @@ class DashboardController extends Controller
         // Chart-Daten (Ingame-Monate) - Lazy Loading: nur laden wenn explizit angefordert
         $depotInfo['chartData'] = $this->createChartData($stocks, $user);
 
-        return view('dashboard', compact('stocks', 'depotInfo'));
+        return view('dashboard', compact('stocks', 'depotInfo', 'currentGameTime'));
     }
 
     /**
@@ -531,16 +531,16 @@ class DashboardController extends Controller
                     'pointRadius' => 3,
                     'borderWidth' => 2,
                 ],
-                [
-                    'label' => 'Monatliche Investition (Netto)',
-                    'data' => $monthlyInvest,
-                    'borderColor' => '#F59E0B',
-                    'backgroundColor' => 'rgba(245,158,11,0.08)',
-                    'tension' => 0.2,
-                    'fill' => false,
-                    'pointRadius' => 3,
-                    'borderWidth' => 2,
-                ],
+                //[
+                //    'label' => 'Monatliche Investition (Netto)',
+                //    'data' => $monthlyInvest,
+                //    'borderColor' => '#F59E0B',
+                //    'backgroundColor' => 'rgba(245,158,11,0.08)',
+                //    'tension' => 0.2,
+                //    'fill' => false,
+                //    'pointRadius' => 3,
+                //    'borderWidth' => 2,
+                //],
             ],
         ];
     }

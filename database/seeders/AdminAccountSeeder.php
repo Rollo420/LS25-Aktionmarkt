@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Bank;
+use App\Models\Farm;
 use App\Models\GameTime;
 
 class AdminAccountSeeder extends Seeder
@@ -101,6 +102,15 @@ class AdminAccountSeeder extends Seeder
             foreach ($transactions as $transaction) {
                 $maro->transactions()->create($transaction);
             }
+
+            $farm = Farm::factory()->create([
+                'name' => 'Makaroni Farm',                
+            ]);
+
+            
+
+            $farm->users()->attach($woodly->id, ['invite_acception' => true]); 
+            $farm->users()->attach($maro->id, ['invite_acception' => false]);
         }
     }
 }

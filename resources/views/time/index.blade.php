@@ -48,7 +48,7 @@
                             <label for="{{ $month }}"
                                    class="block p-4 bg-gray-50 dark:bg-gray-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20
                                           border-2 border-gray-200 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-500
-                                          peer-checked:bg-indigo-500 peer-checked:border-indigo-500 peer-checked:text-white
+                                          peer-checked:bg-indigo-500 peer-checked:border-indigo-500 !peer-checked:text-white text-white
                                           rounded-lg cursor-pointer transition-all duration-200 text-center
                                           transform hover:scale-105 peer-checked:scale-105 peer-checked:shadow-lg">
 

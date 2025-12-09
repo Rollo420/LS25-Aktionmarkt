@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFarmRequest;
 use App\Http\Requests\UpdateFarmRequest;
 use App\Models\Farm;
+use Symfony\Component\HttpFoundation\Request;
 
 class FarmController extends Controller
 {
@@ -14,6 +15,18 @@ class FarmController extends Controller
     public function index()
     {
         return view('farm.index');
+    }
+
+    public function farmUserInvite()
+    {
+        return view('farm.userInvite');
+    }
+
+    public function sendUserInvite(Request $request)
+    {
+        $invitesID = $request->input('invites');
+        
+
     }
 
     /**
