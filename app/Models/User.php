@@ -86,6 +86,11 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function isInFarm(): bool
+    {
+        return $this->farms()->wherePivot('invite_acception', true)->exists();
+    }
+    
     public function isAdministrator()
     {
         return $this->roles()->where('name', 'admin')->exists();
@@ -116,10 +121,6 @@ class User extends Authenticatable
         $this->transactions();
     }
 
-    public function isInFarm(): bool
-    {
-        return $this->farms()->wherePivot('invite_acception', true)->exists();
-    }
 
     public function getFarmMode(): bool
     {

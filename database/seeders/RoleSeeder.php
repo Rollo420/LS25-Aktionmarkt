@@ -9,7 +9,10 @@ class RoleSeeder extends Seeder
 {
     public function run()
     {
-        $roles = ['default user', 'admin', 'bank', 'farmer', 'forst', 'farm admin', 'farm manager'];
+        $roles = [
+            'default user', 'admin', 'bank', 'farmer', 'forst', 'farm admin', 'farm manager', 'lohnnternehmer', 'landwirt', 'ackerbauer', 'tierbauer'
+                
+        ];
         foreach ($roles as $role) {
             Role::firstOrCreate(['name' => $role]);
         }
