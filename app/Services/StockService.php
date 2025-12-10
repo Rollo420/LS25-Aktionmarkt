@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 
 use App\Services\DividendeService;
 
+use App\Helpers\AuthHelper;
+
 use App\Models\Stock\Stock;
 use App\Models\Stock\Price;
 use App\Models\Config;
@@ -26,7 +28,7 @@ class StockService
      */
     public function getTotalPortfolioValue(): float
     {
-        return $this->getTotalStockValue() + (Auth::user()->bank?->balance ?? 0);
+        return $this->getTotalStockValue() + (AuthHelper::user()->bank?->balance ?? 0);
     }
 
     /**
@@ -34,7 +36,7 @@ class StockService
      */
     public function getTotalStockValue(): float
     {
-        $user = Auth::user();
+        $user = AuthHelper::user();
 
         // Use the same statistic objects as the depot overview so profit/loss is
         // calculated consistently across views. This ensures the stock detail
@@ -52,7 +54,7 @@ class StockService
      */
     public function getTotalDepotValue(): float
     {
-        $user = Auth::user();
+        $user = AuthHelper::user();
 
         return $this->getUserStocksWithStatistiks($user)->sum(fn($stat) => $stat->avg_buy_price * $stat->quantity);
     }
@@ -173,7 +175,7 @@ class StockService
      */
     public function getUserStocksWithStatistiks($user = null, int $currentMonth = null)
     {
-        $user = $user ?? Auth::user();
+        $user = $user ?? AuthHelper::user();
 
         return $this->getUserStocks($user)
             ->filter(fn($stock) => $stock->getCurrentQuantity($user) > 0) // Nur Aktien mit positiver Menge einbeziehen

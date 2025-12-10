@@ -1,6 +1,7 @@
 <nav x-data="{ open: false, adminOpen: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto">
+
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
@@ -21,13 +22,13 @@
                     <x-nav-link :href="route('depot.index')" :active="request()->routeIs('depot.index')">
                         {{ __('Depot') }}
                     </x-nav-link>
-                    @if (Auth::check() && Auth::user()->isAdministrator())
+                    @if (Auth::check() && \App\Helpers\AuthHelper::user()->isAdministrator())
                     <x-nav-link :href="route('admin.time.index')" :active="request()->routeIs('admin.time.*')">
                         {{ __('Time') }}
                     </x-nav-link>
                     @endif
                 </div>
-                @if (Auth::check() && Auth::user()->isAdministrator())
+                @if (Auth::check() && \App\Helpers\AuthHelper::user()->isAdministrator())
                 <div class="relative hidden sm:flex sm:items-center">
                     <button @click="adminOpen = !adminOpen" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
                         <div>{{ __('Admin') }}</div>
@@ -69,15 +70,15 @@
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <div class="account-balance text-white:500 space-y-0 me-4 text-end">
-                    <h6>{{ __('Kontostand') }}: {{ number_format(Auth::user()->bank->balance, 2, ',', '.') }} €</h6>
-                    <h6>{{ __('IBAN') }}: {{ Auth::user()->bank->iban }}</h6>
+                    <h6>{{ __('Kontostand') }}: {{ number_format(\App\Helpers\AuthHelper::user()->bank->balance, 2, ',', '.') }} €</h6>
+                    <h6>{{ __('IBAN') }}: {{ \App\Helpers\AuthHelper::user()->bank->iban }}</h6>
                 </div>
 
                 <x-dropdown align="left" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
                             <div class="flex items-center gap-2">
-                                <span>{{ Auth::check() ? Auth::user()->name : 'Guest' }}</span>
+                                <span>{{ Auth::check() ? \App\Helpers\AuthHelper::user()->name : 'Guest' }}</span>
                             </div>
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -133,7 +134,7 @@
             <x-responsive-nav-link :href="route('stock.index')" :active="request()->routeIs('stock.*')">
                 {{ __('Stocks') }}
             </x-responsive-nav-link>
-            @if (Auth::check() && Auth::user()->isAdministrator())
+            @if (Auth::check() && \App\Helpers\AuthHelper::user()->isAdministrator())
             <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.*')">
                 {{ __('Admin') }}
             </x-responsive-nav-link>
@@ -143,8 +144,8 @@
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::check() ? Auth::user()->name : 'Guest' }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::check() ? Auth::user()->email : '' }}</div>
+                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::check() ? \App\Helpers\AuthHelper::user()->name : 'Guest' }}</div>
+                <div class="font-medium text-sm text-gray-500">{{ Auth::check() ? \App\Helpers\AuthHelper::user()->email : '' }}</div>
             </div>
 
             <div class="mt-3 space-y-1">

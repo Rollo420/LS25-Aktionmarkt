@@ -19,7 +19,7 @@ class FarmMiddleware
     {
         $farmService = new FarmService();
 
-        app()->instance('actorId', $farmService->currentActorId());
+        app()->instance('actor', $farmService->currentActor());
 
         return $next($request);
     }

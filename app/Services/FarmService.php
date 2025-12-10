@@ -13,16 +13,16 @@ class FarmService
         $this->user = Auth::user();
     }
 
-    public function currentActorId()
+    public function currentActor()
     {        
-        #$this->user->setFarmMode(false);
+        $this->user->setFarmMode(true);
 
         if ($this->user->isInFarm() && $this->user->getFarmMode())
         {
-            return $this->user->farms()->first()->id;
+            return $this->user->farms()->first();
         }
 
-        return $this->user->id;
+        return $this->user;
     }
 
 }

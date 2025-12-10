@@ -25,8 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'time' => TimeMiddleware::class,
             'PaymentAuthorizationMiddleware' => PaymentAuthorizationMiddleware::class,
-            'admin' => AdminMiddleware::class,
-            'farm' => FarmMiddleware::class,
+            'admin' => AdminMiddleware::class,            
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

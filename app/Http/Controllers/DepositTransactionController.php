@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Stock\Stock;
 use App\Models\BuyTransaction;
 use App\Models\Stock\Transaction;
+use App\Helpers\AuthHelper;
 
 class DepositTransactionController extends Controller
 {
@@ -20,7 +21,7 @@ class DepositTransactionController extends Controller
     public function index(StockService $stockService)
     {
         // Aktuellen User holen
-        $user = Auth::user();
+        $user = AuthHelper::user();
 
         // Alle Aktien des Users mit aggregierten Kennzahlen holen
         $stocks = $stockService->getUserStocksWithStatistiks($user);
@@ -38,7 +39,7 @@ class DepositTransactionController extends Controller
      */
     public function depotStockDetails($id, StockService $stockService)
     {
-        $user = Auth::user();
+        $user = AuthHelper::user();
 
         // Aktie anhand der ID laden
         $stock = Stock::findOrFail($id);
@@ -69,7 +70,7 @@ class DepositTransactionController extends Controller
 
     public function getUserStockTransactions($stockId)
     {
-        $user = Auth::user();
+        $user = AuthHelper::user();
 
         return Transaction::where('user_id', $user->id)->where('stock_id', $stockId);
 
