@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFarmRequest;
 use App\Http\Requests\UpdateFarmRequest;
 use App\Models\Farm;
+
 use Symfony\Component\HttpFoundation\Request;
+
+use App\Services\FarmService;
 
 class FarmController extends Controller
 {
@@ -25,7 +28,11 @@ class FarmController extends Controller
     public function sendUserInvite(Request $request)
     {
         $invitesID = $request->input('invites');
-        
+
+        $farmService = new FarmService();
+        $actorId = $farmService->currentActorId();
+        dd($actorId);
+
 
     }
 
