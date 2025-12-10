@@ -104,10 +104,11 @@ class AdminAccountSeeder extends Seeder
             }
 
             $farm = Farm::factory()->create([
-                'name' => 'Makaroni Farm',                
+                'name' => 'Makaroni Farm',       
             ]);
 
             
+            $farm->roles()->attach(2);
 
             $farm->users()->attach($woodly->id, ['invite_acception' => true]); 
             $farm->users()->attach($maro->id, ['invite_acception' => false]);

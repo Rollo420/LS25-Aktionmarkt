@@ -14,23 +14,6 @@ use App\Models\GameTime;
 
 class AdminController extends Controller
 {
-    public function index()
-    {
-        $accounts = User::with('transactions')->get();
-        //$username = account::find(1)->details;
-        //$passwordHash = account::find(1)->password;
-
-        $user = User::find(2);
-        //if ($user->isAdministrator()) {
-        //    // User is an administrator
-        //    dd('User is an administrator');
-        //} else {
-        //    // User is not an administrator
-        //    dd('User is not an administrator');
-        //}
-
-        return view('admin', ['accounts' => $accounts]);
-    }
 
     public function create()
     {
@@ -188,6 +171,7 @@ class AdminController extends Controller
 
     public function usersEdit(User $user)
     {
+        dd($user->roles()->get());
         $userRole = $user->roles()->get()->first()->name;
         $roles = \App\Models\Role::all();
         return view('admin.users.edit', compact('user', 'roles', 'userRole'));

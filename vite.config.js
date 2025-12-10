@@ -17,7 +17,7 @@ export default defineConfig({
         host: '0.0.0.0',
         port: 5173,
         hmr: {
-            host: '172.20.10.3', //arbeit 172.20.10.3
+            host: '192.168.137.1', //arbeit 192.168.137.1
         },
         watch: {
             usePolling: true,
