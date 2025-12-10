@@ -76,18 +76,17 @@ echo "🛠 Konfiguration und DB vorbereiten..."
 if [ -n "${sail}" ]; then
     $sail artisan config:clear
     $sail artisan key:generate
-    $sail artisan vendor:publish --provider="LaravelScoutScoutServiceProvider"
+    $sail artisan vendor:publish --provider="Laravel\Scout\ScoutServiceProvider"
     $sail artisan migrate:fresh --seed
     $sail artisan scout:import "App\Models\User"
-    $sail artisan scout:import "App\Models\Stock/Stock"
+    $sail artisan scout:import "App\Models\Stock\Stock"
 else
     $COMPOSE_CMD exec laravel.test php artisan config:clear
     $COMPOSE_CMD exec laravel.test php artisan key:generate
-    $COMPOSE_CMD exec laravle.test php artisan vendor:publish --provider="LaravelScoutScoutServiceProvider"
+    $COMPOSE_CMD exec laravel.test php artisan vendor:publish --provider="Laravel\Scout\ScoutServiceProvider"
     $COMPOSE_CMD exec laravel.test php artisan migrate:fresh --seed
-
-    $COMPOSE_CMD exec laravel.test php scout:import "App\Models\User"
-    $COMPOSE_CMD exec laravel.test php scout:import "App\Models\Stock/Stock"
+    $COMPOSE_CMD exec laravel.test php artisan scout:import "App\Models\User"
+    $COMPOSE_CMD exec laravel.test php artisan scout:import "App\Models\Stock\Stock"
 fi
 
 # 7️⃣ Node/Vite vorbereiten und Assets bauen
