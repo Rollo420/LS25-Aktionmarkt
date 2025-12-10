@@ -30,14 +30,14 @@ class FarmController extends Controller
     public function sendUserInvite(Request $request)
     {
         $invitesID = $request->input('invites');
-        #dd(AuthHelper::user());
-        $user = Auth::user();
-        $user->setFarmMode(false);
-
-        #dd(['me' => $user->getFarmMode(), 'farm' => AuthHelper::user()->getFarmMode()]);
 
         return redirect()->back()->with('success', 'User wurde erfolgreich Eingeladen.');
 
+    }
+
+    public function management()
+    {
+        return view('farm.management');
     }
 
     /**
