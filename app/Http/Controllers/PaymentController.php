@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\AuthHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,7 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        $transactions = Transaction::where('user_id', auth()->id())
+        $transactions = Transaction::where('user_id', AuthHelper::user()->id)
             ->with(['stock', 'gameTime']) // Eager load relations
             ->orderByDesc('game_time_id')
             ->orderByDesc('created_at')
@@ -28,7 +29,7 @@ class PaymentController extends Controller
             ->map(function ($transaction) {
                 return $transaction;
             });
-        $orders = Transaction::where('user_id', auth()->id())
+        $orders = Transaction::where('user_id', AuthHelper::user()->id)
             ->whereIn('type', ['buy', 'sell', 'deposit', 'withdraw', 'transfer'])
             ->where('status', true)
             ->with(['stock', 'gameTime']) // Eager load relations
@@ -61,7 +62,7 @@ class PaymentController extends Controller
             $payin->type = 'deposit';
             $payin->status = true; // pending approval
             $payin->quantity = $request->input('payin');
-            $payin->user_id = auth()->id();
+            $payin->user_id =  AuthHelper::user()->id;
 
             // Attach current game_time_id so DB-V2 semantics are respected
             $gts = new GameTimeService();
@@ -81,7 +82,7 @@ class PaymentController extends Controller
     public function payout(PayoutRequest $request)
     {
         try {
-            $user = Auth::user();
+            $user =  AuthHelper::user();
             if (!$user) {
                 throw new \Exception('User not authenticated');
             }
@@ -119,7 +120,7 @@ class PaymentController extends Controller
     {
         try {
             DB::transaction(function () use ($request) {
-                $from = User::findOrFail(auth()->id());
+                $from = User::findOrFail(AuthHelper::user()->id);
 
                 try {
                     $toBank = Bank::where('iban', $request->input('to_account'))->lockForUpdate()->firstOrFail();
@@ -150,7 +151,7 @@ class PaymentController extends Controller
                     $transfer->type = 'transfer';
                     $transfer->status = true; // confirmed -> final
                     $transfer->quantity = $amount;
-                    $transfer->user_id = auth()->id();
+                    $transfer->user_id = AuthHelper::user()->id;
 
                     // Attach current game_time
                     $gts = new GameTimeService();
@@ -171,7 +172,7 @@ class PaymentController extends Controller
 
     public function transaction()
     {
-        $transactions = Transaction::where('user_id', auth()->id())
+        $transactions = Transaction::where('user_id', AuthHelper::user()->id)
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($transaction) {

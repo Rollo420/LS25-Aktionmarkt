@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreFarmRequest;
 use App\Http\Requests\UpdateFarmRequest;
 use App\Models\Farm;
+
 use Symfony\Component\HttpFoundation\Request;
+
+use App\Services\FarmService;
+use App\Helpers\AuthHelper;
 
 class FarmController extends Controller
 {
@@ -25,8 +30,14 @@ class FarmController extends Controller
     public function sendUserInvite(Request $request)
     {
         $invitesID = $request->input('invites');
-        
 
+        return redirect()->back()->with('success', 'User wurde erfolgreich Eingeladen.');
+
+    }
+
+    public function management()
+    {
+        return view('farm.management');
     }
 
     /**

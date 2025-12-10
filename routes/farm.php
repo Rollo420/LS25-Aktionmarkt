@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FarmController;
-
+use App\Models\Farm;
 
 //Farm Routes
 Route::middleware(['auth'])->group(function () {
@@ -20,4 +20,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/farm/{id}/decline', function () {
         return back();
     })->name('farm.decline');
+
+    Route::get('/farm/management', [FarmController::class, 'management'])->name('farm.management');
+
+    Route::get('/farm/toggle-mode', function () {
+        session(['farmMode' => !session('farmMode')]);
+        return redirect()->back();
+    })->name('farm.toggleMode');
 });

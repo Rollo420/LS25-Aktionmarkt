@@ -51,8 +51,6 @@ class User extends Authenticatable
         'farm' => Farm::class,
     ];
 
-    private $enableFarmMode = false;
-
     /**
      * Get the attributes that should be cast.
      *
@@ -126,12 +124,12 @@ class User extends Authenticatable
 
     public function getFarmMode(): bool
     {
-        return $this->enableFarmMode;
+        return session('farmMode');
     }
 
     public function setFarmMode(bool $mode): void
     {
-        $this->enableFarmMode = $mode;
+        session(['farmMode' => $mode]);
     }
 
     public function toSearchableArray()

@@ -92,7 +92,7 @@
 
 
                         {{-- 3. KARTE: Farm verwalten --}}
-                        <a href="#"
+                        <a href="{{route('farm.management')}}"
                             class="group bg-gray-50 dark:bg-gray-900 rounded-xl p-8 shadow-lg hover:shadow-2xl hover:scale-[1.03] transition duration-300 ease-in-out border border-transparent hover:border-yellow-600 dark:hover:border-yellow-500 flex flex-col items-center text-center min-h-[280px]">
 
                             {{-- Icon: Einstellungen/Verwaltung --}}
@@ -132,6 +132,32 @@
                             <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">Farm-Historie / Logs</h3>
                             <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Überprüfen Sie alle vergangenen Ereignisse und Protokolle Ihrer Farm.</p>
                         </a>
+
+                        <a href="{{ route('farm.toggleMode') }}"
+                            class="group bg-gray-50 dark:bg-gray-900 rounded-xl p-8 shadow-lg hover:shadow-2xl 
+                                hover:scale-[1.03] transition duration-300 ease-in-out border border-transparent 
+                                hover:border-gray-600 dark:hover:border-gray-500 flex flex-col items-center 
+                                text-center min-h-[280px] cursor-pointer">
+
+                            {{-- Icon --}}
+                            <svg class="w-16 h-16 text-gray-500 group-hover:text-gray-600 transition duration-300"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+
+                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">
+                                Farm-Mode umschalten
+                            </h3>
+
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">
+                                Aktueller Status:
+                                <strong class="text-gray-900 dark:text-gray-100">
+                                    {{ session('farmMode') ? 'Aktiv' : 'Inaktiv' }}
+                                </strong>
+                            </p>
+                        </a>
+
 
                     </div>
                 </div>

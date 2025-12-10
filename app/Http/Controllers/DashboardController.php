@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\AuthHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -18,7 +19,7 @@ class DashboardController extends Controller
 {
     public function index(StockService $stockService, DividendeService $dividendeService)
     {
-        $user = Auth::user();
+        $user = AuthHelper::user();
         $currentGameTime = GameTime::getCurrentGameTime();
 
         $stocks = $stockService->getUserStocksWithStatistiks($user, null, $currentGameTime);

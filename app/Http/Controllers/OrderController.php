@@ -4,10 +4,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Helpers\AuthHelper;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+
+
 use App\Models\Stock\Stock;
 use App\Models\BuyTransaction;
 use App\Models\SellTransaction;
@@ -25,7 +28,7 @@ class OrderController extends Controller
 
     public function index(Request $request, $stockID = null)
     {
-        $user = $request->user();
+        $user = AuthHelper::user();
         $stock = Stock::findOrFail($stockID);
 
         DB::beginTransaction();
@@ -67,13 +70,16 @@ class OrderController extends Controller
                 $buyTransaction->type = 'buy';
                 $buyTransaction->status = false; // closed - sofort ausgeführt
                 $buyTransaction->game_time_id = $gameTime->id; // link to game_time
-
+                
                 $totalCostForThisBuy = $quantityToBuy * $currentPrice;
 
                 if ($bank->balance < $totalCostForThisBuy) {
                     throw new \Exception('Nicht genügend Guthaben für diesen Kauf.');
                 }
 
+                #dd(['buyTransaction' => $buyTransaction, 'bank' => $bank]);
+
+                
                 $bank->balance -= $totalCostForThisBuy;
                 $bank->save();
 
