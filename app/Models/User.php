@@ -82,7 +82,7 @@ class User extends Authenticatable
     public function farms()
     {
         return $this->belongsToMany(Farm::class, 'farm_user', 'user_id', 'farm_id')
-            ->withPivot('invite_acception')
+            ->withPivot('invite_acception', 'user_role_id')
             ->withTimestamps();
     }
 

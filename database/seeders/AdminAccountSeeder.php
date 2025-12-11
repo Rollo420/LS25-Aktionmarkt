@@ -62,7 +62,7 @@ class AdminAccountSeeder extends Seeder
             }
         }
 
-        if (!User::where('email', 'maro@bt21.com')->exists()) {
+        if (!User::where('email', 'bt21@trys.net')->exists()) {
             $maro = User::factory()->create([
                 'name' => 'TryS_Makaroni',
                 'email' => 'bt21@trys.net',
@@ -107,11 +107,15 @@ class AdminAccountSeeder extends Seeder
                 'name' => 'Makaroni Farm',       
             ]);
 
+            $farm = Farm::factory()->create([
+                'name' => 'Hof Voß',
+            ]);
+
             
-            $farm->roles()->attach(2);
+            $farm->roles()->attach(1);
 
             $farm->users()->attach($woodly->id, ['invite_acception' => true]); 
-            $farm->users()->attach($maro->id, ['invite_acception' => false]);
+            #$farm->users()->attach($maro->id, ['invite_acception' => false]);
         }
     }
 }

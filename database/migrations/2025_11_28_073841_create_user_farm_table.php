@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('farm_user', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('farm_id')->constrained()->on('users')->cascadeOnDelete();
+            $table->foreignId('user_role_id')->default(1)->constrained()->on('roles')->cascadeOnDelete();
             $table->boolean('invite_acception')->default(false);
             $table->primary(['user_id', 'farm_id']);
 

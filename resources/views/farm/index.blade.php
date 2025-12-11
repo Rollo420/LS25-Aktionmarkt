@@ -26,6 +26,63 @@
                 <div class="mt-8">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
 
+                        <a href="{{ route('farm.toggleMode') }}"
+                            class="group bg-gray-50 dark:bg-gray-900 rounded-xl p-8 shadow-lg hover:shadow-2xl 
+                                hover:scale-[1.03] transition duration-300 ease-in-out border border-transparent 
+                                hover:border-gray-600 dark:hover:border-gray-500 flex flex-col items-center 
+                                text-center min-h-[280px] cursor-pointer">
+
+                            {{-- Icon --}}
+                            <svg class="w-16 h-16 text-gray-500 group-hover:text-gray-600 transition duration-300"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+
+                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">
+                                Farm-Mode umschalten
+                            </h3>
+
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">
+                                Aktueller Status:
+                                <strong class="text-gray-900 dark:text-gray-100">
+                                    {{ session('farmMode') ? 'Aktiv' : 'Inaktiv' }}
+                                </strong>
+                            </p>
+                        </a>
+
+                        {{-- Farm-Einladungen --}}
+                        <a href="{{route('farm.invitations')}}"
+                            class="relative group bg-gray-50 dark:bg-gray-900 rounded-xl p-8 shadow-lg
+                                    hover:shadow-2xl hover:scale-[1.03] transition duration-300 ease-in-out 
+                                    border border-transparent hover:border-gray-600 dark:hover:border-gray-500 
+                                    flex flex-col items-center text-center min-h-[280px]">
+
+
+
+                            {{-- Badge: Anzahl Einladungen --}}
+                            @if($farmInvites > 0)
+                            <span class="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold
+                                        w-6 h-6 rounded-full flex items-center justify-center shadow-md">
+                                {{ $farmInvites }}
+                            </span>
+                            @endif
+
+                            {{-- Icon --}}
+                            <svg class="w-16 h-16 text-gray-500 group-hover:text-gray-600 transition duration-300"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z">
+                                </path>
+                            </svg>
+
+                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">Farm-Einladungen</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">
+                                Zeigt offene Einladungen zu einer Farm an.
+                            </p>
+                        </a>
+
                         {{-- Feature Cards Container --}}
                         @if(!Auth::user()->isInFarm())
 
@@ -56,9 +113,9 @@
                         </a>
                         @endif
 
-                        @if(!Auth::user()->isAdministrator())
+                        @if(Auth::user()->isAdministrator())
                         {{-- 2. KARTE: Farm erstellen (ADMIN) --}}
-                        <a href="#"
+                        <a href="{{route('farm.newFarm')}}"
                             class="group bg-gray-50 dark:bg-gray-900 rounded-xl p-8 shadow-lg hover:shadow-2xl hover:scale-[1.03] transition duration-300 ease-in-out border border-transparent hover:border-green-600 dark:hover:border-green-500 flex flex-col items-center text-center min-h-[280px]">
 
                             {{-- Icon: Hinzufügen/Erstellen --}}
@@ -72,6 +129,8 @@
                         </a>
                         @endif
 
+
+                        @if(Auth::user()->isInFarm())
                         <a href="{{ route('farm.userInvite') }}"
                             class="group bg-gray-50 dark:bg-gray-900 rounded-xl p-8 shadow-lg hover:shadow-2xl hover:scale-[1.03] transition duration-300 ease-in-out border border-transparent hover:border-blue-600 dark:hover:border-blue-500 flex flex-col items-center text-center min-h-[280px]">
 
@@ -90,6 +149,24 @@
                             </p>
                         </a>
 
+                        {{-- Farm verlassen --}}
+                        <a href="{{ route('farm.leaveConfirmation') }}"
+                            class="group bg-red-50 dark:bg-red-900/20 rounded-xl p-8 shadow-lg hover:shadow-2xl hover:scale-[1.03] transition duration-300 ease-in-out border border-transparent hover:border-red-600 dark:hover:border-red-500 flex flex-col items-center text-center min-h-[280px]">
+
+                            {{-- Icon: Farm verlassen --}}
+                            <svg class="w-16 h-16 text-red-500 group-hover:text-red-600 transition duration-300"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                                </path>
+                            </svg>
+
+                            <h3 class="text-xl font-bold mt-5 text-red-700 dark:text-red-300">Farm verlassen</h3>
+                            <p class="text-red-600 dark:text-red-400 text-sm mt-2">
+                                Verlassen Sie die aktuelle Farm mit Bestätigung.
+                            </p>
+                        </a>
 
                         {{-- 3. KARTE: Farm verwalten --}}
                         <a href="{{route('farm.management')}}"
@@ -118,6 +195,7 @@
                             <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Sehen Sie Echtzeit-Statistiken, Status und Leistungsdaten Ihrer Farmen.</p>
                         </a>
 
+                        @endif
 
 
                         {{-- 6. KARTE: Farm-Historie / Logs --}}
@@ -132,32 +210,6 @@
                             <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">Farm-Historie / Logs</h3>
                             <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Überprüfen Sie alle vergangenen Ereignisse und Protokolle Ihrer Farm.</p>
                         </a>
-
-                        <a href="{{ route('farm.toggleMode') }}"
-                            class="group bg-gray-50 dark:bg-gray-900 rounded-xl p-8 shadow-lg hover:shadow-2xl 
-                                hover:scale-[1.03] transition duration-300 ease-in-out border border-transparent 
-                                hover:border-gray-600 dark:hover:border-gray-500 flex flex-col items-center 
-                                text-center min-h-[280px] cursor-pointer">
-
-                            {{-- Icon --}}
-                            <svg class="w-16 h-16 text-gray-500 group-hover:text-gray-600 transition duration-300"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-
-                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">
-                                Farm-Mode umschalten
-                            </h3>
-
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">
-                                Aktueller Status:
-                                <strong class="text-gray-900 dark:text-gray-100">
-                                    {{ session('farmMode') ? 'Aktiv' : 'Inaktiv' }}
-                                </strong>
-                            </p>
-                        </a>
-
 
                     </div>
                 </div>

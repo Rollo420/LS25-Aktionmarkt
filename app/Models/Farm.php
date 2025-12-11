@@ -15,7 +15,7 @@ class Farm extends User
     public function users()
     {
         return $this->belongsToMany(User::class, 'farm_user', 'farm_id', 'user_id')
-            ->withPivot('invite_acception')
+            ->withPivot('invite_acception', 'user_role_id')
             ->withTimestamps();
     }
 

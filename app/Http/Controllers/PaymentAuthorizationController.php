@@ -60,21 +60,21 @@ class PaymentAuthorizationController extends Controller
             return redirect()->route('payment.auth')->with('success', 'Confirmed processed successfully!');
 
         }
-        elseif ($request->has('decline_id')) 
+        elseif ($request->has('declineBTN_id')) 
         {
             try
             {
-                $transaction = Transaction::findOrFail($request->input('decline_id'));
+                $transaction = Transaction::findOrFail($request->input('declineBTN_id'));
                 $transaction->status = false; // failed -> final
                 $transaction->save();
             }
             catch (\Exception $e)
             {
-                return redirect()->route('payment.auth')->with('error', 'Error processing decline: ' . $e->getMessage());
+                return redirect()->route('payment.auth')->with('error', 'Error processing declineBTN: ' . $e->getMessage());
             }
 
 
-            return redirect()->route('payment.auth')->with('success', 'Decline processed successfully!');
+            return redirect()->route('payment.auth')->with('success', 'declineBTN processed successfully!');
 
         }
 

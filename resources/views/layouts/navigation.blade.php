@@ -22,13 +22,13 @@
                     <x-nav-link :href="route('depot.index')" :active="request()->routeIs('depot.index')">
                         {{ __('Depot') }}
                     </x-nav-link>
-                    @if (Auth::check() && \App\Helpers\AuthHelper::user()->isAdministrator())
+                    @if (Auth::check() && Auth::user()->isAdministrator())
                     <x-nav-link :href="route('admin.time.index')" :active="request()->routeIs('admin.time.*')">
                         {{ __('Time') }}
                     </x-nav-link>
                     @endif
                 </div>
-                @if (Auth::check() && \App\Helpers\AuthHelper::user()->isAdministrator())
+                @if (Auth::check() && Auth::user()->isAdministrator())
                 <div class="relative hidden sm:flex sm:items-center">
                     <button @click="adminOpen = !adminOpen" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
                         <div>{{ __('Admin') }}</div>
@@ -134,7 +134,7 @@
             <x-responsive-nav-link :href="route('stock.index')" :active="request()->routeIs('stock.*')">
                 {{ __('Stocks') }}
             </x-responsive-nav-link>
-            @if (Auth::check() && \App\Helpers\AuthHelper::user()->isAdministrator())
+            @if (Auth::check() && Auth::user()->isAdministrator())
             <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.*')">
                 {{ __('Admin') }}
             </x-responsive-nav-link>

@@ -38,7 +38,7 @@
                             </td>
                             <td class="px-2 sm:px-6 py-4 flex flex-col sm:flex-row gap-1 sm:gap-2">
                                 <button type="submit" name="authorize_id" value="{{ $payment->id }}" class="bg-green-600 text-white rounded px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm">Autorisieren</button>
-                                <button type="submit" name="decline_id" value="{{ $payment->id }}" class="bg-red-600 text-white rounded px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm">Ablehnen</button>
+                                <button type="submit" name="declineBTN_id" value="{{ $payment->id }}" class="bg-red-600 text-white rounded px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm">Ablehnen</button>
                             </td>
                         </tr>
                     @endforeach

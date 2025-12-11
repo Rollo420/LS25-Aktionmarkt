@@ -6,9 +6,12 @@ use App\Models\User;
 Route::get('/search/users', function () {
     $q = request('q');
 
-    return \App\Models\User::search($q)
+    $results = \App\Models\User::search($q)
         ->take(10)
-        ->get(['name', 'email']);
+        ->get(['name', 'email'])
+        ->filter(fn($user) => !str_starts_with($user->email, 'farm_'));
+
+    return $results;
 })->name('api.search.users');
 
 Route::get('/search/stocks', function () {
