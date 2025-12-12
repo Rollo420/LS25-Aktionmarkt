@@ -21,7 +21,8 @@ class PriceFactory extends Factory
         return [
             'stock_id' => Stock::factory(),
             'game_time_id' => GameTime::factory(),
-            'name' => fake()->randomFloat(2, 10, 500),
+
+            'name' => fake()->randomFloat(2, 30000, 800000),
         ];
     }
 }

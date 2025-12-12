@@ -32,7 +32,8 @@ class TransactionFactory extends Factory
             if ($stock) {
                 $priceAtBuy = $stock->getCurrentPrice();
             } else {
-                $priceAtBuy = fake()->randomFloat(2, 10, 500); // Fallback für zufällige Daten
+
+                $priceAtBuy = fake()->randomFloat(2, 30000, 800000); // Fallback für zufällige Daten
             }
         } 
         

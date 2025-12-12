@@ -316,15 +316,17 @@ class StockService
                 // Letzten Preis holen
                 $lastPrice = $stock->getLatestPrice();
                 if (!$lastPrice) {
-                    $lastPrice = 100.0; // Fallback, wenn kein Preis vorhanden
+
+                    $lastPrice = fake()->randomFloat(2, 30000, 800000); // Fallback, wenn kein Preis vorhanden
                 }
                 $lastDividend = $stock->getLatestDividend();
                 if (is_null($lastDividend)) {
                     $lastDividendDate = $stock->calculateNextDividendDate($newGameTime->name);
+
                     $lastDividendGT = Dividend::factory()->create([
                         'stock_id' => $stock->id,
                         'game_time_id' => $gtService->getOrCreate($lastDividendDate)->id,
-                        'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0),
+                        'amount_per_share' => fake()->randomFloat(2, 0.1, 1.0),
                     ]);
                     \Log::info("Created initial dividend for stock {$stock->id} at game time {$lastDividendGT->game_time_id}");
                 } else {
@@ -363,11 +365,12 @@ class StockService
                         $nextDividendDate = $stock->calculateNextDividendDate($newGameTime->name);
                         $nextDividendGT = $gtService->getOrCreate($nextDividendDate);
 
+
                         // Neue Dividende erzeugen
                         Dividend::create([
                             'stock_id' => $stock->id,
                             'game_time_id' => $nextDividendGT->id,
-                            'amount_per_share' => fake()->randomFloat(2, 0.1, 5.0),
+                            'amount_per_share' => fake()->randomFloat(2, 0.1, 1.0),
                         ]);
 
                         \Log::info("Dividend due for stock {$stock->id} at game time {$newGameTime->name}");

@@ -50,8 +50,139 @@ return [
     'Are you sure you want to delete your account?' => 'Weet u zeker dat u uw account wilt verwijderen?',
     'Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.' => 'Zodra uw account wordt verwijderd, worden alle bronnen en gegevens permanent verwijderd. Voer uw wachtwoord in om te bevestigen dat u uw account permanent wilt verwijderen.',
     'Cancel' => 'Annuleren',
+
     'language.de' => 'Duits',
     'language.en' => 'Engels',
     'language.nl' => 'Nederlands',
     'Language' => 'Taal',
+    
+    // Nieuwe vertalingen voor Farm Management
+    'Farm Übersicht' => 'Boerderij Overzicht',
+    'Farm Management' => 'Boerderij Beheer',
+    'Wählen Sie eine der verfügbaren Aktionen für Ihre Farmen.' => 'Kies een van de beschikbare acties voor uw boerderijen.',
+    'Farm-Mode umschalten' => 'Boerderij-Modus wisselen',
+    'Aktueller Status:' => 'Huidige Status:',
+    'Aktiv' => 'Actief',
+    'Inaktiv' => 'Inactief',
+    'Farm-Einladungen' => 'Boerderij Uitnodigingen',
+    'Zeigt offene Einladungen zu einer Farm an.' => 'Toont openstaande uitnodigingen voor een boerderij.',
+    'Stellen Sie eine neue Farm-Anfrage zur Genehmigung.' => 'Dien een nieuw boerderijverzoek in voor goedkeuring.',
+    'Treten Sie einer bestehenden Farm über einen Einladungscode bei.' => 'Word lid van een bestaande boerderij met een uitnodigingscode.',
+    'Neue Farm direkt anlegen und Administratoren zuweisen.' => 'Maak direct een nieuwe boerderij aan en wijs beheerders toe.',
+    'ADMIN FUNKTION' => 'ADMIN FUNCTIE',
+    'Benutzer einladen' => 'Gebruikers uitnodigen',
+    'Laden Sie neue Benutzer zur Ihrer Farm ein.' => 'Nodig nieuwe gebruikers uit voor uw boerderij.',
+    'Farm verlassen' => 'Boerderij verlaten',
+    'Verlassen Sie die aktuelle Farm' => 'Verlaat de huidige boerderij',
+    'Bearbeiten Sie Farmdaten, verwalten Sie Nutzer und ändern Sie Einstellungen.' => 'Bewerk boerderijgegevens, beheer gebruikers en wijzig instellingen.',
+    'Übersicht & Statistiken' => 'Overzicht & Statistieken',
+    'Sehen Sie Echtzeit-Statistiken, Status und Leistungsdaten Ihrer Farmen.' => 'Bekijk real-time statistieken, status en prestatiegegevens van uw boerderijen.',
+    'Farm-Historie / Logs' => 'Boerderij Geschiedenis / Logs',
+    'Überprüfen Sie alle vergangenen Ereignisse und Protokolle Ihrer Farm.' => 'Controleer alle gebeurtenissen en logs van uw boerderij.',
+    
+    // Tabel Headers
+    'Name' => 'Naam',
+    'Firma' => 'Bedrijf',
+    'Sektor' => 'Sector',
+    'Land' => 'Land',
+    'Aktionen' => 'Acties',
+    'Bearbeiten' => 'Bewerken',
+    'Löschen' => 'Verwijderen',
+    'Ansehen' => 'Bekijken',
+    'Wirklich löschen?' => 'Echt verwijderen?',
+    'Keine Aktien gefunden' => 'Geen aandelen gevonden',
+    'Keine Game Times gefunden' => 'Geen game tijden gevonden',
+    
+    // Depot & Trading
+    'Meine Aktien' => 'Mijn Aandelen',
+    'Keine Aktien im Depot' => 'Geen aandelen in portfolio',
+    'Beginnen Sie mit dem Kauf Ihrer ersten Aktie.' => 'Begin met de aankoop van uw eerste aandeel.',
+    'Nächste Dividende' => 'Volgende Dividend',
+    'Dividendenrendite' => 'Dividend Rendement',
+    'Letzte Dividende' => 'Laatste Dividend',
+    'Erwartete 12 Monate' => 'Verwachte 12 Maanden',
+    '%' => '%',
+    '€' => '€',
+    
+    // Tijd Management
+    'Aktuelle Spielzeit' => 'Huidige Speltijd',
+    'Zeitsteuerung aktiv' => 'Tijdsturing actief',
+    'Zeit springen' => 'Tijd overslaan',
+    'Zeit-Simulation' => 'Tijd Simulaties',
+    'Markt-Effekte' => 'Markt Effecten',
+    'Wichtige Hinweise' => 'Belangrijke Opmerkingen',
+    
+    // Formulieren & Placeholders
+    'Username' => 'Gebruikersnaam',
+    'Server' => 'Server',
+    'Recipient\'s username' => 'Ontvanger gebruikersnaam',
+    '@example.com' => '@example.com',
+    'Aktien suchen...' => 'Aandelen zoeken...',
+    'Stückzahl eingeben' => 'Aantal invoeren',
+    'Farm-Name' => 'Boerderij Naam',
+    'Preis eingeben' => 'Prijs invoeren',
+    'Meine tolle Farm' => 'Mijn geweldige boerderij',
+    'Beschreibung' => 'Beschrijving',
+    'Beschreibe deine Farm...' => 'Beschrijf uw boerderij...',
+    'User suchen...' => 'Gebruiker zoeken...',
+    
+    // Betalingsformulieren
+    'Betrag einzahlen' => 'Bedrag storten',
+    'Betrag' => 'Bedrag',
+    'Maximaler Betrag: 4.294.967.295' => 'Maximum Bedrag: 4.294.967.295',
+    'Einzahlen' => 'Storten',
+    'Bitte geben Sie eine gültige Zahl ein.' => 'Voer een geldig nummer in.',
+    'Betrag auszahlen' => 'Bedrag uitbetalen',
+    'Auf Konto' => 'Op Rekening',
+    'Transferieren' => 'Overboeken',
+    'Transfer Amount' => 'Overboeking Bedrag',
+    'DE61 12345678 2848820727' => 'DE61 12345678 2848820727',
+    
+    // Grafiek & Tijdlijn
+    'Month' => 'Maand',
+    'Timeline' => 'Tijdlijn',
+    
+
+    // Info Teksten
+    'Info' => 'Info',
+    'Warning' => 'Waarschuwing',
+    'Error' => 'Fout',
+    'Success' => 'Succes',
+    'Loading...' => 'Laden...',
+    
+
+    // Boerderij Uitnodigingen
+    'Farm Einladungen' => 'Boerderij Uitnodigingen',
+    'Offene Farm-Einladungen' => 'Openstaande Boerderij Uitnodigingen',
+    'Du wurdest eingeladen, dieser Farm beizutreten. Akzeptiere die Einladung, um Mitglied zu werden.' => 'Je bent uitgenodigd om bij deze boerderij aan te sluiten. Accepteer de uitnodiging om lid te worden.',
+    'Annehmen' => 'Accepteren',
+    'Ablehnen' => 'Afwijzen',
+    
+    // Boerderij Verlaten Bevestiging
+    'Farm verlassen' => 'Boerderij Verlaten',
+    'Möchten Sie wirklich die Farm verlassen?' => 'Wilt u echt de boerderij verlaten?',
+    'Aktuelle Farm:' => 'Huidige Boerderij:',
+    'Wichtiger Hinweis' => 'Belangrijke Opmerking',
+    'Nach dem Verlassen der Farm:' => 'Na het verlaten van de boerderij:',
+    'Sie verlieren alle Farm-spezifischen Daten' => 'U verliest alle boerderij-specifieke gegevens',
+    'Der Farm-Modus wird deaktiviert' => 'De boerderij-modus wordt gedeactiveerd',
+    'Sie können nur durch eine neue Einladung wieder beitreten' => 'U kunt alleen opnieuw toetreden via een nieuwe uitnodiging',
+    'Abbrechen' => 'Annuleren',
+
+
+    'Sind Sie absolut sicher, dass Sie diese Farm verlassen möchten? Diese Aktion kann nicht rückgängig gemacht werden.' => 'Bent u er absoluut zeker van dat u deze boerderij wilt verlaten? Deze actie kan niet ongedaan worden gemaakt.',
+    
+    // Nieuwe Boerderij Aanmaken
+    'Erstelle eine neue Farm' => 'Maak een nieuwe boerderij aan',
+    'Farm-Name' => 'Boerderij Naam',
+    'Beschreibung' => 'Beschrijving',
+    'Meine tolle Farm' => 'Mijn geweldige boerderij',
+    'Beschreibe deine Farm...' => 'Beschrijf je boerderij...',
+    
+    // Welkomstpagina
+    'Laravel has wonderful documentation covering every aspect of the framework. Whether you are a newcomer or have prior experience with Laravel, we recommend reading our documentation from beginning to end.' => 'Laravel heeft prachtige documentatie die elk aspect van het framework behandelt. Of je nu nieuw bent in Laravel of al ervaring hebt met Laravel, we raden aan onze documentatie van begin tot eind te lezen.',
+    'Laracasts offers thousands of video tutorials on Laravel, PHP, and JavaScript development. Check them out, see for yourself, and massively level up your development skills in the process.' => 'Laracasts biedt duizenden video tutorials over Laravel, PHP en JavaScript ontwikkeling. Bekijk ze, zie voor jezelf en verbeter je ontwikkelvaardigheden enorm in het proces.',
+    'Laravel News is a community driven portal and newsletter aggregating all of the latest and most important news in the Laravel ecosystem, including new package releases and tutorials.' => 'Laravel News is een community-gedreven portaal en nieuwsbrief die alle nieuwste en belangrijkste nieuws in het Laravel-ecosysteem verzamelt, inclusief nieuwe pakket releases en tutorials.',
+    'Laravel\'s robust library of first-party tools and libraries, such as' => 'Laravels robuuste bibliotheek van first-party tools en bibliotheken, zoals',
+    'help you take your projects to the next level. Pair them with powerful open source libraries like' => 'helpen je om je projecten naar het volgende niveau te tillen. Combineer ze met krachtige open source bibliotheken zoals',
 ];

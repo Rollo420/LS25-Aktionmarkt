@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'Dashboard' => 'Übersicht',
+    'navigation.dashboard' => 'Übersicht',
     'Profile' => 'Profil',
     'Log Out' => 'Abmelden',
     'Buy' => 'Kaufen',

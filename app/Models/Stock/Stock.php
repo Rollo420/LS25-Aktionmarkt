@@ -161,6 +161,7 @@ class Stock extends Model
         return $baseDate->copy()->addMonths($monthsBetween);
     }
 
+
     public function calculateNextDividendDate($date = null): ?Carbon
     {
         // 1️⃣ Basisdatum bestimmen
@@ -182,7 +183,41 @@ class Stock extends Model
         // 3️⃣ Nächste Dividende berechnen
         $nextDate = $baseDate->copy()->addMonths($monthsBetween);
         \Log::debug("Next dividend date for stock {$this->id}: {$nextDate->format('Y-m-d')} (base: {$baseDate->format('Y-m-d')})");
+        
+        // 4️⃣ Sicherstellen, dass das Datum in der Zukunft liegt
+        $currentGameTime = $this->getCurrentGameTime();
+        if ($currentGameTime) {
+            $currentDate = Carbon::parse($currentGameTime->name);
+            
+            // Wenn das berechnete Datum in der Vergangenheit liegt, vom aktuellen Zeitpunkt ausgehend berechnen
+            if ($nextDate->lessThanOrEqualTo($currentDate)) {
+                $nextDate = $currentDate->copy()->addMonths($monthsBetween);
+                \Log::info("Stock {$this->id}: Calculated dividend date was in the past, adjusted to future: {$nextDate->format('Y-m-d')}");
+            }
+            
+            // Mindestens 1 Monat in der Zukunft sicherstellen
+            $minimumFutureDate = $currentDate->copy()->addMonth();
+            if ($nextDate->lessThan($minimumFutureDate)) {
+                $nextDate = $minimumFutureDate;
+                \Log::info("Stock {$this->id}: Adjusted dividend date to minimum future date: {$nextDate->format('Y-m-d')}");
+            }
+        }
+        
+        \Log::debug("Final next dividend date for stock {$this->id}: {$nextDate->format('Y-m-d')}");
         return $nextDate;
+    }
+    
+    /**
+     * Get current game time for validation
+     */
+    private function getCurrentGameTime()
+    {
+        try {
+            return \App\Models\GameTime::getCurrentGameTime();
+        } catch (\Exception $e) {
+            \Log::warning("Could not get current game time for stock {$this->id}: " . $e->getMessage());
+            return null;
+        }
     }
 
 

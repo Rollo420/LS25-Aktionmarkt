@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use App\Services\GameTimeService;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use App\Models\GameTime;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -60,11 +62,14 @@ class AdminController extends Controller
             case 'dividend_frequency':
                 return response()->json(['value' => rand(0, 4)]);
 
+
             case 'start_price':
-                return response()->json(['value' => fake()->numberBetween(10, 500)]);
+                return response()->json(['value' => fake()->numberBetween(30000, 800000)]);
+
 
             case 'dividend_amount':
-                return response()->json(['value' => fake()->randomFloat(2, 0.5, 2.5)]);
+                // Dividende zwischen 0.1 und 1.0 halten
+                return response()->json(['value' => fake()->randomFloat(2, 0.1, 1.0)]);
 
             case 'next_dividend_date':
                 return response()->json(['value' => now()->addMonths(rand(1, 12))->format('Y-m-d')]);
@@ -130,7 +135,8 @@ class AdminController extends Controller
 
         // Create initial price for current game time
         $currentGameTime = GameTime::getCurrentGameTime();
-        $startPrice = $request->start_price ?: fake()->numberBetween(10, 500);
+
+        $startPrice = $request->start_price ?: fake()->numberBetween(30000, 800000);
 
         Price::create([
             'stock_id' => $stock->id,
@@ -138,14 +144,35 @@ class AdminController extends Controller
             'name' => $startPrice,
         ]);
 
-        // Always create an initial dividend for the stock using the provided amount (or a fallback)
-        $dividendAmount = $request->dividend_amount ?: fake()->randomFloat(2, 0.5, 2.5);
 
-        // Use current game time if available, otherwise create a fallback GameTime for today
-        $dividendGameTime = $currentGameTime ?? \App\Models\GameTime::latest('id')->first();
-        if (!$dividendGameTime) {
-            $dividendGameTime = \App\Models\GameTime::create(['name' => now()->format('Y-m-d')]);
+
+        // Always create an initial dividend for the stock using the provided amount (or a fallback)
+        $dividendAmount = $request->dividend_amount ?: fake()->randomFloat(2, 0.1, 1.0);
+
+        // Create initial dividend with future date based on dividend frequency
+        $dividendFrequency = $stockData['dividend_frequency'] ?? 0;
+        $monthsBetween = $dividendFrequency > 0 ? 12 / $dividendFrequency : 12;
+        
+        // Use current game time as base, but ensure dividend is in the future
+        $baseGameTime = $currentGameTime ?? \App\Models\GameTime::latest('id')->first();
+        if (!$baseGameTime) {
+            $baseGameTime = \App\Models\GameTime::create(['name' => now()->format('Y-m-d')]);
         }
+        
+        // Calculate future dividend date
+        $baseDate = Carbon::parse($baseGameTime->name);
+        $futureDividendDate = $baseDate->copy()->addMonths($monthsBetween);
+        
+        // Ensure dividend is at least 1 month in the future
+        $minimumFutureDate = $baseDate->copy()->addMonth();
+        if ($futureDividendDate->lessThan($minimumFutureDate)) {
+            $futureDividendDate = $minimumFutureDate;
+        }
+        
+        \Log::info("Creating initial dividend for stock {$stock->id}: amount={$dividendAmount}, frequency={$dividendFrequency}, dividend_date={$futureDividendDate->format('Y-m-d')}");
+        
+        // Create or get future game time for the dividend
+        $dividendGameTime = $gameTimeService->getOrCreate($futureDividendDate->format('Y-m-d'));
 
         \App\Models\Dividend::create([
             'stock_id' => $stock->id,

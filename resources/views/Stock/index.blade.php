@@ -117,7 +117,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                                         @if($stock['price'] > 0 && ($stock['dividend_amount'] ?? 0) > 0)
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                            {{ number_format(($stock['dividend_amount'] / $stock['price']) * 100, 2, ',', '.') }} %
+                                            {{ number_format(($stock['dividend_amount'] / $stock['price']) * 100000, 2, ',', '.') }} %
                                         </span>
                                         @else
                                         <span class="text-gray-400 dark:text-gray-500">-</span>

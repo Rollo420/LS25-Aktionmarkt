@@ -47,7 +47,7 @@ class DividendeService
 
         $price = $gameTime ? $stock->getPriceAtGameTime($gameTime) : $stock->getLatestPrice();
         $amount = $dividend->amount_per_share;
-        $percent = $price > 0 ? ($amount / $price) * 100 : 0; // Dividendenrendite in %
+        $percent = ($price > 0 ? ($amount / $price) * 100 : 0); // Dividendenrendite in %
 
         $firstBuyDate = $stock->getFirstBuyTransactionDateForStock();
         $total_dividends = 0;
@@ -76,9 +76,26 @@ class DividendeService
         return $dividende;
     }
 
+
     public function shareDividendeToUsers(Stock $stock)
     {
         \Log::info("Starting dividend payout for stock: {$stock->name} (ID: {$stock->id})");
+
+        // 1️⃣ Validierung: Prüfen, ob die nächste Dividende in der Zukunft liegt
+        $nextDividendDate = $stock->calculateNextDividendDate();
+        if ($nextDividendDate) {
+            $currentGameTime = GameTime::getCurrentGameTime();
+            if ($currentGameTime) {
+                $currentDate = Carbon::parse($currentGameTime->name);
+                if ($nextDividendDate->lessThanOrEqualTo($currentDate)) {
+                    \Log::warning("Dividend payout for stock {$stock->id} skipped: next dividend date {$nextDividendDate->format('Y-m-d')} is not in the future (current: {$currentDate->format('Y-m-d')})");
+                    return;
+                }
+            }
+        } else {
+            \Log::warning("Dividend payout for stock {$stock->id} skipped: no next dividend date calculated");
+            return;
+        }
 
         $gt = new GameTime();
         $userAccounts = $stock->getUserAccount();
@@ -86,9 +103,9 @@ class DividendeService
         $totalPayout = 0;
         $successfulPayouts = 0;
 
-        \Log::info("Found {$totalUsers} users with holdings for stock {$stock->name}");
+        \Log::info("Found {$totalUsers} users with holdings for stock {$stock->name}. Next dividend date: {$nextDividendDate->format('Y-m-d')}");
 
-        $userAccounts->map(function ($user) use ($stock, $gt, &$totalPayout, &$successfulPayouts) {
+        $userAccounts->map(function ($user) use ($stock, $gt, &$totalPayout, &$successfulPayouts, $nextDividendDate) {
 
             $quantity = $stock->getCurrentQuantity($user);
             if ($quantity <= 0) {
@@ -118,7 +135,7 @@ class DividendeService
                     ]);
 
                     if ($transaction) {
-                        \Log::info("Dividend transaction created for user {$user->id}: ID={$transaction->id}, type=dividend, stock={$stock->id}, quantity={$quantity}, amount={$total_dividend}");
+                        \Log::info("Dividend transaction created for user {$user->id}: ID={$transaction->id}, type=dividend, stock={$stock->id}, quantity={$quantity}, amount={$total_dividend}, dividend_date={$nextDividendDate->format('Y-m-d')}");
                         $totalPayout += $total_dividend;
                         $successfulPayouts++;
                     } else {
@@ -132,7 +149,7 @@ class DividendeService
             }
         });
 
-        \Log::info("Dividend payout completed for stock {$stock->name}. Total payout: {$totalPayout} to {$successfulPayouts}/{$totalUsers} users");
+        \Log::info("Dividend payout completed for stock {$stock->name}. Total payout: {$totalPayout} to {$successfulPayouts}/{$totalUsers} users. Next dividend date: {$nextDividendDate->format('Y-m-d')}");
     }
 
     

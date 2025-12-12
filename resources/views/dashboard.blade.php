@@ -55,13 +55,14 @@
                         </div>
                     </div>
 
+
                     <!-- Performance (6 Monate) -->
                     <div id="perf-6m-card"
                         class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6 flex flex-col justify-center items-center transform hover:scale-[1.02] transition duration-150">
                         <div class="text-gray-500 dark:text-gray-400 text-sm font-medium uppercase tracking-wider">
                             {{ __('Performance (6 Monate)') }}</div>
                         <div class="text-4xl font-extrabold mt-2">
-                            Lade...
+                            {{ __('Lade...') }}
                         </div>
                     </div>
 

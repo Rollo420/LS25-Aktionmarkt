@@ -42,9 +42,10 @@ class PriceSeeder extends Seeder
                 $price = new Price(); // Neues Price-Objekt für jede Iteration
                 $price->stock_id = $stock->id;
                 // Erstelle oder hole GameTime für das aktuelle Datum
+
                 $gameTime = $gtService->getOrCreate(Carbon::parse($currentDate));
                 $price->game_time_id = $gameTime->id;
-                $price->name = fake()->randomFloat(2, 1, 100);
+                $price->name = fake()->randomFloat(2, 30000, 800000);
                 $price->save(); // Speichere das Price-Objekt in der Datenbank
 
                 // Gehe zum nächsten Monat
@@ -79,8 +80,9 @@ class PriceSeeder extends Seeder
                 // Create a new Price with a generated value
                 $price = new Price();
                 $price->stock_id = $stock->id;
+
                 $price->game_time_id = $latestGameTime->id;
-                $price->name = fake()->randomFloat(2, 1, 100); // Generate a random price
+                $price->name = fake()->randomFloat(2, 30000, 800000); // Generate a random price
                 $price->save();
             }
         }

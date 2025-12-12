@@ -1,0 +1,6 @@
+{
+    "navigation.dashboard": "Profil anzeigen",
+    "core.permissions.profile.view.description": "Der User kann sein Profil anzeigen lassen.",
+    "core.permissions.groups.assign.name": "Gruppen zuweisen",
+    "core.permissions.groups.assign.description": "Der User kann Gruppen zuweisen."
+}

@@ -20,11 +20,12 @@ class DividendSeeder extends Seeder
         $currentDate = \Carbon\Carbon::parse($currentGameTime->name);
 
         foreach ($stocks as $stock) {
+
             // Erstelle ersten Dividend mit dem aktuellen GameTime
             \App\Models\Dividend::create([
                 'stock_id' => $stock->id,
                 'game_time_id' => $currentGameTime->id,
-                'amount_per_share' => fake()->randomFloat(2, 0.1, 2.0),
+                'amount_per_share' => fake()->randomFloat(2, 0.1, 1.0),
             ]);
 
             // Erstelle weitere Dividenden mit calculateNextDividendDate
@@ -33,10 +34,11 @@ class DividendSeeder extends Seeder
                 $nextDate = $currentStock->calculateNextDividendDate();
                 if ($nextDate) {
                     $gameTime = $gtService->getOrCreate($nextDate);
+
                     \App\Models\Dividend::create([
                         'stock_id' => $stock->id,
                         'game_time_id' => $gameTime->id,
-                        'amount_per_share' => fake()->randomFloat(2, 0.1, 2.0),
+                        'amount_per_share' => fake()->randomFloat(2, 0.1, 1.0),
                     ]);
                     $currentStock = $stock->fresh(); // Refresh wieder
                 } else {

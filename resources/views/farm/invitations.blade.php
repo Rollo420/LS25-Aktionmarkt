@@ -1,12 +1,14 @@
 <x-app-layout>
+
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Farm Einladungen
+            {{ __('Farm Einladungen') }}
         </h2>
     </x-slot>
 
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Offene Farm-Einladungen</h1>
+
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">{{ __('Offene Farm-Einladungen') }}</h1>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -19,9 +21,10 @@
                     {{$farm['name']}}
                 </h3>
 
+
                 {{-- Beschreibung --}}
                 <p class="text-gray-700 dark:text-gray-300 text-sm mb-6">
-                    Du wurdest eingeladen, dieser Farm beizutreten. Akzeptiere die Einladung, um Mitglied zu werden.
+                    {{ __('Du wurdest eingeladen, dieser Farm beizutreten. Akzeptiere die Einladung, um Mitglied zu werden.') }}
                 </p>
 
                 {{-- Buttons --}}
@@ -30,11 +33,12 @@
 
                     <input type="hidden" name="farmID" value="{{$farm['id']}}">
                     <div class="flex space-x-3">
+
                         <button type="submit" name="acceptBTN" class="flex-1 bg-white dark:bg-gray-700 text-green-700 dark:text-green-300 font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md hover:bg-green-50 dark:hover:bg-green-900 transition duration-300">
-                            Annehmen
+                            {{ __('Annehmen') }}
                         </button>
                         <button type="submit" name="declineBTN" class="flex-1 bg-white dark:bg-gray-700 text-red-600 dark:text-red-400 font-semibold py-2 px-4 rounded-lg shadow hover:shadow-md hover:bg-red-50 dark:hover:bg-red-900 transition duration-300">
-                            Ablehnen
+                            {{ __('Ablehnen') }}
                         </button>
                     </div>
                 </form>

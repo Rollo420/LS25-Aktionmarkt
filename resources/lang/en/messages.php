@@ -124,9 +124,126 @@ return [
     'Auszahlen' => 'Withdraw',
     'Transfer' => 'Transfer',
     'Alle Transaktionen' => 'All Transactions',
+
     'Betrag einzahlen' => 'Deposit Amount',
     'Betrag' => 'Amount',
     'Maximaler Betrag: 4.294.967.295' => 'Maximum Amount: 4.294.967.295',
     'Einzahlen' => 'Deposit',
     'Bitte geben Sie eine gültige Zahl ein.' => 'Please enter a valid number.',
+    
+    // New translations for Farm Management
+    'Farm Übersicht' => 'Farm Overview',
+    'Farm Management' => 'Farm Management',
+    'Wählen Sie eine der verfügbaren Aktionen für Ihre Farmen.' => 'Choose from the available actions for your farms.',
+    'Farm-Mode umschalten' => 'Toggle Farm Mode',
+    'Aktueller Status:' => 'Current Status:',
+    'Aktiv' => 'Active',
+    'Inaktiv' => 'Inactive',
+    'Farm-Einladungen' => 'Farm Invitations',
+    'Zeigt offene Einladungen zu einer Farm an.' => 'Shows pending invitations to a farm.',
+    'Stellen Sie eine neue Farm-Anfrage zur Genehmigung.' => 'Submit a new farm request for approval.',
+    'Treten Sie einer bestehenden Farm über einen Einladungscode bei.' => 'Join an existing farm using an invitation code.',
+    'Neue Farm direkt anlegen und Administratoren zuweisen.' => 'Create new farm directly and assign administrators.',
+    'ADMIN FUNKTION' => 'ADMIN FUNCTION',
+    'Benutzer einladen' => 'Invite Users',
+    'Laden Sie neue Benutzer zur Ihrer Farm ein.' => 'Invite new users to your farm.',
+    'Farm verlassen' => 'Leave Farm',
+    'Verlassen Sie die aktuelle Farm' => 'Leave the current farm',
+    'Bearbeiten Sie Farmdaten, verwalten Sie Nutzer und ändern Sie Einstellungen.' => 'Edit farm data, manage users and change settings.',
+    'Übersicht & Statistiken' => 'Overview & Statistics',
+    'Sehen Sie Echtzeit-Statistiken, Status und Leistungsdaten Ihrer Farmen.' => 'View real-time statistics, status and performance data of your farms.',
+    'Farm-Historie / Logs' => 'Farm History / Logs',
+    'Überprüfen Sie alle vergangenen Ereignisse und Protokolle Ihrer Farm.' => 'Review all past events and logs of your farm.',
+    
+    // Table Headers
+    'Name' => 'Name',
+    'Firma' => 'Company',
+    'Sektor' => 'Sector',
+    'Land' => 'Country',
+    'Aktionen' => 'Actions',
+    'Bearbeiten' => 'Edit',
+    'Löschen' => 'Delete',
+    'Ansehen' => 'View',
+    'Wirklich löschen?' => 'Really delete?',
+    'Keine Aktien gefunden' => 'No stocks found',
+    'Keine Game Times gefunden' => 'No game times found',
+    
+    // Depot & Trading
+    'Meine Aktien' => 'My Stocks',
+    'Keine Aktien im Depot' => 'No stocks in portfolio',
+    'Beginnen Sie mit dem Kauf Ihrer ersten Aktie.' => 'Start by buying your first stock.',
+    'Nächste Dividende' => 'Next Dividend',
+    'Dividendenrendite' => 'Dividend Yield',
+    'Letzte Dividende' => 'Last Dividend',
+    'Erwartete 12 Monate' => 'Expected 12 Months',
+    '%' => '%',
+    '€' => '€',
+    
+    // Time Management
+    'Aktuelle Spielzeit' => 'Current Game Time',
+    'Zeitsteuerung aktiv' => 'Time control active',
+    'Zeit springen' => 'Skip Time',
+    'Zeit-Simulation' => 'Time Simulation',
+    'Markt-Effekte' => 'Market Effects',
+    'Wichtige Hinweise' => 'Important Notes',
+    
+    // Forms & Placeholders
+    'Username' => 'Username',
+    'Server' => 'Server',
+    'Recipient\'s username' => 'Recipient\'s username',
+    '@example.com' => '@example.com',
+    'Aktien suchen...' => 'Search stocks...',
+    'Stückzahl eingeben' => 'Enter quantity',
+    'Farm-Name' => 'Farm Name',
+    'Preis eingeben' => 'Enter price',
+    'Meine tolle Farm' => 'My great farm',
+    'Beschreibung' => 'Description',
+    'Beschreibe deine Farm...' => 'Describe your farm...',
+    'User suchen...' => 'Search user...',
+    
+    // Payment Forms
+    'Betrag auszahlen' => 'Withdraw Amount',
+    'Auf Konto' => 'To Account',
+    'Transferieren' => 'Transfer',
+    'Transfer Amount' => 'Transfer Amount',
+    'DE61 12345678 2848820727' => 'DE61 12345678 2848820727',
+    
+    // Chart & Timeline
+    'Month' => 'Month',
+    'Timeline' => 'Timeline',
+    
+
+    // Info Texts
+    'Info' => 'Info',
+    'Warning' => 'Warning',
+    'Error' => 'Error',
+    'Success' => 'Success',
+    'Loading...' => 'Loading...',
+    
+
+    // Farm Invitations
+    'Farm Einladungen' => 'Farm Invitations',
+    'Offene Farm-Einladungen' => 'Pending Farm Invitations',
+    'Du wurdest eingeladen, dieser Farm beizutreten. Akzeptiere die Einladung, um Mitglied zu werden.' => 'You have been invited to join this farm. Accept the invitation to become a member.',
+    'Annehmen' => 'Accept',
+    'Ablehnen' => 'Decline',
+    
+    // Farm Leave Confirmation
+    'Farm verlassen' => 'Leave Farm',
+    'Möchten Sie wirklich die Farm verlassen?' => 'Do you really want to leave the farm?',
+    'Aktuelle Farm:' => 'Current Farm:',
+    'Wichtiger Hinweis' => 'Important Note',
+    'Nach dem Verlassen der Farm:' => 'After leaving the farm:',
+    'Sie verlieren alle Farm-spezifischen Daten' => 'You will lose all farm-specific data',
+    'Der Farm-Modus wird deaktiviert' => 'The farm mode will be deactivated',
+    'Sie können nur durch eine neue Einladung wieder beitreten' => 'You can only rejoin through a new invitation',
+    'Abbrechen' => 'Cancel',
+
+    'Sind Sie absolut sicher, dass Sie diese Farm verlassen möchten? Diese Aktion kann nicht rückgängig gemacht werden.' => 'Are you absolutely sure you want to leave this farm? This action cannot be undone.',
+    
+    // New Farm Creation
+    'Erstelle eine neue Farm' => 'Create a new farm',
+];
+    'Laravel\'s robust library of first-party tools and libraries, such as' => 'Laravel\'s robust library of first-party tools and libraries, such as',
+    'help you take your projects to the next level. Pair them with powerful open source libraries like' => 'help you take your projects to the next level. Pair them with powerful open source libraries like',
 ];

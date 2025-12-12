@@ -23,7 +23,8 @@ class DividendFactory extends Factory
         return [
             'stock_id' => Stock::factory(), // fallback
             'game_time_id' => GameTime::factory(),
-            'amount_per_share' => $this->faker->randomFloat(2, 0.5, 2.5),
+
+            'amount_per_share' => $this->faker->randomFloat(2, 0.1, 1.0),
         ];
     }
 }

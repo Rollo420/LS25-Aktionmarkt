@@ -1,7 +1,9 @@
 <?php
 
+
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LanguageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChartController;
 use App\Http\Controllers\StockController;
@@ -12,9 +14,14 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\DepositTransactionController;
 
+
+
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Language routes - these should be accessible without authentication
+Route::get('/lang/{lang}', [LanguageController::class, 'switch'])->name('lang.switch');
 
 //Deashboard route
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');

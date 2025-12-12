@@ -1,7 +1,8 @@
 <x-app-layout>
+
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Farm verlassen
+            {{ __('Farm verlassen') }}
         </h2>
     </x-slot>
 
@@ -15,19 +16,21 @@
                     </svg>
                 </div>
                 
+
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                    Farm verlassen
+                    {{ __('Farm verlassen') }}
                 </h1>
                 
                 <p class="text-gray-600 dark:text-gray-400">
-                    Möchten Sie wirklich die Farm verlassen?
+                    {{ __('Möchten Sie wirklich die Farm verlassen?') }}
                 </p>
             </div>
 
             <!-- Farm Information -->
             <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
+
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    Aktuelle Farm:
+                    {{ __('Aktuelle Farm:') }}
                 </h3>
                 <div class="text-gray-700 dark:text-gray-300">
                     <p class="font-medium">{{ $currentFarm->name }}</p>
@@ -46,15 +49,16 @@
                         </svg>
                     </div>
                     <div class="ml-3">
+
                         <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                            Wichtiger Hinweis
+                            {{ __('Wichtiger Hinweis') }}
                         </h3>
                         <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                            <p>Nach dem Verlassen der Farm:</p>
+                            <p>{{ __('Nach dem Verlassen der Farm:') }}</p>
                             <ul class="list-disc list-inside mt-1 space-y-1">
-                                <li>Sie verlieren alle Farm-spezifischen Daten</li>
-                                <li>Der Farm-Modus wird deaktiviert</li>
-                                <li>Sie können nur durch eine neue Einladung wieder beitreten</li>
+                                <li>{{ __('Sie verlieren alle Farm-spezifischen Daten') }}</li>
+                                <li>{{ __('Der Farm-Modus wird deaktiviert') }}</li>
+                                <li>{{ __('Sie können nur durch eine neue Einladung wieder beitreten') }}</li>
                             </ul>
                         </div>
                     </div>
@@ -67,22 +71,23 @@
                 
                 <div class="flex flex-col sm:flex-row gap-4">
                     <!-- Cancel Button -->
+
                     <a href="{{ route('farm.index') }}" 
                        class="flex-1 inline-flex justify-center items-center px-4 py-3 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-green-400 transition duration-300">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
-                        Abbrechen
+                        {{ __('Abbrechen') }}
                     </a>
 
                     <!-- Leave Button -->
                     <button type="submit" 
                             class="flex-1 inline-flex justify-center items-center px-4 py-3 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-red-400 transition duration-300"
-                            onclick="return confirm('Sind Sie absolut sicher, dass Sie diese Farm verlassen möchten? Diese Aktion kann nicht rückgängig gemacht werden.')">
+                            onclick="return confirm('{{ __('Sind Sie absolut sicher, dass Sie diese Farm verlassen möchten? Diese Aktion kann nicht rückgängig gemacht werden.') }}')">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                         </svg>
-                        Farm verlassen
+                        {{ __('Farm verlassen') }}
                     </button>
                 </div>
             </form>

@@ -1,5 +1,6 @@
 <x-app-layout>
     {{-- Der Slot 'header' definiert den Titelbereich --}}
+
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Farm Übersicht') }}
@@ -13,13 +14,14 @@
             {{-- Hauptcontainer-Karte --}}
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
 
+
                 {{-- Titel Sektion --}}
                 <div class="text-center mb-10 pt-4">
                     <h1 class="text-4xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">
-                        {{__('Farm Management')}}
+                        {{ __('Farm Management') }}
                     </h1>
                     <p class="text-gray-500 dark:text-gray-400 mt-3 text-lg">
-                        {{__('Wählen Sie eine der verfügbaren Aktionen für Ihre Farmen.')}}
+                        {{ __('Wählen Sie eine der verfügbaren Aktionen für Ihre Farmen.') }}
                     </p>
                 </div>
 
@@ -39,14 +41,15 @@
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
 
+
                             <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">
-                                Farm-Mode umschalten
+                                {{ __('Farm-Mode umschalten') }}
                             </h3>
 
                             <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">
-                                Aktueller Status:
+                                {{ __('Aktueller Status:') }}
                                 <strong class="text-gray-900 dark:text-gray-100">
-                                    {{ session('farmMode') ? 'Aktiv' : 'Inaktiv' }}
+                                    {{ session('farmMode') ? __('Aktiv') : __('Inaktiv') }}
                                 </strong>
                             </p>
                         </a>
@@ -77,9 +80,10 @@
                                 </path>
                             </svg>
 
-                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">Farm-Einladungen</h3>
+
+                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">{{ __('Farm-Einladungen') }}</h3>
                             <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">
-                                Zeigt offene Einladungen zu einer Farm an.
+                                {{ __('Zeigt offene Einladungen zu einer Farm an.') }}
                             </p>
                         </a>
 
@@ -95,8 +99,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.586a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                             </svg>
 
-                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">Farm anfragen</h3>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Stellen Sie eine neue Farm-Anfrage zur Genehmigung.</p>
+
+                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">{{ __('Farm anfragen') }}</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">{{ __('Stellen Sie eine neue Farm-Anfrage zur Genehmigung.') }}</p>
                         </a>
 
                         {{-- 5. KARTE: Farm beitreten --}}
@@ -108,8 +113,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20v-2c0-.523-.213-1.018-.588-1.393M13 12h5m-2 2l-2-2m2 2l2-2m-2-2V9a2 2 0 00-2-2H7a2 2 0 00-2 2v4a2 2 0 002 2h2m0 0h2"></path>
                             </svg>
 
-                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">Farm beitreten</h3>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Treten Sie einer bestehenden Farm über einen Einladungscode bei.</p>
+
+                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">{{ __('Farm beitreten') }}</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">{{ __('Treten Sie einer bestehenden Farm über einen Einladungscode bei.') }}</p>
                         </a>
                         @endif
 
@@ -123,9 +129,10 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 3h-3m3 0h3m-6 3a9 9 0 1118 0M3 12a9 9 0 019-9"></path>
                             </svg>
 
-                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">Farm erstellen</h3>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Neue Farm direkt anlegen und Administratoren zuweisen.</p>
-                            <span class="text-xs mt-3 px-3 py-1 font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300">ADMIN FUNKTION</span>
+
+                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">{{ __('Farm erstellen') }}</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">{{ __('Neue Farm direkt anlegen und Administratoren zuweisen.') }}</p>
+                            <span class="text-xs mt-3 px-3 py-1 font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300">{{ __('ADMIN FUNKTION') }}</span>
                         </a>
                         @endif
 
@@ -143,9 +150,10 @@
                                 </path>
                             </svg>
 
-                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">Benutzer einladen</h3>
+
+                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">{{ __('Benutzer einladen') }}</h3>
                             <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">
-                                Laden Sie neue Benutzer zur Ihrer Farm ein.
+                                {{ __('Laden Sie neue Benutzer zur Ihrer Farm ein.') }}
                             </p>
                         </a>
 
@@ -162,9 +170,10 @@
                                 </path>
                             </svg>
 
-                            <h3 class="text-xl font-bold mt-5 text-red-700 dark:text-red-300">Farm verlassen</h3>
+
+                            <h3 class="text-xl font-bold mt-5 text-red-700 dark:text-red-300">{{ __('Farm verlassen') }}</h3>
                             <p class="text-red-600 dark:text-red-400 text-sm mt-2">
-                                Verlassen Sie die aktuelle Farm mit Bestätigung.
+                                {{ __('Verlassen Sie die aktuelle Farm') }}
                             </p>
                         </a>
 
@@ -178,8 +187,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
 
-                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">Farm verwalten</h3>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Bearbeiten Sie Farmdaten, verwalten Sie Nutzer und ändern Sie Einstellungen.</p>
+
+                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">{{ __('Farm verwalten') }}</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">{{ __('Bearbeiten Sie Farmdaten, verwalten Sie Nutzer und ändern Sie Einstellungen.') }}</p>
                         </a>
 
                         {{-- 4. KARTE: Übersicht / Stats --}}
@@ -191,8 +201,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0h6"></path>
                             </svg>
 
-                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">Übersicht & Statistiken</h3>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Sehen Sie Echtzeit-Statistiken, Status und Leistungsdaten Ihrer Farmen.</p>
+
+                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">{{ __('Übersicht & Statistiken') }}</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">{{ __('Sehen Sie Echtzeit-Statistiken, Status und Leistungsdaten Ihrer Farmen.') }}</p>
                         </a>
 
                         @endif
@@ -207,8 +218,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
 
-                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">Farm-Historie / Logs</h3>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Überprüfen Sie alle vergangenen Ereignisse und Protokolle Ihrer Farm.</p>
+
+                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">{{ __('Farm-Historie / Logs') }}</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">{{ __('Überprüfen Sie alle vergangenen Ereignisse und Protokolle Ihrer Farm.') }}</p>
                         </a>
 
                     </div>
