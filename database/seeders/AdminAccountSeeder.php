@@ -103,12 +103,15 @@ class AdminAccountSeeder extends Seeder
                 $maro->transactions()->create($transaction);
             }
 
+
             $farm = Farm::factory()->create([
-                'name' => 'Makaroni Farm',       
+                'name' => 'Makaroni Farm',
+                'farm_description' => fake()->realText()
             ]);
 
             $farm = Farm::factory()->create([
                 'name' => 'Hof Voß',
+                'farm_description' => fake()->realText()
             ]);
 
             

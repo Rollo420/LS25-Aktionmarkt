@@ -22,7 +22,7 @@ class FirstClearSeed extends Seeder
         $adminAcc = User::factory()->create([
             'name' => 'Administrator',
             'email' => 'admin@projekt.com',
-            'password' => bcrypt('Admina'), // Passwort verschlüsseln
+            'password' => bcrypt('Admin'), // Passwort verschlüsseln
         ]);
         $adminAcc->bank()->create([
             'iban' => Bank::generateIban(),
