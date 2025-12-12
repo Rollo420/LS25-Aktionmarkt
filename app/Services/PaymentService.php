@@ -1,15 +1,18 @@
 <?php
 namespace App\Services;
 
+use App\Helpers\AuthHelper;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Bank;
 
 class PaymentService
 {
+
+
     public static function checkUserBalance($toBalance)
     {
-        $user = Auth::user();
+        $user = AuthHelper::user();
         if (!$user) {
             return response()->json(['error' => 'User not authenticated'], 401);
         }

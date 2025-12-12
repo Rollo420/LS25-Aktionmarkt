@@ -142,7 +142,13 @@ class DashboardController extends Controller
         // Risiko-Metriken (Cash-Anteil, Beta-Wert)
         $depotInfo["risk_metrics"] = $this->calculateRiskMetrics($user, $depotInfo['totalPortfolioValue'], $currentGameTime);
 
-        // Daten für den Dividenden-Chart: aggregiere erhaltene Dividenden pro GameTime-Monat
+
+
+
+
+
+
+        // Daten für den Dividenden-Chart: aggregiere erhaltene Dividenden pro Monat (ALLE Monate mit Dividenden)
         $gtService = new GameTimeService();
         $dividendTx = Transaction::where('user_id', $user->id)
             ->where('type', 'dividend')
@@ -150,24 +156,43 @@ class DashboardController extends Controller
             ->orderBy('game_time_id', 'asc')
             ->get();
 
-        $grouped = $dividendTx->groupBy('game_time_id');
+        // Echte Dividenden-Daten pro Monat aggregieren (NUR Monate mit Dividenden > 0)
+        $monthlyDividends = [];
+        
+        // Alle Transaktionen nach Monat gruppieren und summieren
+        foreach ($dividendTx as $tx) {
+            if (!$tx->gameTime) continue;
+            
+            $monthKey = $gtService->toDate($tx->gameTime)->format('m.Y');
+            $dividendAmount = ($tx->quantity ?? 0) * ($tx->price_at_buy ?? 0);
+            
+            if (!isset($monthlyDividends[$monthKey])) {
+                $monthlyDividends[$monthKey] = 0;
+            }
+            $monthlyDividends[$monthKey] += $dividendAmount;
+        }
+
+        // Filtere nur Monate mit Dividenden > 0 (entferne Monate ohne Dividenden)
+        $monthlyDividendsWithData = collect($monthlyDividends)->filter(fn($amount) => $amount > 0);
+
+        // Sortiere chronologisch (alle verfügbaren Monate)
+        $sortedMonths = $monthlyDividendsWithData->sortKeys();
+        
         $labels = [];
         $data = [];
+        
+        foreach ($sortedMonths as $month => $amount) {
+            $labels[] = $month;
+            $data[] = round($amount, 2);
+        }
 
-        foreach ($grouped as $gtId => $group) {
-            $gt = $group->first()->gameTime;
-            if ($gt) {
-                $label = $gtService->toDate($gt)->format('m.Y');
-            } else {
-                $label = 'Unbekannt';
-            }
-
-            $total = $group->sum(function ($t) {
-                return ($t->quantity ?? 0) * ($t->price_at_buy ?? 0);
-            });
-
-            $labels[] = $label;
-            $data[] = round($total, 2);
+        // Berechne Prognose für nächsten Monat basierend auf zukünftigen Dividenden
+        $nextMonthForecast = $this->calculateNextMonthDividendForecast($stocks, $currentGameTime);
+        
+        // Füge Prognose-Balken hinzu (nur wenn > 0)
+        if ($nextMonthForecast > 0) {
+            $labels[] = 'Prognose';
+            $data[] = $nextMonthForecast;
         }
 
         $depotInfo["dividend_chart"] = [
@@ -384,7 +409,8 @@ class DashboardController extends Controller
      */
     private function calculateRiskMetrics($user, $totalPortfolioValue, $gameTime = null)
     {
-        $cashBalance = $user->bank?->balance ?? 0;
+
+        $cashBalance = $user->bank->balance;
         $totalCapital = $totalPortfolioValue;
         $investmentPercent = $totalCapital > 0 ? (($totalCapital - $cashBalance) / $totalCapital) * 100 : 0;
 
@@ -426,6 +452,48 @@ class DashboardController extends Controller
             "annual_gross_dividend" => round($annualDividends, 2),
             "can_buy_quantity" => round($canBuyQuantity, 2),
         ];
+    }
+
+
+
+
+    /**
+     * Berechnet eine Prognose für die Dividenden des nächsten Monats basierend auf aktuellen Holdings
+     * Garantierte Zukunft: Verwendet nur Dividenden die in der Zukunft liegen
+     */
+    private function calculateNextMonthDividendForecast($stocks, $currentGameTime)
+    {
+        $totalForecast = 0.0;
+        $gtService = new GameTimeService();
+        
+        foreach ($stocks as $stockItem) {
+            $stock = $stockItem->stock;
+            if (!$stock) continue;
+            
+            $quantity = $stockItem->quantity ?? 0;
+            if ($quantity <= 0) continue;
+            
+            // Berechne das nächste Dividenden-Datum basierend auf der Frequenz
+            $nextDividendDate = $stock->calculateNextDividendDate();
+            if (!$nextDividendDate) continue;
+            
+            // Nur zukünftige Dividenden berücksichtigen
+            $currentDate = $gtService->toDate($currentGameTime);
+            if ($nextDividendDate->isFuture() || $nextDividendDate->greaterThan($currentDate)) {
+                // Hole die tatsächliche Dividende für dieses Datum
+                $dividend = $stock->dividends()
+                    ->whereHas('gameTime', function($query) use ($nextDividendDate) {
+                        $query->where('name', $nextDividendDate->toDateString());
+                    })
+                    ->first();
+                
+                if ($dividend && $dividend->amount_per_share > 0) {
+                    $totalForecast += $dividend->amount_per_share * $quantity;
+                }
+            }
+        }
+        
+        return round($totalForecast, 2);
     }
 
     /**

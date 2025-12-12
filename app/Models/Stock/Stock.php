@@ -102,9 +102,14 @@ class Stock extends Model
         return (float) ($this->prices()->orderBy('game_time_id', 'desc')->first()->name ?? 0);
     }
 
+
+
     public function getLatestDividend(): ?Dividend
     {
-        return $this->dividends()->orderBy('game_time_id', 'DESC')->get()->first();
+        return $this->dividends()
+            ->orderBy('game_time_id', 'ASC')  // Letzte chronologische Dividende finden
+            ->get()
+            ->last();  // Das letzte Element der sortierten Liste
     }
 
     public function getFirstDividend(): ?Dividend
@@ -162,9 +167,10 @@ class Stock extends Model
     }
 
 
+
     public function calculateNextDividendDate($date = null): ?Carbon
     {
-        // 1️⃣ Basisdatum bestimmen
+        // 1️⃣ Basisdatum bestimmen (letzte Dividende oder übergebenes Datum)
         if (is_null($date)) {
             $latestDividend = $this->getLatestDividend();
             if (!$latestDividend) {
@@ -178,32 +184,11 @@ class Stock extends Model
 
         // 2️⃣ Monate zwischen Dividenden berechnen
         $monthsBetween = $this->dividend_frequency > 0 ? 12 / $this->dividend_frequency : 12;
-        \Log::debug("Stock {$this->id} dividend_frequency: {$this->dividend_frequency}, monthsBetween: {$monthsBetween}");
-
-        // 3️⃣ Nächste Dividende berechnen
+        
+        // 3️⃣ Einfache Berechnung der nächsten Dividende
         $nextDate = $baseDate->copy()->addMonths($monthsBetween);
-        \Log::debug("Next dividend date for stock {$this->id}: {$nextDate->format('Y-m-d')} (base: {$baseDate->format('Y-m-d')})");
         
-        // 4️⃣ Sicherstellen, dass das Datum in der Zukunft liegt
-        $currentGameTime = $this->getCurrentGameTime();
-        if ($currentGameTime) {
-            $currentDate = Carbon::parse($currentGameTime->name);
-            
-            // Wenn das berechnete Datum in der Vergangenheit liegt, vom aktuellen Zeitpunkt ausgehend berechnen
-            if ($nextDate->lessThanOrEqualTo($currentDate)) {
-                $nextDate = $currentDate->copy()->addMonths($monthsBetween);
-                \Log::info("Stock {$this->id}: Calculated dividend date was in the past, adjusted to future: {$nextDate->format('Y-m-d')}");
-            }
-            
-            // Mindestens 1 Monat in der Zukunft sicherstellen
-            $minimumFutureDate = $currentDate->copy()->addMonth();
-            if ($nextDate->lessThan($minimumFutureDate)) {
-                $nextDate = $minimumFutureDate;
-                \Log::info("Stock {$this->id}: Adjusted dividend date to minimum future date: {$nextDate->format('Y-m-d')}");
-            }
-        }
-        
-        \Log::debug("Final next dividend date for stock {$this->id}: {$nextDate->format('Y-m-d')}");
+        \Log::debug("Stock {$this->id}: Next dividend date calculated: {$nextDate->format('Y-m-d')} (base: {$baseDate->format('Y-m-d')}, frequency: {$this->dividend_frequency})");
         return $nextDate;
     }
     

@@ -28,7 +28,8 @@ class StockService
      */
     public function getTotalPortfolioValue(): float
     {
-        return $this->getTotalStockValue() + (AuthHelper::user()->bank?->balance ?? 0);
+
+        return $this->getTotalStockValue() + AuthHelper::user()->bank->balance;
     }
 
     /**
@@ -346,37 +347,51 @@ class StockService
                     'name' => $newPriceValue,
                 ]);
 
-                // Prüfen, ob Dividende fällig ist (Datum <= aktuelle GameTime)
-                if (Carbon::parse($lastDividendGT->name)->lte($newGameTime->name)) {
+
+
+                // Kritische Dividenden-Logik korrigieren
+                $lastDividendDate = Carbon::parse($lastDividendGT->name);
+                $currentGameTimeDate = Carbon::parse($newGameTime->name);
+                
+                \Log::debug("Stock {$stock->id}: Checking dividend - lastDividendDate={$lastDividendDate->format('Y-m-d')}, currentGameTimeDate={$currentGameTimeDate->format('Y-m-d')}");
+                
+                // Dividende ist FÄLLIG wenn das letzte Dividenden-Datum <= aktuelles GameTime-Datum ist
+                if ($lastDividendDate->lte($currentGameTimeDate)) {
                     
-                    // Verhindere doppelte Dividenden im selben Monat
-                    $exists = $stock->dividends()
+                    \Log::info("Stock {$stock->id}: Dividend is DUE at {$currentGameTimeDate->format('Y-m-d')}");
+                    
+                    // Prüfen ob Dividende bereits für dieses GameTime ausgeschüttet wurde
+                    $existingDividendForCurrentDate = $stock->dividends()
                         ->where('game_time_id', $newGameTime->id)
                         ->exists();
 
-                    if (!$exists) {
+                    if (!$existingDividendForCurrentDate) {
+                        // Dividende SOFORT auszahlen (synchron)
+                        try {
+                            $dividendeService = new DividendeService();
+                            $dividendeService->shareDividendeToUsers($stock);
+                            \Log::info("Dividend payout executed for stock {$stock->id} at {$currentGameTimeDate->format('Y-m-d')}");
+                        } catch (\Exception $e) {
+                            \Log::error("Dividend payout failed for stock {$stock->id}: " . $e->getMessage());
+                        }
 
-                        // Job dispatchen für asynchrone Ausführung
-                        \App\Jobs\ProcessDividendPayout::dispatch($stock->id);
+                        // Nächste Dividende basierend auf der aktuellen FÄLLIGEN Dividende berechnen
+                        $nextDividendDate = $stock->calculateNextDividendDate($currentGameTimeDate);
+                        $nextDividendGT = $gtService->getOrCreate($nextDividendDate->format('Y-m-d'));
 
-                        \Log::info("Dividend payout job dispatched for stock {$stock->id}");
-
-                        // Nächste Dividenden-Spielzeit für das Datum holen
-                        $nextDividendDate = $stock->calculateNextDividendDate($newGameTime->name);
-                        $nextDividendGT = $gtService->getOrCreate($nextDividendDate);
-
-
-                        // Neue Dividende erzeugen
+                        // Neue Dividende erzeugen für den nächsten Termin
                         Dividend::create([
                             'stock_id' => $stock->id,
                             'game_time_id' => $nextDividendGT->id,
                             'amount_per_share' => fake()->randomFloat(2, 0.1, 1.0),
                         ]);
 
-                        \Log::info("Dividend due for stock {$stock->id} at game time {$newGameTime->name}");
+                        \Log::info("Stock {$stock->id}: Created NEXT dividend for {$nextDividendDate->format('Y-m-d')} (next GT: {$nextDividendGT->id})");
                     } else {
-                        \Log::debug("Dividend already exists for stock {$stock->id} at game time {$newGameTime->name}, skipping");
+                        \Log::debug("Stock {$stock->id}: Dividend already exists for {$currentGameTimeDate->format('Y-m-d')}, skipping payout");
                     }
+                } else {
+                    \Log::debug("Stock {$stock->id}: Dividend not due yet - lastDividendDate={$lastDividendDate->format('Y-m-d')} > currentGameTimeDate={$currentGameTimeDate->format('Y-m-d')}");
                 }
             }
         }

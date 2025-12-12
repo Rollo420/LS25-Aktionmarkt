@@ -28,6 +28,7 @@
                 <div class="mt-8">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
 
+
                         <a href="{{ route('farm.toggleMode') }}"
                             class="group bg-gray-50 dark:bg-gray-900 rounded-xl p-8 shadow-lg hover:shadow-2xl 
                                 hover:scale-[1.03] transition duration-300 ease-in-out border border-transparent 
@@ -46,13 +47,29 @@
                                 {{ __('Farm-Mode umschalten') }}
                             </h3>
 
+                            {{-- Aktuelle Farm anzeigen --}}
+                            @if($currentFarm)
+                                <p class="text-indigo-600 dark:text-indigo-400 text-sm mt-2 font-medium">
+                                    {{ __('Aktuelle Farm:') }} 
+                                    <span class="text-gray-900 dark:text-gray-100">{{ $currentFarm->name }}</span>
+                                </p>
+                            @else
+                                <p class="text-gray-500 dark:text-gray-400 text-sm mt-2">
+                                    {{ __('Keine aktive Farm') }}
+                                </p>
+                            @endif
+
+
                             <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">
-                                {{ __('Aktueller Status:') }}
+                                {{ __('Status:') }}
                                 <strong class="text-gray-900 dark:text-gray-100">
                                     {{ session('farmMode') ? __('Aktiv') : __('Inaktiv') }}
                                 </strong>
                             </p>
                         </a>
+
+
+
 
                         {{-- Farm-Einladungen --}}
                         <a href="{{route('farm.invitations')}}"
@@ -62,12 +79,12 @@
                                     flex flex-col items-center text-center min-h-[280px]">
 
 
-
-                            {{-- Badge: Anzahl Einladungen --}}
-                            @if($farmInvites > 0)
-                            <span class="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold
-                                        w-6 h-6 rounded-full flex items-center justify-center shadow-md">
-                                {{ $farmInvites }}
+                            {{-- Roter Kreis Badge nur bei Einladungen --}}
+                            @if($pendingFarmInvites && $pendingFarmInvites->count() > 0)
+                            <span class="absolute -top-1 -right-1 w-6 h-6 bg-red-600 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center shadow-md z-10">
+                                <span class="text-white text-xs font-bold leading-none">
+                                    {{ $pendingFarmInvites->count() > 9 ? '9+' : $pendingFarmInvites->count() }}
+                                </span>
                             </span>
                             @endif
 
@@ -81,6 +98,7 @@
                             </svg>
 
 
+
                             <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">{{ __('Farm-Einladungen') }}</h3>
                             <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">
                                 {{ __('Zeigt offene Einladungen zu einer Farm an.') }}
@@ -91,7 +109,7 @@
                         @if(!Auth::user()->isInFarm())
 
                         {{-- 1. KARTE: Farm anfragen --}}
-                        <a href="#"
+                        <a href="{{route('farm.newFarm')}}"
                             class="group bg-gray-50 dark:bg-gray-900 rounded-xl p-8 shadow-lg hover:shadow-2xl hover:scale-[1.03] transition duration-300 ease-in-out border border-transparent hover:border-blue-600 dark:hover:border-blue-500 flex flex-col items-center text-center min-h-[280px]">
 
                             {{-- Icon: Dokument/Anfrage --}}
@@ -104,19 +122,6 @@
                             <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">{{ __('Stellen Sie eine neue Farm-Anfrage zur Genehmigung.') }}</p>
                         </a>
 
-                        {{-- 5. KARTE: Farm beitreten --}}
-                        <a href="#"
-                            class="group bg-gray-50 dark:bg-gray-900 rounded-xl p-8 shadow-lg hover:shadow-2xl hover:scale-[1.03] transition duration-300 ease-in-out border border-transparent hover:border-purple-600 dark:hover:border-purple-500 flex flex-col items-center text-center min-h-[280px]">
-
-                            {{-- Icon: Beitreten/Team --}}
-                            <svg class="w-16 h-16 text-purple-500 group-hover:text-purple-600 transition duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20v-2c0-.523-.213-1.018-.588-1.393M13 12h5m-2 2l-2-2m2 2l2-2m-2-2V9a2 2 0 00-2-2H7a2 2 0 00-2 2v4a2 2 0 002 2h2m0 0h2"></path>
-                            </svg>
-
-
-                            <h3 class="text-xl font-bold mt-5 text-gray-900 dark:text-gray-100">{{ __('Farm beitreten') }}</h3>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">{{ __('Treten Sie einer bestehenden Farm über einen Einladungscode bei.') }}</p>
-                        </a>
                         @endif
 
                         @if(Auth::user()->isAdministrator())

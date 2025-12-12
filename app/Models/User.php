@@ -79,6 +79,8 @@ class User extends Authenticatable
         return $this->hasMany(Transaction::class);
     }
 
+
+
     public function farms()
     {
         return $this->belongsToMany(Farm::class, 'farm_user', 'user_id', 'farm_id')

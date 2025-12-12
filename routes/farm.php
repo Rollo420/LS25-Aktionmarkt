@@ -28,9 +28,13 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/farm/management', [FarmController::class, 'management'])->name('farm.management');
 
+
     // Farm-Verlassen Funktionalität
     Route::get('/farm/leave-confirmation', [FarmController::class, 'confirmLeaveFarm'])->name('farm.leaveConfirmation');
     Route::post('/farm/leave', [FarmController::class, 'leaveFarm'])->name('farm.leave');
+    
+    // Farm verlassen & neuer Farm beitreten
+    Route::post('/farm/leave-and-join', [FarmController::class, 'leaveAndJoin'])->name('farm.leave-and-join');
 
     Route::get('/farm/toggle-mode', function () {
 

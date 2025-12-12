@@ -21,8 +21,67 @@
             </div>
             @endif
 
-            <form action="{{route('farm.sendNewFarm')}}" method="POST">
+
+            {{-- Form --}}
+            <form method="POST" action="{{ route('farm.sendNewFarm') }}" x-data="{ selectedUser: null, searchResults: [], query: '' }"
+                x-on:search-filter.window="query = $event.detail.query; searchResults = $event.detail.results;"
+                x-on:search-selected.window="selectedUser = $event.detail; searchResults = []; query = ''"
+                class="space-y-4 w-full">
                 @csrf
+
+                @if(Auth::user()->isAdministrator())
+                {{-- Search Component --}}
+                <div class="w-full mb-5">
+                    <x-search-input
+                        api="{{ route('api.search.users') }}"
+                        placeholder="Farm-Besitzer suchen..."
+                        display="name" />
+                </div>
+
+                {{-- Dropdown Ergebnisse --}}
+                <template x-if="searchResults.length > 0">
+                    <div class="bg-gray-800/90 text-gray-100 shadow-lg rounded-xl p-4 space-y-2 max-h-64 overflow-y-auto mb-5">
+                        <template x-for="item in searchResults" :key="item.id">
+                            <div
+                                class="cursor-pointer p-2 rounded hover:bg-indigo-600/50 transition flex justify-between items-center"
+                                @click="$dispatch('search-selected', item)">
+                                <span x-text="item.name"></span>
+                                <span class="text-gray-400 text-sm" x-text="item.email"></span>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                {{-- Ausgewählter Besitzer --}}
+                <div class="space-y-2">
+                    <h3 class="font-bold text-lg text-gray-200">{{__('Farm-Besitzer')}}</h3>
+
+                    <template x-if="!selectedUser">
+                        <p class="text-gray-500">Noch kein Besitzer ausgewählt.</p>
+                    </template>
+
+                    <template x-if="selectedUser">
+                        <div class="p-3 bg-gray-700/50 rounded-lg flex justify-between items-center transition hover:bg-gray-700/70">
+                            <span x-text="selectedUser.name" class="text-gray-100"></span>
+                            <span class="text-gray-400 text-sm" x-text="selectedUser.email"></span>
+                            <button type="button"
+                                class="text-red-500 text-sm hover:text-red-400"
+                                @click="selectedUser = null">
+                                Entfernen
+                            </button>
+                            {{-- Hidden Input für Form --}}
+                            <input type="hidden" name="owner_id" :value="selectedUser.id">
+                        </div>
+                    </template>
+                </div>
+
+                @else
+                
+                    <input type="hidden" x-if="" name="owner_id" :value="{{Auth::user()->id}}">
+                
+                @endif
+
+
 
                 {{-- Farm Name --}}
                 <div class="mb-4">

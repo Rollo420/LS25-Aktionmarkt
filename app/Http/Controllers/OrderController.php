@@ -55,6 +55,8 @@ class OrderController extends Controller
                 $newPrice->name = $stock->getCurrentPrice(); // Use current price as base
                 $newPrice->save();
             }
+
+
             $bank = $user->bank()->first();
             $currentPrice = $stock->getCurrentPrice();  
 
@@ -107,6 +109,8 @@ class OrderController extends Controller
                 $sellTransaction->type = 'sell';
                 $sellTransaction->game_time_id = $gameTime->id; // link to game_time
 
+
+
                 // Bank gutschreiben
                 $bank = $user->bank()->first();
                 $bank->balance += $sellTransaction->quantity * $currentPrice;
@@ -116,6 +120,7 @@ class OrderController extends Controller
 
                 DB::commit();
                 return redirect()->back()->with('success', 'Verkauf erfolgreich! Neuer Kontostand: ' . $bank->balance);
+
             }
 
         } catch (\Exception $e) {

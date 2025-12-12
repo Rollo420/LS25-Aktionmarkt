@@ -12,10 +12,10 @@ class Farm extends User
 
     protected $table = 'users';
 
-    public function f()
+    public function users()
     {
         return $this->belongsToMany(User::class, 'farm_user', 'farm_id', 'user_id')
-            ->withPivot('invite_acception', 'user_role_id')
+            ->withPivot('invite_accepted', 'farm_role_id')
             ->withTimestamps();
     }
 

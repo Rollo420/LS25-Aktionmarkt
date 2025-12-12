@@ -70,6 +70,8 @@
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
 
+
+
                 <div class="account-balance text-white:500 space-y-0 me-4 text-end">
                     <h6>{{ __('Kontostand') }}: {{ number_format(\App\Helpers\AuthHelper::user()->bank->balance, 2, ',', '.') }} €</h6>
                     <h6>{{ __('IBAN') }}: {{ \App\Helpers\AuthHelper::user()->bank->iban }}</h6>
@@ -132,6 +134,9 @@
                         <x-dropdown-link :href="route('payment.index')">
                             {{ __('Payment') }}
                         </x-dropdown-link>
+
+
+
 
                         <x-dropdown-link :href="route('farm.index')">
                             {{ __('Farms') }}

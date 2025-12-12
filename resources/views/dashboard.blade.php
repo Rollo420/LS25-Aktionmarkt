@@ -32,6 +32,10 @@
         <main class="py-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
+
+
+
+
                 <!-- 1. Key Performance Indicators -->
                 <div id="kpi-section" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
@@ -239,12 +243,10 @@
                 avg_stock_price_eur: @json($depotInfo['averages']['avg_stock_price_eur']),
                 avg_dividend_amount_eur: @json($depotInfo['averages']['avg_dividend_amount_eur']),
             },
+
             chartData: @json($depotInfo['chartData']),
             risk_metrics: @json($depotInfo['risk_metrics']),
-            dividend_chart: {
-                labels: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
-                data: [150, 220, 0, 310, 180, 0, 450, 110, 0, 290, 160, 0]
-            },
+            dividend_chart: @json($depotInfo['dividend_chart']),
             purchasing_power: @json($depotInfo['purchasing_power']),
             tops: @json($depotInfo['tops']),
             nextDividends: @json($depotInfo['nextDividends']),
@@ -356,15 +358,71 @@
 
             // --- 4. Dividends ---
 
-            // Dividend Chart
+
+
+
+            // Cooles neues Dividenden-Chart Design mit zwei Datensätzen
+            const dividendData = info.dividend_chart.data;
+            const dividendLabels = info.dividend_chart.labels;
+            
+            // Berechne Differenzen zwischen aufeinanderfolgenden Monaten
+            const differences = [];
+            for (let i = 0; i < dividendData.length; i++) {
+                if (i === 0) {
+                    differences.push(0); // Erster Monat hat keine Differenz
+                } else {
+                    differences.push(dividendData[i] - dividendData[i - 1]);
+                }
+            }
+            
             const chartDataDividends = {
-                labels: info.dividend_chart.labels,
-                datasets: [{
-                    label: 'Erwartete Dividende (€)',
-                    data: info.dividend_chart.data,
-                    backgroundColor: '#f59e0b', // Yellow-500
-                }],
+                labels: dividendLabels,
+                datasets: [
+
+                    {
+                        label: 'Dividende (€)',
+                        data: dividendData,
+                        backgroundColor: function(context) {
+                            const index = context.dataIndex;
+                            const isForecast = dividendLabels[index] === 'Prognose';
+                            // Prognose-Balken in dunklerem blau, tatsächliche in dunklerem gold
+                            return isForecast ? '#2563eb' : '#f59e0b';
+                        },
+                        borderColor: function(context) {
+                            const index = context.dataIndex;
+                            const isForecast = dividendLabels[index] === 'Prognose';
+                            return isForecast ? '#1d4ed8' : '#d97706';
+                        },
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        barThickness: 25, // Schlanke Balken
+                    },
+
+                    {
+                        label: 'Änderung zum Vormonat',
+                        data: differences,
+                        backgroundColor: function(context) {
+                            const index = context.dataIndex;
+                            const value = context.parsed.y;
+                            // Dunkleres Blau für positive Änderung, dunkleres Rot für negative
+                            return value > 0 ? '#1e40af' : value < 0 ? '#dc2626' : '#6b7280';
+                        },
+                        borderColor: function(context) {
+                            const index = context.dataIndex;
+                            const value = context.parsed.y;
+                            return value > 0 ? '#1d4ed8' : value < 0 ? '#b91c1c' : '#4b5563';
+                        },
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        barThickness: 20, // Noch schlanker für Differenzen
+                        type: 'bar', // Explizit als Bar definieren
+                        order: 2, // Hinter den Hauptbalken zeichnen
+                    }
+                ],
             };
+            
             new Chart(
                 document.getElementById('dividendChart'), {
                     type: 'bar',
@@ -374,10 +432,88 @@
                         maintainAspectRatio: false,
                         aspectRatio: 3,
                         plugins: {
-                            legend: { display: false }
+                            legend: { 
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    pointStyle: 'rect'
+                                }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    title: function(context) {
+                                        return dividendLabels[context[0].dataIndex];
+                                    },
+                                    label: function(context) {
+                                        const index = context.dataIndex;
+                                        const label = context.dataset.label;
+                                        const value = context.parsed.y;
+                                        const isForecast = dividendLabels[index] === 'Prognose';
+                                        
+                                        if (label === 'Dividende (€)') {
+                                            const type = isForecast ? 'Prognose' : 'Tatsächlich';
+                                            return `${type}: ${numberFormat(value)} €`;
+                                        } else {
+                                            // Differenz-Tooltip
+                                            const changeText = value > 0 ? '+' : '';
+                                            return `${label}: ${changeText}${numberFormat(value)} €`;
+                                        }
+                                    },
+                                    afterLabel: function(context) {
+                                        const index = context.dataIndex;
+                                        const label = context.dataset.label;
+                                        
+                                        if (label === 'Dividende (€)' && dividendLabels[index] === 'Prognose') {
+                                            return 'Berechnet auf Basis aktueller Holdings';
+                                        }
+                                        if (label === 'Änderung zum Vormonat') {
+                                            const value = context.parsed.y;
+                                            if (value > 0) {
+                                                return '↗️ Mehr Dividenden als Vormonat';
+                                            } else if (value < 0) {
+                                                return '↘️ Weniger Dividenden als Vormonat';
+                                            } else {
+                                                return '➡️ Keine Änderung zum Vormonat';
+                                            }
+                                        }
+                                        return '';
+                                    }
+                                }
+                            }
                         },
                         scales: {
-                            y: { beginAtZero: true }
+                            y: { 
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Dividende (€)'
+                                },
+
+                            grid: {
+                                color: '#e5e7eb',
+                                lineWidth: 0.5
+                            }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Monat'
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        animation: {
+                            duration: 1000,
+                            easing: 'easeInOutQuart'
                         }
                     }
                 }
