@@ -9,8 +9,7 @@ services:
         platform: linux/arm64
         extra_hosts:
             - 'host.docker.internal:host-gateway'
-        ports:    
-            - '${APP_PORT:-80}:80'
+        ports:
             - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
         environment:
             WWWUSER: '${WWWUSER}'
@@ -20,6 +19,7 @@ services:
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
             - '.:/var/www/html'
+            - './docker/nginx/laravel.conf:/etc/nginx/conf.d/default.conf:ro'
         networks:
             - sail
         depends_on:

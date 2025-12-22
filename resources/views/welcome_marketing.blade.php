@@ -5,15 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>LS25 Aktienmarkt | Professionelles Trading System</title>
 
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    {{-- Use built Vite assets (local) so the site doesn't depend on external CDN at runtime --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
 
     <style>
         body {
