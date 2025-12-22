@@ -6,6 +6,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Foundation\Application;
+use App\Models\Config;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,10 +20,23 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
+     * Add configs macro to Application
+     */
+    private function addConfigsMacro(): void
+    {
+        Application::macro('configs', function () {
+            return Config::query();
+        });
+    }
+
+    /**
      * Bootstrap any application services.
      */
     public function boot(): void
     {
+        // Add configs macro to Application
+        $this->addConfigsMacro();
+
         // Set application locale based on user preference or session
         $this->setAppLocale();
     }

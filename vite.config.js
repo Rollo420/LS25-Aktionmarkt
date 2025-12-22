@@ -17,7 +17,7 @@ export default defineConfig({
         host: '0.0.0.0',
         port: 5173,
         hmr: {
-            host: '10.45.1.177', //arbeit 110.45.1.177
+            host: 'woodlypi.ddns.net', //arbeit 1woodlypi.ddns.net
         },
         watch: {
             usePolling: true,

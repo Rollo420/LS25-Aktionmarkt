@@ -17,7 +17,7 @@ use App\Http\Controllers\DepositTransactionController;
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome_marketing');
 });
 
 // Language routes - these should be accessible without authentication

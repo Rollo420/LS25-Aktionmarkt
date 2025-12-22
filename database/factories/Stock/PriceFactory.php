@@ -3,8 +3,9 @@
 namespace Database\Factories\Stock;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Stock\Stock;
+
 use App\Models\GameTime;
+use App\Models\Stock\Stock;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Stock\Price>
@@ -18,9 +19,10 @@ class PriceFactory extends Factory
      */
     public function definition(): array
     {
+        $gt = new GameTime();
         return [
             'stock_id' => Stock::factory(),
-            'game_time_id' => GameTime::factory(),
+            'game_time_id' => $gt->getCurrentGameTime()->id,
 
             'name' => fake()->randomFloat(2, 30000, 800000),
         ];

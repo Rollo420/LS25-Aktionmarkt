@@ -6,6 +6,10 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Bank;
+use App\Models\Stock\Price;
+use App\Models\GameTime;
+use App\Services\GameTimeService;
+use App\Models\Dividend;
 
 class FirstClearSeed extends Seeder
 {
@@ -14,11 +18,36 @@ class FirstClearSeed extends Seeder
      */
     public function run(): void
     {
-
+        // Create initial GameTime at year 2000 to fix start date
+        GameTime::create([
+            'name' => '2000-01-01'
+        ]);
+    
+        $this->call(ConfigSeeder::class);
         $this->call(RoleSeeder::class);
         $this->call(ProductTypeSeeder::class);
-        $this->call(StockSeeder::class);
         
+        $bt21Seeder = new \Database\Seeders\BT21StockSeeder();
+        $bt21Stocks = $bt21Seeder->run();
+
+        $config = \App\Models\Config::where('name', 'Default Config')->first();
+
+        $bt21Stocks->map(function ($stock) use ($config) {
+            $stock->configs()->attach($config->id);
+            
+            Price::factory()->create([
+                'stock_id' => $stock->id,
+            ]);
+
+            Dividend::factory()->create([
+                'stock_id' => $stock->id,
+                'game_time_id' => GameTime::getCurrentGameTime()->id,
+            ]);
+        });
+
+
+
+
         $adminAcc = User::factory()->create([
             'name' => 'Administrator',
             'email' => 'admin@projekt.com',
@@ -33,6 +62,6 @@ class FirstClearSeed extends Seeder
             'amount' => 1000.0,
             'interest_rate' => 5.0,
         ]);
-        $adminAcc->roles()->attach(id: 1); // Rolle 1 ist der Administrator
+        $adminAcc->roles()->attach(id: 2); // Rolle 1 ist der Administrator
     }
 }
