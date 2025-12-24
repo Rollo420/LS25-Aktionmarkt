@@ -52,8 +52,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['au
     //Payment routes
     Route::middleware('auth')->group(function () {
         Route::get('/payment',  [PaymentController::class, 'index'])->name('payment.index');
+        Route::post('/payment', [PaymentController::class, 'store'])->name('payment.store');
         Route::post('/payment/payin', [PaymentController::class, 'payin'])->name('payment.payin');
         Route::post('/payment/payout', [PaymentController::class, 'payout'])->name('payment.payout');
+        Route::get('/payment/transfer', [PaymentController::class, 'create'])->name('payment.transfer.create');
         Route::post('/payment/transfer', [PaymentController::class, 'transfer'])->name('payment.transfer');
         Route::post('/payment/transaction', [PaymentController::class, 'transaction'])->name('payment.transaction');
 

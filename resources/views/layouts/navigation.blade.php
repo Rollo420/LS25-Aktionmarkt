@@ -29,7 +29,7 @@
                     @endif
                 </div>
                 @if (Auth::check() && Auth::user()->isAdministrator())
-                <div class="relative hidden sm:flex sm:items-center">
+                <div class="relative hidden md:flex md:items-center">
                     <button @click="adminOpen = !adminOpen" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
                         <div>{{ __('Admin') }}</div>
                         <div class="ms-1">
@@ -176,20 +176,86 @@
             <x-responsive-nav-link :href="route('stock.index')" :active="request()->routeIs('stock.*')">
                 {{ __('Stocks') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('depot.index')" :active="request()->routeIs('depot.index')">
+                {{ __('Depot') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('payment.index')" :active="request()->routeIs('payment.index')">
+                {{ __('Payment') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('farm.index')" :active="request()->routeIs('farm.*')">
+                {{ __('Farms') }}
+            </x-responsive-nav-link>
             @if (Auth::check() && Auth::user()->isAdministrator())
-            <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.*')">
-                {{ __('Admin') }}
+            <x-responsive-nav-link :href="route('admin.time.index')" :active="request()->routeIs('admin.time.*')">
+                {{ __('Time') }}
             </x-responsive-nav-link>
             @endif
         </div>
 
-        <!-- Responsive Settings Options -->
+        <!-- Mobile Admin Dropdown -->
+        @if (Auth::check() && Auth::user()->isAdministrator())
+        <div class="pt-2 pb-3 border-t border-gray-200 dark:border-gray-600">
+            <div class="px-4">
+                <div class="font-medium text-base text-gray-800 dark:text-gray-200 mb-2">{{ __('Admin') }}</div>
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                    {{ __('Users verwalten') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.stocks.index')" :active="request()->routeIs('admin.stocks.*')">
+                    {{ __('Stocks verwalten') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.dividends.index')" :active="request()->routeIs('admin.dividends.*')">
+                    {{ __('Dividends verwalten') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.configs.index')" :active="request()->routeIs('admin.configs.*')">
+                    {{ __('Configs verwalten') }}
+                </x-responsive-nav-link>
+                <a href="#" class="block w-full ps-3 pe-4 py-2 text-start text-base font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    {{ __('Farm verwalten') }}
+                </a>
+                <x-responsive-nav-link :href="route('payment.auth')" :active="request()->routeIs('payment.auth')">
+                    {{ __('Payment Auth') }}
+                </x-responsive-nav-link>
+            </div>
+        </div>
+        @endif
+
+        <!-- Mobile Account Information -->
+        @if (Auth::check())
+        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+            <div class="px-4 space-y-2">
+                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ \App\Helpers\AuthHelper::user()->name }}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ \App\Helpers\AuthHelper::user()->email }}</div>
+                <div class="text-sm font-medium text-gray-600 dark:text-gray-300">
+                    {{ __('Kontostand') }}: {{ number_format(\App\Helpers\AuthHelper::user()->bank->balance, 2, ',', '.') }} €
+                </div>
+                <div class="text-sm font-medium text-gray-600 dark:text-gray-300">
+                    {{ __('IBAN') }}: {{ \App\Helpers\AuthHelper::user()->bank->iban }}
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Mobile Language Switcher -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::check() ? \App\Helpers\AuthHelper::user()->name : 'Guest' }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::check() ? \App\Helpers\AuthHelper::user()->email : '' }}</div>
+                <div class="font-medium text-base text-gray-800 dark:text-gray-200 mb-2">{{ __('Sprache') }}</div>
+                <x-responsive-nav-link :href="route('lang.switch', 'de')" :active="app()->getLocale() == 'de'" class="flex items-center gap-2">
+                    <span class="text-xs">🇩🇪</span>
+                    {{ __('language.de') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('lang.switch', 'en')" :active="app()->getLocale() == 'en'" class="flex items-center gap-2">
+                    <span class="text-xs">🇺🇸</span>
+                    {{ __('language.en') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('lang.switch', 'nl')" :active="app()->getLocale() == 'nl'" class="flex items-center gap-2">
+                    <span class="text-xs">🇳🇱</span>
+                    {{ __('language.nl') }}
+                </x-responsive-nav-link>
             </div>
+        </div>
 
+        <!-- Mobile Settings Options -->
+        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
                     {{ __('Profile') }}
