@@ -37,7 +37,6 @@ class OrderController extends Controller
             // Always use the latest GameTime for synchronization with Price
             $gameTime = GameTime::getCurrentGameTime();
 
-            dd($gameTime);
             if (!$gameTime) {
                 // If no GameTime exists, create one for current date
                 $gtService = new \App\Services\GameTimeService();
