@@ -20,11 +20,12 @@ class DividendFactory extends Factory
      */
     public function definition(): array
     {
+
         return [
             'stock_id' => Stock::factory(), // fallback
-            'game_time_id' => GameTime::factory(),
+            'game_time_id' => GameTime::getCurrentGameTime()->id,
 
-            'amount_per_share' => $this->faker->randomFloat(2, 0.1, 1.0),
+            'amount_per_share' => $this->faker->randomFloat(2, 0.01, 1.0),
         ];
     }
 }

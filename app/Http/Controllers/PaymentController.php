@@ -43,6 +43,14 @@ class PaymentController extends Controller
         ]);
     }
 
+    /**
+     * Show the transfer form (GET).
+     */
+    public function create()
+    {
+        return view('payment.transfer');
+    }
+
     public function store(Request $request)
     {
         // Handle the payment logic here

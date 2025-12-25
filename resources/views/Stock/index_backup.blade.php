@@ -35,7 +35,7 @@
 
 
                     <!-- Aktien-Tabelle -->
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto" x-data="stockSorting()">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
@@ -45,34 +45,37 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Firma
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 sortable-header" data-sort="sektor" data-type="string">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" @click="sort('sektor')">
                                         <div class="flex items-center space-x-1">
                                             <span>Sektor</span>
-                                            <div class="sort-indicators">
-                                                <svg class="sort-arrow w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                                </svg>
-                                            </div>
+                                            <svg x-show="currentSort.sort_by === 'sektor' && currentSort.sort_order === 'asc'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                            </svg>
+                                            <svg x-show="currentSort.sort_by === 'sektor' && currentSort.sort_order === 'desc'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
                                         </div>
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 sortable-header" data-sort="price" data-type="number">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" @click="sort('price')">
                                         <div class="flex items-center space-x-1">
                                             <span>Aktueller Preis</span>
-                                            <div class="sort-indicators">
-                                                <svg class="sort-arrow w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                                </svg>
-                                            </div>
+                                            <svg x-show="currentSort.sort_by === 'price' && currentSort.sort_order === 'asc'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                            </svg>
+                                            <svg x-show="currentSort.sort_by === 'price' && currentSort.sort_order === 'desc'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
                                         </div>
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 sortable-header" data-sort="dividend" data-type="number">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" @click="sort('dividend_amount')">
                                         <div class="flex items-center space-x-1">
                                             <span>Dividende</span>
-                                            <div class="sort-indicators">
-                                                <svg class="sort-arrow w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                                                </svg>
-                                            </div>
+                                            <svg x-show="currentSort.sort_by === 'dividend_amount' && currentSort.sort_order === 'asc'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                            </svg>
+                                            <svg x-show="currentSort.sort_by === 'dividend_amount' && currentSort.sort_order === 'desc'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
                                         </div>
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -84,9 +87,6 @@
                                 @foreach($stocks as $stock)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-150 stock-row"
                                     data-stock-id="{{ $stock['id'] }}"
-                                    data-sektor="{{ strtolower($stock['sektor'] ?? '') }}"
-                                    data-price="{{ $stock['price'] }}"
-                                    data-dividend="{{ $stock['dividend_amount'] ?? 0 }}"
                                     onclick="window.location='{{ route('stock.store', $stock['id']) }}'">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
@@ -169,104 +169,28 @@
     </div>
 
     <script>
-        // Sortier-Zustand verwalten
-        let currentSort = {
-            field: null,
-            direction: 'asc', // 'asc' oder 'desc'
-            clickCount: 0
-        };
-
-        // Funktion zum Aktualisieren der Sortier-Indikatoren
-        function updateSortIndicators(field, direction) {
-            // Alle Indikatoren zurücksetzen
-            document.querySelectorAll('.sort-arrow').forEach(arrow => {
-                arrow.className = 'sort-arrow w-3 h-3 text-gray-400';
-                arrow.style.transform = 'rotate(0deg)';
-            });
-
-            // Aktiven Indikator aktualisieren
-            if (field) {
-                const activeHeader = document.querySelector(`[data-sort="${field}"]`);
-                if (activeHeader) {
-                    const arrow = activeHeader.querySelector('.sort-arrow');
-                    arrow.className = `sort-arrow w-3 h-3 text-indigo-600`;
+        function stockSorting() {
+            return {
+                currentSort: @json($currentSort),
+                
+                sort(field) {
+                    let newSortOrder = 'asc';
                     
-                    if (direction === 'desc') {
-                        arrow.style.transform = 'rotate(180deg)';
-                    } else {
-                        arrow.style.transform = 'rotate(0deg)';
+                    // If clicking the same field, toggle sort order
+                    if (this.currentSort.sort_by === field) {
+                        newSortOrder = this.currentSort.sort_order === 'asc' ? 'desc' : 'asc';
                     }
+                    
+                    // Build new URL with sort parameters
+                    const url = new URL(window.location);
+                    url.searchParams.set('sort_by', field);
+                    url.searchParams.set('sort_order', newSortOrder);
+                    
+                    // Navigate to new URL
+                    window.location.href = url.toString();
                 }
             }
         }
-
-        // Funktion zum Sortieren der Tabelle
-        function sortTable(field, type) {
-            const tbody = document.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('.stock-row'));
-            
-            rows.sort((a, b) => {
-                let aVal, bVal;
-                
-                if (type === 'number') {
-                    aVal = parseFloat(a.getAttribute(`data-${field}`)) || 0;
-                    bVal = parseFloat(b.getAttribute(`data-${field}`)) || 0;
-                } else {
-                    aVal = a.getAttribute(`data-${field}`) || '';
-                    bVal = b.getAttribute(`data-${field}`) || '';
-                }
-                
-                if (currentSort.direction === 'desc') {
-                    return type === 'number' ? bVal - aVal : bVal.localeCompare(aVal, 'de');
-                } else {
-                    return type === 'number' ? aVal - bVal : aVal.localeCompare(bVal, 'de');
-                }
-            });
-            
-            // Rows neu anordnen
-            rows.forEach(row => tbody.appendChild(row));
-        }
-
-        // Click-Handler für sortierbare Header
-        document.addEventListener('DOMContentLoaded', function() {
-            const sortableHeaders = document.querySelectorAll('.sortable-header');
-            
-            sortableHeaders.forEach(header => {
-                let clickTimeout;
-                
-                header.addEventListener('click', function() {
-                    const field = this.getAttribute('data-sort');
-                    const type = this.getAttribute('data-type');
-                    
-                    // Klick-Zustand verwalten
-                    if (currentSort.field === field) {
-                        currentSort.clickCount++;
-                    } else {
-                        currentSort.field = field;
-                        currentSort.clickCount = 1;
-                    }
-                    
-                    // Sortierrichtung bestimmen
-                    if (currentSort.clickCount === 1) {
-                        currentSort.direction = 'asc'; // Erster Klick: aufsteigend
-                    } else if (currentSort.clickCount === 2) {
-                        currentSort.direction = 'desc'; // Zweiter Klick: absteigend
-                    } else {
-                        // Dritter Klick: zurück zum ersten Klick
-                        currentSort.clickCount = 1;
-                        currentSort.direction = 'asc';
-                    }
-                    
-                    console.log(`Sorting by ${field} (${type}) in ${currentSort.direction} direction`);
-                    
-                    // Tabelle sortieren
-                    sortTable(field, type);
-                    
-                    // Indikatoren aktualisieren
-                    updateSortIndicators(field, currentSort.direction);
-                });
-            });
-        });
 
         // Suchfunktion mit Meilisearch Ergebnissen
         window.addEventListener('search-filter', function(event) {
