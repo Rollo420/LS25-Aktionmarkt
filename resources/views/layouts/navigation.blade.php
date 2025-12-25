@@ -72,9 +72,13 @@
 
 
 
-                <div class="account-balance text-white:500 space-y-0 me-4 text-end">
-                    <h6>{{ __('Kontostand') }}: {{ number_format(\App\Helpers\AuthHelper::user()->bank->balance, 2, ',', '.') }} €</h6>
-                    <h6>{{ __('IBAN') }}: {{ \App\Helpers\AuthHelper::user()->bank->iban }}</h6>
+                <div class="account-balance text-white:500 space-y-0 me-2 sm:me-4 text-end">
+                    <h6 class="text-xs sm:text-sm font-medium">{{ __('Kontostand') }}: {{ number_format(\App\Helpers\AuthHelper::user()->bank->balance, 2, ',', '.') }} €</h6>
+                    <h6 class="text-xs sm:text-sm font-medium">
+                        <span class="hidden sm:inline">{{ __('IBAN') }}:</span>
+                        <span class="sm:hidden">IBAN:</span>
+                        {{ \App\Helpers\AuthHelper::user()->bank->iban }}
+                    </h6>
                 </div>
 
                 <!-- Language Switcher -->

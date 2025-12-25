@@ -32,7 +32,7 @@ echo "ℹ Using COMPOSE_CMD=${COMPOSE_CMD}, WWWUSER=${WWWUSER}, WWWGROUP=${WWWGR
 
 # 1️⃣ Builden und vorbereiten des Setup-Containers
 echo "🔨 Baue Setup-Container..."
-$COMPOSE_CMD -f docker-compose-setup.yml up --build --remove-orphans
+$COMPOSE_CMD -f docker-compose-setup.yml up --build --remove-orphans --abort-on-container-exit
 
 # 2️⃣ Sicherstellen, dass das DB-Init-Script ausführbar ist
 if [ -f ./docker/mysql/create-testing-database.sh ]; then
@@ -71,13 +71,22 @@ else
     $COMPOSE_CMD exec laravel.test chmod 664 /var/www/html/.env
 fi
 
-# 6️⃣ Laravel Artisan Befehle ausführen
+# 6️⃣ Composer-Abhängigkeiten installieren
+echo "📦 Installiere Composer-Abhängigkeiten..."
+if [ -n "${sail}" ]; then
+    $sail composer install --no-interaction --optimize-autoloader
+else
+    $COMPOSE_CMD exec laravel.test composer install --no-interaction --optimize-autoloader
+fi
+
+# 7️⃣ Laravel Artisan Befehle ausführen
 echo "🛠 Konfiguration und DB vorbereiten..."
 if [ -n "${sail}" ]; then
     $sail artisan config:clear
     $sail artisan key:generate
     $sail artisan vendor:publish --provider="Laravel\Scout\ScoutServiceProvider"
     $sail artisan migrate:fresh --seed
+    $sail artisan scout:install
     $sail artisan scout:import "App\Models\User"
     $sail artisan scout:import "App\Models\Stock\Stock"
 else
@@ -85,6 +94,7 @@ else
     $COMPOSE_CMD exec laravel.test php artisan key:generate
     $COMPOSE_CMD exec laravel.test php artisan vendor:publish --provider="Laravel\Scout\ScoutServiceProvider"
     $COMPOSE_CMD exec laravel.test php artisan migrate:fresh --seed
+    $COMPOSE_CMD exec laravel.test php artisan scout:install
     $COMPOSE_CMD exec laravel.test php artisan scout:import "App\Models\User"
     $COMPOSE_CMD exec laravel.test php artisan scout:import "App\Models\Stock\Stock"
 fi

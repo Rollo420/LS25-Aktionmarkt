@@ -52,6 +52,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['au
     //Payment routes
     Route::middleware('auth')->group(function () {
         Route::get('/payment',  [PaymentController::class, 'index'])->name('payment.index');
+        // Removed conflicting POST /payment route - using specific endpoints instead
         Route::post('/payment/payin', [PaymentController::class, 'payin'])->name('payment.payin');
         Route::post('/payment/payout', [PaymentController::class, 'payout'])->name('payment.payout');
         Route::post('/payment/transfer', [PaymentController::class, 'transfer'])->name('payment.transfer');
@@ -83,3 +84,4 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['au
 #});
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/api.php';
