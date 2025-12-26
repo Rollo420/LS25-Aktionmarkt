@@ -187,7 +187,8 @@ class AdminController extends Controller
     // ===== USER MANAGEMENT =====
     public function usersIndex()
     {
-        $users = User::all();
+        $users = User::where('email', 'NOT LIKE', 'farm_%')->get();
+
         return view('admin.users.index', compact('users'));
     }
 
