@@ -16,7 +16,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register console commands
+        $this->commands([
+            \App\Console\Commands\BackupDatabase::class,
+        ]);
     }
 
     /**

@@ -7,9 +7,9 @@ services:
       - "443:443"
     volumes:
       - ./docker/nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf:ro
-      # mount certificate files (adjust host paths if different)
-      - /etc/ssl/no-ip/woodlypi.crt:/etc/ssl/certs/woodlypi.crt:ro
-      - /etc/ssl/no-ip/meine_domain.key:/etc/ssl/private/woodlypi.key:ro
+      # mount server certificate files from host into the proxy container
+      - /etc/ssl/no-ip/woodlypi.crt:/etc/ssl/no-ip/woodlypi.crt:ro
+      - /etc/ssl/no-ip/meine_domain.key:/etc/ssl/no-ip/meine_domain.key:ro
     networks:
       - sail
 
@@ -19,5 +19,6 @@ services:
 # cannot be found.
 networks:
   sail:
-    external:
-      name: ls25-aktionmarkt_sail
+    external: true
+    name: ls25-aktionmarkt_sail
+ 

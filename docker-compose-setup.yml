@@ -1,9 +1,0 @@
-services:
-  setup:
-    build:
-      dockerfile: ./docker/Dockerfile
-    
-    volumes:
-      - '.:/build'
-      
-    user: 1000:1000
