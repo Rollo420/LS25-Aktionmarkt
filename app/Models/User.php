@@ -17,7 +17,7 @@ use App\Models\Farm;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasChildren, Searchable;
+    use HasFactory, Notifiable, HasChildren, Searchable, HasApiTokens;
     
     protected $table='users';
 
