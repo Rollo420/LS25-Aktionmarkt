@@ -56,25 +56,34 @@ class DashboardController extends Controller
 
         $dividendeService = new DividendeService();
 
+
         $depotInfo['nextDividends'] = collect($stocks)
             ->filter(fn($item) => $item->stock !== null)
-            ->sortByDesc(fn($item) => $item->stock->calculateNextDividendDate())
-            ->map(function ($item) use ($dividendeService) {
+            ->map(function ($item) use ($dividendeService, $currentGameTime) {
                 $stock = $item->stock;
+                
+                // 🚀 CRITICAL FIX: Use current game time for dividend calculation
+                $nextDividendDate = $stock->calculateNextDividendDateAtCurrentGameTime();
                 $divData = $dividendeService->getDividendStatisticsForStock($stock);
 
-                \Log::debug('DashboardController - Stock Dividend Data:', [
+                \Log::debug('DashboardController - Stock Dividend Data with Current GameTime:', [
                     'stock_id' => $stock->id,
+                    'current_game_time' => $currentGameTime->name,
+                    'next_dividend_date' => $nextDividendDate?->format('Y-m-d'),
                     'divData' => $divData,
                 ]);
 
                 return [
                     'name' => $stock->name,
-                    'next_dividend' => $divData->next_date,
+                    'next_dividend' => $nextDividendDate ? $nextDividendDate->format('d.m.Y') : $divData->next_date,
                     'price' => $stock->getLatestPrice(),                        // aktueller Kurs (€)
                     'dividend' => $divData->dividendPerShare, // Dividende (€)
                     'percent' => $divData->dividendPercent,    // Rendite (%)
                 ];
+            })
+            ->sortBy(function ($item) {
+                // Sort by next dividend date, handling null values
+                return $item['next_dividend'] ? strtotime(str_replace('.', '-', $item['next_dividend'])) : PHP_INT_MAX;
             })
             ->values();
 

@@ -168,6 +168,7 @@ class Stock extends Model
 
 
 
+
     public function calculateNextDividendDate($date = null): ?Carbon
     {
         // 1️⃣ Basisdatum bestimmen (letzte Dividende oder übergebenes Datum)
@@ -190,6 +191,53 @@ class Stock extends Model
         
         \Log::debug("Stock {$this->id}: Next dividend date calculated: {$nextDate->format('Y-m-d')} (base: {$baseDate->format('Y-m-d')}, frequency: {$this->dividend_frequency})");
         return $nextDate;
+    }
+
+
+    /**
+     * 🚀 CRITICAL FIX: Calculate next dividend date based on current game time
+     * This ensures dashboard shows correct dividend dates after time skip
+     */
+    public function calculateNextDividendDateAtCurrentGameTime(): ?Carbon
+    {
+        try {
+            // Get current game time
+            $currentGameTime = \App\Models\GameTime::getCurrentGameTime();
+            if (!$currentGameTime) {
+                \Log::warning("No current game time found for stock {$this->id}");
+                return $this->calculateNextDividendDate(); // Fallback to standard calculation
+            }
+
+            \Log::debug("Stock {$this->id}: Current game time: {$currentGameTime->name}");
+
+            // Get latest dividend (regardless of game time)
+            $latestDividend = $this->getLatestDividend();
+            if (!$latestDividend) {
+                \Log::debug("No dividend found for stock {$this->id}");
+                return $this->calculateNextDividendDate(); // Fallback
+            }
+
+            \Log::debug("Stock {$this->id}: Latest dividend at: {$latestDividend->gameTime->name}");
+
+            // If latest dividend game time is before current game time, it's time for next dividend
+            $latestGTDate = Carbon::parse($latestDividend->gameTime->name);
+            $currentDate = Carbon::parse($currentGameTime->name);
+            
+            $monthsBetween = $this->dividend_frequency > 0 ? 12 / $this->dividend_frequency : 12;
+            
+            // Calculate next dividend date
+            $nextDate = $latestGTDate->copy()->addMonths($monthsBetween);
+
+            \Log::debug("Stock {$this->id}: Latest GT: {$latestGTDate->format('Y-m-d')}, Current: {$currentDate->format('Y-m-d')}, Next: {$nextDate->format('Y-m-d')}, Frequency: {$this->dividend_frequency} (months between: {$monthsBetween})");
+
+            // If next date is in the past relative to current, it's already "due" 
+            // But we still return the calculated next date for dashboard display
+            return $nextDate;
+
+        } catch (\Exception $e) {
+            \Log::error("Failed to calculate next dividend at current game time for stock {$this->id}: " . $e->getMessage());
+            return $this->calculateNextDividendDate(); // Fallback to standard calculation
+        }
     }
     
     /**

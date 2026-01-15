@@ -15,7 +15,10 @@ use App\Services\GameTimeService;
 use \App\Services\DividendeService;
 use \App\Services\StockService;
 
+
 use App\Events\TimeskipCompleted;
+use Illuminate\Support\Facades\Cache;
+use App\Models\User;
 
 
 class TimeController extends Controller
@@ -36,17 +39,69 @@ class TimeController extends Controller
         ]);
     }
 
+
     public function update(Request $request)
     {
         $selectedMonth = $request->input('choose');
         $this->skipTime($selectedMonth);
         session(['selectedMonth' => $selectedMonth]);
 
+        // 🚀 CRITICAL FIX: Clear all relevant caches after time skip
+        $this->clearDividendCaches();
+
         // Broadcast timeskip completion to refresh all connected clients (inklusive des auslösenden Users)
         broadcast(new TimeskipCompleted('Timeskip to ' . $selectedMonth . ' completed successfully'));
         \Log::info("Timeskip completed event broadcasted for month {$selectedMonth}");
 
         return redirect()->route('time.index');
+    }
+
+
+    /**
+     * Clear all dividend-related caches after time skip
+     * Ensures dashboard shows correct data immediately
+     */
+    private function clearDividendCaches()
+    {
+        try {
+            // Clear general dividend caches
+            Cache::tags(['dividends', 'dashboard', 'stocks'])->flush();
+            
+            // Clear user-specific dividend caches
+            $users = User::all();
+            foreach ($users as $user) {
+                Cache::tags(['user_dividends_' . $user->id])->flush();
+                Cache::tags(['user_dashboard_' . $user->id])->flush();
+                Cache::tags(['user_stocks_' . $user->id])->flush();
+            }
+            
+            // Clear stock-specific caches
+            Cache::tags(['stocks', 'prices', 'dividends'])->flush();
+            
+            // 🚀 CRITICAL FIX: Clear ALL Laravel caches
+            \Cache::flush(); // Clear entire cache
+            
+            // Force route cache clearing if exists
+            try {
+                \Artisan::call('route:clear');
+                \Log::info("Route cache cleared");
+            } catch (\Exception $e) {
+                \Log::warning("Route cache clear failed: " . $e->getMessage());
+            }
+            
+            // Force view cache clearing if exists
+            try {
+                \Artisan::call('view:clear');
+                \Log::info("View cache cleared");
+            } catch (\Exception $e) {
+                \Log::warning("View cache clear failed: " . $e->getMessage());
+            }
+            
+            \Log::info("All dividend-related caches cleared after time skip");
+            
+        } catch (\Exception $e) {
+            \Log::error("Failed to clear caches after time skip: " . $e->getMessage());
+        }
     }
 
     public function skipTime($selectedMonth)

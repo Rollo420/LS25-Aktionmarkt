@@ -304,6 +304,7 @@ class StockService
             ->toArray();
     }
 
+
     public static function processNewTimeSteps($newGameTimes, $stocks)
     {
         $priceService = new PriceService();
@@ -375,6 +376,9 @@ class StockService
                             \Log::error("Dividend payout failed for stock {$stock->id}: " . $e->getMessage());
                         }
 
+                        // 🚀 CRITICAL FIX: Clear user caches after dividend payout
+                        self::clearUserCachesAfterDividend($stock);
+
                         // Nächste Dividende basierend auf der aktuellen FÄLLIGEN Dividende berechnen
                         $nextDividendDate = $stock->calculateNextDividendDate($currentGameTimeDate);
                         $nextDividendGT = $gtService->getOrCreate($nextDividendDate->format('Y-m-d'));
@@ -394,6 +398,48 @@ class StockService
                     \Log::debug("Stock {$stock->id}: Dividend not due yet - lastDividendDate={$lastDividendDate->format('Y-m-d')} > currentGameTimeDate={$currentGameTimeDate->format('Y-m-d')}");
                 }
             }
+        }
+
+        // 🚀 CRITICAL FIX: Clear global caches after all stocks processed
+        self::clearGlobalCachesAfterTimeSkip();
+    }
+
+    /**
+     * Clear user-specific caches after dividend payout
+     * Ensures dashboard shows updated dividend data immediately
+     */
+    private static function clearUserCachesAfterDividend($stock)
+    {
+        try {
+            // Get all users who have transactions for this stock
+            $usersWithStock = $stock->transactions()
+                ->whereIn('type', ['buy', 'sell'])
+                ->pluck('user_id')
+                ->unique();
+
+            foreach ($usersWithStock as $userId) {
+                \Cache::tags(['user_dividends_' . $userId])->flush();
+                \Cache::tags(['user_dashboard_' . $userId])->flush();
+                \Cache::tags(['user_stocks_' . $userId])->flush();
+            }
+
+            \Log::info("Cleared user caches for stock {$stock->id}, users: " . $usersWithStock->count());
+        } catch (\Exception $e) {
+            \Log::error("Failed to clear user caches after dividend for stock {$stock->id}: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Clear global caches after complete time skip
+     * Ensures all dashboard data is refreshed
+     */
+    private static function clearGlobalCachesAfterTimeSkip()
+    {
+        try {
+            \Cache::tags(['dividends', 'dashboard', 'stocks', 'prices'])->flush();
+            \Log::info("Global caches cleared after time skip completion");
+        } catch (\Exception $e) {
+            \Log::error("Failed to clear global caches after time skip: " . $e->getMessage());
         }
     }
 }

@@ -35,7 +35,8 @@ class StockController extends Controller
                 'land' => $stock->land,
                 'price' => $stock->getCurrentPrice(),
                 'dividend_amount' => $stock->getCurrentDividendAmount(),
-                'next_dividend_date' => $stock->calculateNextDividendDate()->toDateString(),
+
+                'next_dividend_date' => $stock->calculateNextDividendDateAtCurrentGameTime()?->toDateString() ?? $stock->calculateNextDividendDate()?->toDateString(),
             ];
         });
 

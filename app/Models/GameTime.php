@@ -28,17 +28,37 @@ class GameTime extends Model
         return $this->hasMany(Transaction::class);
     }
 
+
     public static function getCurrentGameTime(): ?GameTime
     {
-        // Aktuellsten Price-Eintrag holen
-        $currentPrice = Price::latest('game_time_id')->first();
+        try {
+            // 1️⃣ Aktuellsten Price-Eintrag holen (zuverlässigste Methode)
+            $currentPrice = Price::latest('game_time_id')->first();
+            if ($currentPrice && $currentPrice->gameTime) {
+                \Log::debug("GameTime::getCurrentGameTime - Using price-based current time: {$currentPrice->gameTime->name}");
+                return $currentPrice->gameTime;
+            }
 
-        if ($currentPrice) {
-            return $currentPrice->gameTime;
+            // 2️⃣ Fallback: Neuesten GameTime basierend auf ID
+            $latestGT = self::latest('id')->first();
+            if ($latestGT) {
+                \Log::debug("GameTime::getCurrentGameTime - Using latest GT by ID: {$latestGT->name}");
+                return $latestGT;
+            }
+
+            \Log::warning("GameTime::getCurrentGameTime - No game time found");
+            return null;
+
+        } catch (\Exception $e) {
+            \Log::error("GameTime::getCurrentGameTime - Error: " . $e->getMessage());
+            // Fallback: Den neuesten GameTime zurückgeben
+            try {
+                return self::latest('id')->first();
+            } catch (\Exception $e2) {
+                \Log::error("GameTime::getCurrentGameTime - Fallback also failed: " . $e2->getMessage());
+                return null;
+            }
         }
-
-        // Fallback: Falls kein Price existiert, den neuesten GameTime zurückgeben
-        return self::latest('id')->first();
     }
 
 

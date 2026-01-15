@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -15,6 +16,7 @@ use App\Helpers\AuthHelper;
 
 use App\Models\Farm;
 use App\Models\User;
+
 use App\Models\Bank;
 
 
@@ -60,11 +62,13 @@ class FarmController extends Controller
 
 
 
+
+
     public function sendNewFarm(Request $request){
 
         if(Farm::where('name', $request->input('name'))->exists())
         {
-            return redirect()->back()->with('error', 'Der Hof exestiert bereits.');
+            return redirect()->back()->with('error', 'Der Hof existiert bereits.');
         }
 
         // Farm-Besitzer validieren
@@ -98,8 +102,16 @@ class FarmController extends Controller
             'user_role_id' => 1,
         ]]);
         
+        if ($request->input('apiMod')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Hof erfolgreich in Datenbank angelegt',
+                'db_id' => $farm->id
+            ], 201);
+        }
 
-        return redirect()->route('farm.index')->with('success' , 'Die neue Farm wurde erfolgreich erstellt.');
+        return redirect()->route('farm.index')->with('success', 'Die neue Farm wurde erfolgreich erstellt.');
+
     }
 
     public function farmUserInvite()
@@ -174,10 +186,10 @@ class FarmController extends Controller
         \Log::info("Farm invite notification created for user {$user->id} for farm {$farm->name} by inviter {$inviter->name}");
     }
 
+
+
     public function management()
     {
-
-
         return view('farm.management');
     }
 
@@ -400,5 +412,10 @@ class FarmController extends Controller
             \Log::info("Farm {$farm->id} ({$farm->name}) deleted - no active members remaining");
         }
     }
+
+
+
+
+    ///test api
 
 }
