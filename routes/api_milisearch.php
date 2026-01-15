@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
+use App\Http\Controllers\Api\UserController;
 
 Route::get('/search/users', function () {
     $q = request('q');
@@ -46,3 +47,4 @@ Route::get('/search/farms', function () {
         ->take(10)
         ->get(['id', 'name', 'email']);
 })->name('api.search.farms');
+

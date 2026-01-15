@@ -1,0 +1,23 @@
+services:
+  proxy:
+    image: nginx:stable
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf:ro
+      # mount certificate files (adjust host paths if different)
+      - /etc/ssl/no-ip/woodlypi.crt:/etc/ssl/certs/woodlypi.crt:ro
+      - /etc/ssl/no-ip/meine_domain.key:/etc/ssl/private/woodlypi.key:ro
+    networks:
+      - sail
+
+# This compose file only runs the nginx reverse proxy. It attaches to the
+# existing external Docker network created by the LS25 project. Use the
+# concrete network name to avoid Docker complaining that the external network
+# cannot be found.
+networks:
+  sail:
+    external:
+      name: ls25-aktionmarkt_sail

@@ -1,57 +1,35 @@
-# TODO: Vollständige Mehrsprachigkeit für Laravel Aktionmarkt
+# Aktien Sortierung Implementation
 
-## 🎯 ZIEL
-Alle hardcodierten Texte in der gesamten Anwendung durch mehrsprachige __() Funktionen ersetzen
+## Aufgabe
+Implementierung von Sortierfunktion für die Aktientabelle mit folgenden Anforderungen:
+- Klick auf "Sektor" → Sortierung A-Z, Doppelklick → Z-A
+- Klick auf "Aktueller Preis" → günstig zu teuer, Doppelklick → teuer zu günstig  
+- Klick auf "Dividende" → niedrig zu hoch, Doppelklick → hoch zu niedrig
 
-## 📋 ARBEITSSCHRITTE
+## Schritte
 
+### 1. JavaScript Sortierung implementieren
+- [x] Sortierungslogik in der Blade-Datei hinzufügen
+- [x] Click-Handler für Tabellenspalten implementieren
+- [x] Sortier-Indikatoren (Pfeile) hinzufügen
+- [x] Client-side Sortierung der vorhandenen Daten
 
-### ✅ Phase 1: Analyse & Sammlung (ABGESCHLOSSEN)
-- [x] Bestehende Sprachstruktur analysiert
-- [x] View-Dateien nach hardcodierten Texten durchsucht
-- [x] Umfang der Arbeit erfasst
+### 2. Tabellenspalten erweitern
+- [x] Sortierbare Header mit Click-Handlers erstellen
+- [x] CSS für Sortier-Indikatoren hinzufügen
+- [x] Daten-Attribute für Sortierung hinzufügen
 
-### ✅ Phase 2: Sprachdateien erweitern (ABGESCHLOSSEN)
-- [x] Grundlegende deutsche Übersetzungen hinzugefügt
-- [x] Grundlegende englische Übersetzungen hinzugefügt  
-- [x] Grundlegende niederländische Übersetzungen hinzugefügt
+### 3. Backend-Sortierung (optional)
+- [x] StockController erweitern um Sortier-Parameter zu verarbeiten (nicht benötigt für Client-side)
+- [x] AJAX-Endpunkt für serverseitige Sortierung (nicht benötigt für Client-side)
 
+### 4. Testing
+- [x] Sortierung testen für alle drei Spalten
+- [x] Doppelklick-Verhalten testen
+- [x] Responsive Design prüfen
 
-### 🔄 Phase 3: View-Dateien aktualisieren (IN ARBEIT)
-- [x] farm/index.blade.php - VOLLSTÄNDIG BEARBEITET (alle Texte mehrsprachig)
-- [ ] farm/invitations.blade.php
-- [ ] farm/leave-farm-confirmation.blade.php  
-- [ ] farm/newFarm.blade.php
-- [ ] Navigation & Layout-Dateien
-- [ ] Dashboard & Übersichtsseiten
-- [ ] Admin-Bereich (Users, Stocks, Dividends, etc.)
-- [ ] Depot & Trading
-- [ ] Auth-Bereich (Login, Register, etc.)
-- [ ] Profile & Settings
-- [ ] Komponenten
-- [ ] Alle anderen Views
-- [ ] Navigation & Layout-Dateien
-- [ ] Dashboard & Übersichtsseiten
-- [ ] Admin-Bereich (Users, Stocks, Dividends, etc.)
-- [ ] Farm-Management
-- [ ] Depot & Trading
-- [ ] Auth-Bereich (Login, Register, etc.)
-- [ ] Profile & Settings
-- [ ] Komponenten
-- [ ] Alle anderen Views
-
-### 🔄 Phase 4: Language Switch System (GEPLANT)
-- [ ] Language Switch Dropdown in Navigation
-- [ ] Controller für Sprachwechsel
-- [ ] Middleware für automatische Sprachsetzung
-- [ ] Routes für Sprachwechsel
-
-### 🔄 Phase 5: Testing & Validierung (GEPLANT)
-- [ ] Alle Sprachen testen
-- [ ] Funktionalität validieren
-- [ ] Fehlende Übersetzungen ergänzen
-
-## 📊 STATUS
-- **Gesamt:** ~150+ View-Dateien zu bearbeiten
-- **Sprachen:** DE, EN, NL
-- **Fortschritt:** 5% abgeschlossen
+## Technische Details
+- Client-side Sortierung mit JavaScript
+- Verwendung von data-Attributen für Sortierung
+- Alpine.js oder Vanilla JavaScript
+- CSS-Transitions für smooth UX

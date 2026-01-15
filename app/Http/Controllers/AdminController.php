@@ -198,7 +198,7 @@ class AdminController extends Controller
 
     public function usersEdit(User $user)
     {
-        dd($user->roles()->get());
+        $user->roles()->get();
         $userRole = $user->roles()->get()->first()->name;
         $roles = \App\Models\Role::all();
         return view('admin.users.edit', compact('user', 'roles', 'userRole'));

@@ -380,6 +380,8 @@ Mit ihrem umfassenden Macht-Netzwerk gilt Try Soft als wirtschaftliche Supermach
          'dividend_frequency' => 0
     ]]);
 
+
+
     return $stocks;
 }
 

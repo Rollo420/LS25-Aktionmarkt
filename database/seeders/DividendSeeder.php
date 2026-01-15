@@ -25,7 +25,7 @@ class DividendSeeder extends Seeder
             \App\Models\Dividend::create([
                 'stock_id' => $stock->id,
                 'game_time_id' => $currentGameTime->id,
-                'amount_per_share' => fake()->randomFloat(2, 0.1, 1.0),
+                'amount_per_share' => fake()->randomFloat(2, 0.01, 1.0),
             ]);
 
             // Erstelle weitere Dividenden mit calculateNextDividendDate
